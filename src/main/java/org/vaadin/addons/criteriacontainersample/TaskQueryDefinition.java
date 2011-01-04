@@ -14,8 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
-
-import com.xwave.container.data.Task_;
+import org.vaadin.addons.criteriacontainersample.data.Task_;
 
 /**
  * Type-safe implementation of a query definition.
@@ -29,10 +28,10 @@ import com.xwave.container.data.Task_;
 @SuppressWarnings("serial")
 public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 
-	/** Placeholder to filter on name */
+	/** parameter to be set at query time */
 	private ParameterExpression<String> nameFilter;
 	
-	/** Value that will restrict the name (SQL like expression) */
+	/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 	private String nameFilterValue;
 
 	@SuppressWarnings("unused")
@@ -48,27 +47,36 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	}
 	
 
-	/* Define filtering conditions for the query.
+	/**
+	 * Define filtering conditions for the query.
 	 * 
-	 * This example shows how to add a parameterized to the query so the query does not have to be changed.
-	 * The current implementation of the factory always gives a new query on refresh(), so this does not
-	 * do much, but this proves the concept. 
-	 * 
-	 * @see org.vaadin.addons.criteriacontainer.CritQueryDefinition#addParameters(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery, javax.persistence.criteria.Root)
+	 * If the {@link CriteriaBuilder#parameter(Class)} is used in this method, then
+	 * the {@link #setParameters(TypedQuery)} method must set the parameter values.
+	 * Note that using parameters is currently not very useful, because the refresh() method
+	 * throws out the query.
 	 */
 	@Override
 	protected ArrayList<Predicate> addPredicates(ArrayList<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
 		if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
+
+			// This example shows how to add a parameter to the query so the query does not have to be changed.
 			Expression<String> nameField = t.get(Task_.name);
 			nameFilter = cb.parameter(String.class);
 			filterExpressions.add(cb.like(nameField,nameFilter));
+			
+			// the code above does the same as the following.
+//			Expression<String> nameField2 = t.get(Task_.name);
+//			filterExpressions.add(cb.like(nameField2,nameFilterValue));
 		}
 		return filterExpressions;
 
 	}
 	
-	/* Set values for the type-safe parameters
-	 * @see org.vaadin.addons.criteriacontainer.CritQueryDefinition#setParameters(javax.persistence.TypedQuery)
+	/**
+	 * Set values for the parameters used in the predicates.
+	 * 
+	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(ArrayList, CriteriaBuilder, CriteriaQuery, Root)}
+	 * method.
 	 */
 	@Override
 	public TypedQuery<?> setParameters(final TypedQuery<?> tq) {

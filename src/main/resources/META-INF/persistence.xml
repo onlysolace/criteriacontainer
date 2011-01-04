@@ -5,7 +5,7 @@
               http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
 	<persistence-unit name="vaadin-lazyquerycontainer-example" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<class>com.xwave.container.data.Task</class>
+		<class>org.vaadin.addons.criteriacontainersample.data.Task</class>
 		<properties>
 			<property name="hibernate.archive.autodetection" value="class" />
 			<property name="hibernate.format_sql" value="true" />

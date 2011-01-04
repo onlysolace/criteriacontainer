@@ -260,7 +260,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 				// filtering style #2
 				// simple conditions are added to a list and passed to the filter mechanism.
 				final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
-				restrictions.add(new CritRestriction("beta", CritRestriction.Operation.GE, 999));
+				restrictions.add(new CritRestriction("betaz", CritRestriction.Operation.GE, 9996));
 				criteriaContainer.filter(restrictions);
 
 //				// the following filters are not type-safe, but should not interfere.

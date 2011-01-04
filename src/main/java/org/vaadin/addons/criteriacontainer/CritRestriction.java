@@ -17,6 +17,7 @@ package org.vaadin.addons.criteriacontainer;
 
 import java.util.Collection;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
@@ -24,10 +25,15 @@ import javax.persistence.criteria.Predicate;
 
 
 /**
- * Define restrictions to be added to the WHERE clause
+ * Define simple restrictions to be added to the WHERE clause
  * 
- * Required because we cannot create JPA2.0 Expressions independently of an EntityManager.
+ * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager.
+ * This class creates JPA2.0 predicates based on a list of simple criteria.
  * 
+ * This reduces the need to create subclasses of {@link CritQueryDefinition} in order to
+ * define an {@link CritQueryDefinition#addPredicates(java.util.ArrayList, CriteriaBuilder, javax.persistence.criteria.CriteriaQuery, javax.persistence.criteria.Root)
+ * addPredicates} method.  The addPredicates method remains preferred, as it is the only way
+ * to remain fully type-safe.
  * 
  * @author jflamy
  *
@@ -67,81 +73,85 @@ public class CritRestriction {
 	}
 
 	Predicate getPredicate(CriteriaBuilder cb, Path<?> r) {
-		Predicate pred = null;
-		switch (operator) {
-		case EQ: {
-			final Expression<?> expr = r.get(propertyId);
-			pred = cb.equal(expr,value);
-		}
-		break;
-		case GE: {
-			if (value instanceof Number) {
-				final Expression<Number> expr = r.get(propertyId);
-				pred = cb.ge(expr,(Number)value);
-			} else if (value instanceof String) {
-				Expression<String> expr2 = r.get(propertyId).as(String.class);
-				pred = cb.greaterThanOrEqualTo(expr2,(String)value);
+		try {
+			Predicate pred = null;
+			switch (operator) {
+			case EQ: {
+				final Expression<?> expr = r.get(propertyId);
+				pred = cb.equal(expr,value);
 			}
-		}
-		break;
-		case GT: {
-			if (value instanceof Number) {
-				final Expression<Number> expr = r.get(propertyId);
-				pred = cb.gt(expr,(Number)value);
-			} else if (value instanceof String) {
-				Expression<String> expr2 = r.get(propertyId).as(String.class);
-				pred = cb.greaterThan(expr2,(String)value);
+			break;
+			case GE: {
+				if (value instanceof Number) {
+					final Expression<Number> expr = r.get(propertyId);
+					pred = cb.ge(expr,(Number)value);
+				} else if (value instanceof String) {
+					Expression<String> expr2 = r.get(propertyId).as(String.class);
+					pred = cb.greaterThanOrEqualTo(expr2,(String)value);
+				}
 			}
-		}
-		break;
-		case LE: {
-			if (value instanceof Number) {
-				final Expression<Number> expr = r.get(propertyId);
-				pred = cb.le(expr,(Number)value);
-			} else if (value instanceof String) {
-				Expression<String> expr2 = r.get(propertyId).as(String.class);
-				pred = cb.lessThanOrEqualTo(expr2,(String)value);
+			break;
+			case GT: {
+				if (value instanceof Number) {
+					final Expression<Number> expr = r.get(propertyId);
+					pred = cb.gt(expr,(Number)value);
+				} else if (value instanceof String) {
+					Expression<String> expr2 = r.get(propertyId).as(String.class);
+					pred = cb.greaterThan(expr2,(String)value);
+				}
 			}
-		}
-		break;
-		case LT: {
-			if (value instanceof Number) {
-				final Expression<Number> expr = r.get(propertyId);
-				pred = cb.lt(expr,(Number)value);
-			} else if (value instanceof String) {
-				Expression<String> expr2 = r.get(propertyId).as(String.class);
-				pred = cb.lessThan(expr2,(String)value);
+			break;
+			case LE: {
+				if (value instanceof Number) {
+					final Expression<Number> expr = r.get(propertyId);
+					pred = cb.le(expr,(Number)value);
+				} else if (value instanceof String) {
+					Expression<String> expr2 = r.get(propertyId).as(String.class);
+					pred = cb.lessThanOrEqualTo(expr2,(String)value);
+				}
 			}
+			break;
+			case LT: {
+				if (value instanceof Number) {
+					final Expression<Number> expr = r.get(propertyId);
+					pred = cb.lt(expr,(Number)value);
+				} else if (value instanceof String) {
+					Expression<String> expr2 = r.get(propertyId).as(String.class);
+					pred = cb.lessThan(expr2,(String)value);
+				}
+			}
+			break;
+			case LIKE: {
+				final Expression<String> expr = r.get(propertyId);
+				final String val = (String)value;
+				pred = cb.like(expr,val);
+			}
+			break;
+			case IS_NULL: {
+				final Expression<?> expr = r.get(propertyId);
+				pred = cb.isNull(expr);
+			}
+			break;
+			case IS_NOT_NULL: {
+				final Expression<?> expr = r.get(propertyId);
+				pred = cb.isNotNull(expr);
+			}
+			break;
+			case IS_TRUE: {
+				final Expression<Boolean> expr = r.get(propertyId);
+				pred = cb.isTrue(expr);
+			}
+			break;
+			case IS_FALSE: {
+				final Expression<Boolean> expr = r.get(propertyId);
+				pred = cb.isFalse(expr);
+			}
+			break;
+			}
+			return pred;
+		} catch (Exception e) {
+			throw new PersistenceException("Unknown property: "+propertyId,e);
 		}
-		break;
-		case LIKE: {
-			final Expression<String> expr = r.get(propertyId);
-			final String val = (String)value;
-			pred = cb.like(expr,val);
-		}
-		break;
-		case IS_NULL: {
-			final Expression<?> expr = r.get(propertyId);
-			pred = cb.isNull(expr);
-		}
-		break;
-		case IS_NOT_NULL: {
-			final Expression<?> expr = r.get(propertyId);
-			pred = cb.isNotNull(expr);
-		}
-		break;
-		case IS_TRUE: {
-			final Expression<Boolean> expr = r.get(propertyId);
-			pred = cb.isTrue(expr);
-		}
-		break;
-		case IS_FALSE: {
-			final Expression<Boolean> expr = r.get(propertyId);
-			pred = cb.isFalse(expr);
-		}
-		break;
-		}
-		return pred;
 	}
 	
 	/**
