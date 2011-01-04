@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -27,8 +26,9 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 	/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 	private String nameFilterValue;
 
+
 	/**
-	 * 
+	 * Constructor.
 	 * @param applicationManagedTransactions
 	 * @param batchSize
 	 */
@@ -44,11 +44,12 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 	protected List<Predicate> addPredicates(
 			List<Predicate> filterExpressions, 
 			CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
-		if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-			
-			// the code above does the same as the following.
-			Expression<String> nameField2 = t.get(Task_.name);
-			filterExpressions.add(cb.like(nameField2,nameFilterValue));
+		if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+			// WHERE t.name LIKE ...
+			Predicate condition = cb.like(
+					t.get(Task_.name), // t.name
+					nameFilterValue);  // pattern to be matched
+			filterExpressions.add(condition);
 		}
 		return filterExpressions;
 
