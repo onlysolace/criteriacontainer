@@ -6,12 +6,13 @@
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Vaadin Web Application</name>
+	<name>JPA2.0 Criteria Container for Vaadin</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<description>An extension to the Vaadin LazyQueryContainer add-on. Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.</description>
 	<build>
 		<plugins>
 			<plugin>

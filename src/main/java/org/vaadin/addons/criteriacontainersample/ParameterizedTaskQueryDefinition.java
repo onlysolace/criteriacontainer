@@ -19,14 +19,19 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
 /**
  * Type-safe implementation of a query definition.
  * 
- * Uses JPA2.0 Criteria mechanisms to create a safe version of the query that can be validated
- * at compile time.
+ * More complex example that shows how to use parameters.  
+ * 
+ * The method {@link #setParameters(TypedQuery)} shows how to integrate with the parameter
+ * management done by the container.
+ * 
+ * The method {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)} shows how
+ * to integrated with additional filtering that can be performed by the container.
  * 
  * @author jflamy
  *
  */
 @SuppressWarnings("serial")
-public class ParameterTaskQueryDefinition extends CritQueryDefinition<Task> {
+public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/** parameter to be set at query time */
 	private ParameterExpression<String> nameFilter;
@@ -35,14 +40,14 @@ public class ParameterTaskQueryDefinition extends CritQueryDefinition<Task> {
 	private String nameFilterValue;
 
 	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(ParameterTaskQueryDefinition.class);
+	final static private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 
 	/**
 	 * 
 	 * @param applicationManagedTransactions
 	 * @param batchSize
 	 */
-	public ParameterTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
+	public ParameterizedTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
 		super(applicationManagedTransactions, Task.class, batchSize);
 	}
 	
@@ -63,10 +68,6 @@ public class ParameterTaskQueryDefinition extends CritQueryDefinition<Task> {
 			Expression<String> nameField = t.get(Task_.name);
 			nameFilter = cb.parameter(String.class);
 			filterExpressions.add(cb.like(nameField,nameFilter));
-			
-			// the code above does the same as the following.
-//			Expression<String> nameField2 = t.get(Task_.name);
-//			filterExpressions.add(cb.like(nameField2,nameFilterValue));
 		}
 		return filterExpressions;
 

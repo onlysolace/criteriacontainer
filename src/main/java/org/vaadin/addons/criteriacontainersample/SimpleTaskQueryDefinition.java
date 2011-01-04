@@ -55,6 +55,7 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	}
 	
+	/* getters and setters */
 	
 	public String getNameFilterValue() {
 		return nameFilterValue;

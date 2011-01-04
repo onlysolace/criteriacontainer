@@ -61,7 +61,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(MyVaadinApplication.class);
 
-	private ParameterTaskQueryDefinition cd;
+	private SimpleTaskQueryDefinition cd;
 
 	@Override
 	public void init() {
@@ -156,7 +156,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 
 		entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
 
-		cd = new ParameterTaskQueryDefinition(true,100);
+		cd = new SimpleTaskQueryDefinition(true,100);
 		criteriaContainer = new CriteriaContainer<Task>(
 				cd,
 				new CritQueryFactory<Task>(entityManager)
@@ -256,13 +256,13 @@ public class MyVaadinApplication extends Application implements ClickListener {
 				// the query has its own specific mechanism for setting the filters up.
 				cd.setNameFilterValue(nameFilterValue);
 				// do not refresh if calling "filter()" later.
-				//criteriaContainer.refresh();
+				criteriaContainer.refresh();
 				
 				// filtering style #2
 				// simple conditions are added to a list and passed to the filter mechanism.
-				final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
-				restrictions.add(new CritRestriction("betaz", CritRestriction.Operation.GE, 9996));
-				criteriaContainer.filter(restrictions);
+//				final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
+//				restrictions.add(new CritRestriction("betaz", CritRestriction.Operation.GE, 9996));
+//				criteriaContainer.filter(restrictions);
 			} else {
 				cd.setNameFilterValue(null);
 				criteriaContainer.filter((LinkedList<CritRestriction>)null);          
