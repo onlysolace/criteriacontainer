@@ -61,7 +61,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(MyVaadinApplication.class);
 
-	private TaskQueryDefinition cd;
+	private ParameterTaskQueryDefinition cd;
 
 	@Override
 	public void init() {
@@ -156,7 +156,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 
 		entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
 
-		cd = new TaskQueryDefinition(true,100);
+		cd = new ParameterTaskQueryDefinition(true,100);
 		criteriaContainer = new CriteriaContainer<Task>(
 				cd,
 				new CritQueryFactory<Task>(entityManager)

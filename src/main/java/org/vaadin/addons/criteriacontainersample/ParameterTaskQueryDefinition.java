@@ -1,6 +1,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -26,7 +26,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  *
  */
 @SuppressWarnings("serial")
-public class TaskQueryDefinition extends CritQueryDefinition<Task> {
+public class ParameterTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/** parameter to be set at query time */
 	private ParameterExpression<String> nameFilter;
@@ -35,14 +35,14 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	private String nameFilterValue;
 
 	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(TaskQueryDefinition.class);
+	final static private Logger logger = LoggerFactory.getLogger(ParameterTaskQueryDefinition.class);
 
 	/**
 	 * 
 	 * @param applicationManagedTransactions
 	 * @param batchSize
 	 */
-	public TaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
+	public ParameterTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
 		super(applicationManagedTransactions, Task.class, batchSize);
 	}
 	
@@ -56,7 +56,7 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	 * throws out the query.
 	 */
 	@Override
-	protected ArrayList<Predicate> addPredicates(ArrayList<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
+	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
 		if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
 
 			// This example shows how to add a parameter to the query so the query does not have to be changed.
@@ -75,7 +75,7 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	/**
 	 * Set values for the parameters used in the predicates.
 	 * 
-	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(ArrayList, CriteriaBuilder, CriteriaQuery, Root)}
+	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)}
 	 * method.  Should call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
 	 */
 	@Override
