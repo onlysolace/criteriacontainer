@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Jean-François Lamy
+ * Copyright 2011 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,6 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 //	 */
 //	@Override
 //	public int size() {
-//      //FIXME: does not use filters from the container
 //		final EntityManager em = getQueryFactory().getEntityManager();
 //		TypedQuery<Long> qd = getQueryDefinition().getCountQuery(em);
 //		return qd.getSingleResult().intValue();

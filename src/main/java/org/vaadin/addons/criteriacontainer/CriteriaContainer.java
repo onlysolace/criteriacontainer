@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Jean-François Lamy
+ * Copyright 2011 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainer;
 
 import java.util.LinkedList;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -78,15 +77,6 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
     			new CritQueryFactory<T>(entityManager));
     }
     
-    /**
-     * Filters the container content by setting "where" criteria in the JPA Criteria.
-     * @param whereParameters the where parameters to set to JPA query or null to clear.
-     */
-    @SuppressWarnings("unchecked")
-	public void filter(final Map<String, Object> whereParameters) {
-        ((CritQueryDefinition<T>) getQueryView().getQueryDefinition()).setWhereParameters(whereParameters);
-        refresh();
-    }
     
 	/**
 	 * Filters the container content by setting "where" criteria in the JPA Criteria.

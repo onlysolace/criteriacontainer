@@ -255,24 +255,17 @@ public class MyVaadinApplication extends Application implements ClickListener {
 				// filtering style #1: query definition includes type safe filters.
 				// the query has its own specific mechanism for setting the filters up.
 				cd.setNameFilterValue(nameFilterValue);
-//				criteriaContainer.refresh();
+				// do not refresh if calling "filter()" later.
+				//criteriaContainer.refresh();
 				
 				// filtering style #2
 				// simple conditions are added to a list and passed to the filter mechanism.
 				final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
 				restrictions.add(new CritRestriction("betaz", CritRestriction.Operation.GE, 9996));
 				criteriaContainer.filter(restrictions);
-
-//				// the following filters are not type-safe, but should not interfere.
-//				final Map<String, Object> whereParameters = new HashMap<String, Object>();
-//				whereParameters.put("reporter", "reporter-999");
-//				criteriaContainer.filter(
-//						//"e.name=:name", 
-//				        whereParameters);
 			} else {
 				cd.setNameFilterValue(null);
-				criteriaContainer.filter((LinkedList<CritRestriction>)null);
-//				criteriaContainer.refresh();           
+				criteriaContainer.filter((LinkedList<CritRestriction>)null);          
 			}
 		}
 		if (event.getButton() == editButton) {

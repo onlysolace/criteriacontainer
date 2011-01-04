@@ -76,10 +76,11 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	 * Set values for the parameters used in the predicates.
 	 * 
 	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(ArrayList, CriteriaBuilder, CriteriaQuery, Root)}
-	 * method.
+	 * method.  Should call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
 	 */
 	@Override
 	public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
+		super.setParameters(tq);
 		if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
 			tq.setParameter(nameFilter, nameFilterValue);
 		}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Jean-François Lamy
+ * Copyright 2011 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@ package org.vaadin.addons.criteriacontainer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -53,7 +50,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	protected boolean[] nativeSortPropertyAscendingStates;
 	protected Object[] sortPropertyIds;
 	protected boolean[] sortPropertyAscendingStates;
-	protected Map<String, Object> whereParameters;
+	protected Map<String, Object> namedParameterValues;
 	
 	private ArrayList<Order> ordering;
 	private ArrayList<Predicate> filterExpressions;
@@ -120,8 +117,6 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		Root<T> t = defineQuery(cb, nb);
 		nb.select(cb.count(t));
 		final TypedQuery<Long> countQuery = em.createQuery(nb);
-		// the container deals with the parameter values set through the filter() method
-		// so we only handle those that we add ourselves
 		setParameters(countQuery);
 		return countQuery;
 	}
@@ -194,8 +189,8 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
     /**
      * @return the whereParameters
      */
-    public final Map<String, Object> getWhereParameters() {
-    	return whereParameters;
+    public final Map<String, Object> getNamedParameterValues() {
+    	return namedParameterValues;
     }
 
 
@@ -226,15 +221,15 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	}
 
 	/**
-	 * Sets the where criteria. Where keyword is not to be included.
+	 * Sets named parameter values
 	 * 
 	 * @param whereCriteria
 	 *            the where criteria to be included in JPA query.
-	 * @param whereParameters
+	 * @param namedParameterValues
 	 *            the where parameters to set to JPA query.
 	 */
-	public final void setWhereParameters(final Map<String, Object> whereParameters) {
-		this.whereParameters = whereParameters;
+	public final void setNamedParameterValues(final Map<String, Object> namedParameterValues) {
+		this.namedParameterValues = namedParameterValues;
 	}
 
 	/**
@@ -268,38 +263,6 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		return filterExpressions;
 	}
 
-	/**
-	 * Prepare the query so that {@link CriteriaContainer#filter(Map)} works.
-	 * 
-	 * For each field named in the whereParameters map, create a parameter place holder
-	 * in the query.  There is no setFilterParameters method, the container does the
-	 * processing in the filter() method.
-	 * @param filterExpressions 
-	 * 
-	 * @param cb
-	 * @param cq
-	 * @param t
-	 * @return 
-	 */
-	protected ArrayList<Predicate> addFilterParameters(ArrayList<Predicate> filterExpressions, CriteriaBuilder cb,
-			CriteriaQuery<?> cq, Root<T> t) {
-		if (whereParameters == null) return filterExpressions;
-		
-		for (Entry<String, Object> curItem : whereParameters.entrySet() ) {
-			// add the equivalent of      where t.field = ":placeHolderName"
-			// we use the same name in both locations -- where t.field = ":field"
-			final String curName = curItem.getKey();
-			try {
-				Expression<String> field = t.get(curName);
-				ParameterExpression<String> placeHolder = cb.parameter(String.class, curName);
-				filterExpressions.add(cb.like(field,placeHolder));
-			} catch (Exception e) {
-				throw new RuntimeException(curName+" not found");
-			}
-		}
-		return filterExpressions;
-		
-	}
 
 	/**
 	 * Create conditions in the query
@@ -336,9 +299,6 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		// predicates created from CriteriaContainer.filter()
 		filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
 		
-		// predicates created from CriteriaContainer.filter() (old-style)
-		filterExpressions = addFilterParameters(filterExpressions,cb, cq, t);
-		
 		// peculiar call to toArray with argument is required to cast all the elements.
 		final Predicate[] array = getFilterExpressions().toArray(new Predicate[]{});
 		
@@ -351,13 +311,17 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Set parameters values.
 	 * 
-	 * Provide values for the placeHolders defined in the {@link #addParameters(CriteriaBuilder, CritQuery, Root)}
-	 * method. The container will handle those defined with the filter() method of the container.
-	 * This method is overridden by subclasses (see also{@link #addParameters(CriteriaBuilder, CritQuery, Root)})
+	 * Provide values for the named parameters defined via{@link #setNamedParameterValues(java.util.Map)}.
+	 * This method is overridden by subclasses that define additional parameters.
 	 * 
 	 * @param tq
 	 */
 	protected TypedQuery<?> setParameters(TypedQuery<?> tq) {
+        if (namedParameterValues != null) {
+            for (String parameterKey : namedParameterValues.keySet()) {
+            	tq.setParameter(parameterKey, namedParameterValues.get(parameterKey));
+            }
+        }
 		return tq;
 	}
 	

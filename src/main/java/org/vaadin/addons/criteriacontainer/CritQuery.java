@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Jean-François Lamy
+ * Copyright 2011 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -51,8 +50,6 @@ public final class CritQuery<T> implements Query, Serializable {
     private TypedQuery<T> selectQuery;
     /** The JPA select count query. */
     private TypedQuery<Long> selectCountQuery;
-    /** The parameters to set to JPA query. */
-    private Map<String, Object> selectParameters;
     /** QueryDefinition contains definition of the query properties and batch size. */
     private CritQueryDefinition<T> queryDefinition;
     /** The size of the query. */
@@ -69,7 +66,6 @@ public final class CritQuery<T> implements Query, Serializable {
         this.entityManager = entityManager;
         this.selectQuery = criteriaQueryDefinition.getSelectQuery(entityManager);
         this.selectCountQuery = criteriaQueryDefinition.getCountQuery(entityManager);
-        this.selectParameters = criteriaQueryDefinition.getWhereParameters();
         this.applicationTransactionManagement = criteriaQueryDefinition.isApplicationManagedTransactions();
     }
 
@@ -101,12 +97,8 @@ public final class CritQuery<T> implements Query, Serializable {
      */
     @Override
 	public int size() {
+    	// TODO: should the parameters be set here or in the query definition
         if (querySize == -1) {
-            if (selectParameters != null) {
-                for (String parameterKey : selectParameters.keySet()) {
-                	selectCountQuery.setParameter(parameterKey, selectParameters.get(parameterKey));
-                }
-            }
             querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
         }
         return querySize;
@@ -120,11 +112,7 @@ public final class CritQuery<T> implements Query, Serializable {
      */
     @Override
 	public List<Item> loadItems(final int startIndex, final int count) {
-        if (selectParameters != null) {
-            for (String parameterKey : selectParameters.keySet()) {
-                selectQuery.setParameter(parameterKey, selectParameters.get(parameterKey));
-            }
-        } 
+    	// TODO: should the parameters be set here or in the query definition
         selectQuery.setFirstResult(startIndex);
         selectQuery.setMaxResults(count);
 
