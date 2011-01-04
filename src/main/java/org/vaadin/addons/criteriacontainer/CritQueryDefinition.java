@@ -17,6 +17,7 @@ package org.vaadin.addons.criteriacontainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -53,7 +54,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	protected Map<String, Object> namedParameterValues;
 	
 	private ArrayList<Order> ordering;
-	private ArrayList<Predicate> filterExpressions;
+	private List<Predicate> filterExpressions;
 	private Collection<CritRestriction> restrictions;
 	
 	@SuppressWarnings("unused")
@@ -129,7 +130,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		return entityClass;
 	}
 
-	public ArrayList<Predicate> getFilterExpressions() {
+	public List<Predicate> getFilterExpressions() {
 		return filterExpressions;
 	}
 
@@ -144,7 +145,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 *            List of sort direction for the properties.
 	 * @return 
 	 */
-	public final ArrayList<Order> getOrdering(Path<T> t, CriteriaBuilder cb) {
+	public final List<Order> getOrdering(Path<T> t, CriteriaBuilder cb) {
         if (sortPropertyIds == null || sortPropertyIds.length == 0) {
             sortPropertyIds = nativeSortPropertyIds;
             sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
@@ -175,7 +176,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
     	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> t = defineQuery(cb, cq);
-		final ArrayList<Order> ordering = getOrdering(t, cb);
+		final List<Order> ordering = getOrdering(t, cb);
 		if (ordering != null) {
 			cq.orderBy(ordering);
 		}
@@ -255,7 +256,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * @param t
 	 * @return 
 	 */
-	protected ArrayList<Predicate> addFilterRestrictions(ArrayList<Predicate> filterExpressions, CriteriaBuilder cb,
+	protected List<Predicate> addFilterRestrictions(List<Predicate> filterExpressions, CriteriaBuilder cb,
 			CriteriaQuery<?> cq, Root<T> t) {
 		if (restrictions != null) {
 			filterExpressions.add(CritRestriction.getPredicate(restrictions, cb, t));
@@ -275,7 +276,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * @param t
 	 * @return 
 	 */
-	protected ArrayList<Predicate> addPredicates(ArrayList<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<T> t) {
+	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<T> t) {
 		// do nothing, will be overridden by classes that need it.
 		return filterExpressions;
 	}
