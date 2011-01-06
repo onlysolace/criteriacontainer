@@ -73,11 +73,11 @@
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
 		<repository>
@@ -88,7 +88,7 @@
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
 		<repository>
