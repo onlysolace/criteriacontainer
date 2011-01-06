@@ -6,7 +6,7 @@
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>war</packaging>
 	<version>0.1.1</version>
-	<name>JPA2.0 Criteria Container for Vaadin</name>
+	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,42 +24,18 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-
-			<!-- Compile custom GWT components or widget dependencies with the GWT 
-				compiler -->
-			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
-				<version>1.3-SNAPSHOT</version> <configuration> <webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory> 
-				<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs> <runTarget>container</runTarget> 
-				<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp> 
-				<noServer>true</noServer> <port>8080</port> <soyc>false</soyc> </configuration> 
-				<executions> <execution> <goals> <goal>resources</goal> <goal>compile</goal> 
-				</goals> </execution> </executions> </plugin> <plugin> <groupId>com.vaadin</groupId> 
-				<artifactId>vaadin-maven-plugin</artifactId> <version>1.0.1</version> <executions> 
-				<execution> <configuration> </configuration> <goals> <goal>update-widgetset</goal> 
-				</goals> </execution> </executions> </plugin> -->
-
-			<!-- A simple Jetty test server at http://localhost:8080/owlcms can be 
-				launched with the Maven goal jetty:run and stopped with jetty:stop -->
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>7.2.0.v20101020</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-					<stopPort>9966</stopPort>
-					<stopKey>${project.artifactId}</stopKey>
-					<!-- Redeploy every x seconds if changes are detected, 0 for no automatic 
-						redeployment -->
-					<scanIntervalSeconds>0</scanIntervalSeconds>
-					<reload>manual</reload>
-					<webAppConfig>
-						<contextPath>/${project.artifactId}</contextPath>
-					</webAppConfig>
-					<systemProperties>
-						<systemProperty>
-							<name>net.sf.ehcache.skipUpdateCheck</name>
-							<value>true</value>
-						</systemProperty>
-					</systemProperties>
+					<archive>
+						<manifestEntries>
+							<Implementation-Title>JPA Criteria Lazy Container</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Vaadin-Package-Version>1</Vaadin-Package-Version>
+							<License-Title>Apache License 2.0</License-Title>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -105,12 +81,12 @@
 		</repository>
 	</repositories>
 
-	<!-- <pluginRepositories> <pluginRepository> <id>codehaus-snapshots</id> 
-		<url>http://nexus.codehaus.org/snapshots</url> <snapshots> <enabled>true</enabled> 
-		</snapshots> <releases> <enabled>false</enabled> </releases> </pluginRepository> 
-		<pluginRepository> <id>vaadin-snapshots</id> <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> 
-		<snapshots> <enabled>true</enabled> </snapshots> <releases> <enabled>false</enabled> 
-		</releases> </pluginRepository> </pluginRepositories> -->
+	<parent>
+		<groupId>org.vaadin.addons</groupId>
+		<artifactId>criteriaparent</artifactId>
+		<version>0.1.1</version>
+		<relativePath>../criteriaparent</relativePath>
+	</parent>
 
 	<dependencies>
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
@@ -121,8 +97,8 @@
 			<artifactId>vaadin</artifactId>
 			<version>6.5-SNAPSHOT</version>
 		</dependency>
-		<!-- we put this dependency first so it satisfies javax.persistance 
-			 this version provides the javadoc -->
+		<!-- we put this dependency first so it satisfies javax.persistance this 
+			version provides the javadoc -->
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
