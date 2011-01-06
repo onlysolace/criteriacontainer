@@ -52,7 +52,6 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 			filterExpressions.add(condition);
 		}
 		return filterExpressions;
-
 	}
 	
 	/* getters and setters */

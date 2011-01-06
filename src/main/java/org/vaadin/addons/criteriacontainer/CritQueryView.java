@@ -36,6 +36,7 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 
 	private LazyQueryView lazyQueryView;
 	private CritQueryFactory<T> queryFactory;
+	private CritQueryDefinition<T> queryDefinition;
 	
 
     /**
@@ -47,33 +48,14 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
      */
     public CritQueryView(final CritQueryDefinition<T> queryDefinition, final CritQueryFactory<T> queryFactory) {
     	this.queryFactory = queryFactory;
+    	this.queryDefinition = queryDefinition;
         lazyQueryView = new LazyQueryView(queryDefinition, queryFactory);
     }
-    
-
-//	/* Modified to use the counting view available through the queryDefinition.
-//	 * @see org.vaadin.addons.lazyquerycontainer.QueryView#size()
-//	 */
-//	@Override
-//	public int size() {
-//		final EntityManager em = getQueryFactory().getEntityManager();
-//		TypedQuery<Long> qd = getQueryDefinition().getCountQuery(em);
-//		return qd.getSingleResult().intValue();
-//	}
 
 	
 	/* ----------------------------------------------------------------------------------------
 	 * Additional methods
 	 */
-	
-//	/* Use the counting view available through the queryDefinition.
-//	 * @see org.vaadin.addons.lazyquerycontainer.QueryView#size()
-//	 */
-//	public Long sizeAsLong() {
-//		final EntityManager em = getQueryFactory().getEntityManager();
-//		TypedQuery<Long> qd = getQueryDefinition().getCountQuery(em);
-//		return qd.getSingleResult();
-//	}
 	
 	public void setLazyQueryView(LazyQueryView lazyQueryView) {
 		this.lazyQueryView = lazyQueryView;
@@ -87,8 +69,6 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 		return queryFactory;
 	}
 
-
-	
 	
 	
 	/* ----------------------------------------------------------------------------------------
@@ -110,10 +90,9 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 		return lazyQueryView.equals(obj);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public CritQueryDefinition<T> getQueryDefinition() {
-		return (CritQueryDefinition<T>) lazyQueryView.getQueryDefinition();
+		return queryDefinition;
 	}
 
 	public int getBatchSize() {
@@ -132,7 +111,8 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 
 	@Override
 	public void sort(Object[] sortPropertyIds, boolean[] ascendingStates) {
-		lazyQueryView.sort(sortPropertyIds, ascendingStates);
+		queryDefinition.setSortState(sortPropertyIds, ascendingStates);
+        refresh();
 	}
 
 	@Override
