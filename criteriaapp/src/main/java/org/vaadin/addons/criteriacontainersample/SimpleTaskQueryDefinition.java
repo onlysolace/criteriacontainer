@@ -8,6 +8,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
 
@@ -16,6 +17,8 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * 
  * Uses JPA2.0 Criteria mechanisms to create a safe version of the query that can be validated
  * at compile time.
+ * 
+ * This version integrates with the filter() mechanism.
  * 
  * @author jflamy
  *
@@ -39,6 +42,9 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/**
 	 * Define filtering conditions for the query.
+	 * 
+	 * A list of predicates is created. The container will add these predicates to those created by the
+	 * {@link CriteriaContainer#filter(java.util.LinkedList)} mechanism.
 	 */
 	@Override
 	protected List<Predicate> addPredicates(

@@ -25,7 +25,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * management done by the container.
  * 
  * The method {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)} shows how
- * to integrated with additional filtering that can be performed by the container.
+ * to integrate with additional filtering that can be performed by the container.
  * 
  * @author jflamy
  *
@@ -43,7 +43,7 @@ public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> 
 	final static private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 
 	/**
-	 * 
+	 * Constructor.
 	 * @param applicationManagedTransactions
 	 * @param batchSize
 	 */
@@ -53,12 +53,10 @@ public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> 
 	
 
 	/**
-	 * Define filtering conditions for the query.
+	 * Define the WHERE clause conditions specific to this query.
 	 * 
-	 * If the {@link CriteriaBuilder#parameter(Class)} is used in this method, then
-	 * the {@link #setParameters(TypedQuery)} method must set the parameter values.
-	 * Note that using parameters is currently not very useful, because the refresh() method
-	 * throws out the query.
+	 * In this example, the {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
+	 * place holder.  In such a case, the {@link #setParameters(TypedQuery)} method must set the parameter values.
 	 */
 	@Override
 	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
@@ -77,7 +75,7 @@ public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> 
 	 * Set values for the parameters used in the predicates.
 	 * 
 	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)}
-	 * method.  Should call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
+	 * method.  Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
 	 */
 	@Override
 	public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
