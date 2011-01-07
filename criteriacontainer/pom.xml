@@ -50,22 +50,19 @@
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
 		<repository>
 			<id>vaadin-snapshots</id>
 			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
 			<releases>
-				<updatePolicy>daily</updatePolicy>
+				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
 		<repository>
@@ -73,21 +70,12 @@
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
 	</repositories>
-
-	<parent>
-		<groupId>org.vaadin.addons</groupId>
-		<artifactId>criteriaparent</artifactId>
-		<version>0.1.1</version>
-		<relativePath>../criteriaparent</relativePath>
-	</parent>
 
 	<dependencies>
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
