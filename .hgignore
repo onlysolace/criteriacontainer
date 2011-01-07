@@ -5,3 +5,13 @@ syntax: regexp
 \.jar$
 syntax: regexp
 ^criteriacontainer/target$
+syntax: regexp
+^criteriaapp/target$
+syntax: regexp
+^criteriaapp/src/main/java$
+syntax: regexp
+^criteriaapp/src/main/java$
+syntax: regexp
+^criteriaapp/target$
+syntax: regexp
+^criteriaapp/target$
