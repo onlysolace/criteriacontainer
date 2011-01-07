@@ -1,0 +1,7 @@
+
+syntax: regexp
+^criteriacontainer/target/maven-archiver$
+syntax: regexp
+\.jar$
+syntax: regexp
+^criteriacontainer/target$
