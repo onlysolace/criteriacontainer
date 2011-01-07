@@ -1,0 +1,8 @@
+----------------------------------------------------------------
+Thu Jan 06 18:31:50 EST 2011:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.7.1.1 - (1040133): instance a816c00e-012d-5dac-0422-0000002fce50 
+on database directory E:\dev\owlcms\criteriatest\target\database\jpa-test-database  with class loader WebAppClassLoader@Vaadin Web Application 
+Loaded from file:/C:/Documents%20and%20Settings/jflamy/.m2/repository/org/apache/derby/derby/10.7.1.1/derby-10.7.1.1.jar
+java.vendor=Sun Microsystems Inc.
+java.runtime.version=1.6.0_17-b04
+Database Class Loader started - derby.database.classpath=''
