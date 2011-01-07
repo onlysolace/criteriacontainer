@@ -1,7 +1,7 @@
 #summary Release Notes
 
 == Release 0.1.1 ==
-  * Enabled sorting.  The sort() routine was not being called.
+  * Enabled sorting.
   
 == Release 0.1.0 ==
   * Initial Release

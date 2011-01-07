@@ -32,7 +32,7 @@
 					<archive>
 						<manifestEntries>
 							<Implementation-Title>JPA Criteria Lazy Container</Implementation-Title>
-							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-Version>0.1.1</Implementation-Version>
 							<Vaadin-Package-Version>1</Vaadin-Package-Version>
 							<License-Title>Apache License 2.0</License-Title>
 						</manifestEntries>
