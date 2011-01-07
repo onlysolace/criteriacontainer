@@ -14,6 +14,7 @@ import org.vaadin.addons.criteriacontainer.CritQueryFactory;
 import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainersample.data.Task;
+import org.vaadin.addons.criteriacontainersample.data.Task_;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryItemStatus;
 import org.vaadin.addons.lazyquerycontainer.QueryItemStatusColumnGenerator;
@@ -58,7 +59,6 @@ public class MyVaadinApplication extends Application implements ClickListener {
 	private ArrayList<Object> visibleColumnIds = new ArrayList<Object>();
 	private ArrayList<String> visibleColumnLabels = new ArrayList<String>();
 
-	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(MyVaadinApplication.class);
 
 	private SimpleTaskQueryDefinition cd;
@@ -247,6 +247,7 @@ public class MyVaadinApplication extends Application implements ClickListener {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == refreshButton) {
@@ -258,11 +259,14 @@ public class MyVaadinApplication extends Application implements ClickListener {
 				// do not refresh if calling "filter()" later.
 				criteriaContainer.refresh();
 				
+				logger.warn(Task_.name.getName());
 				// filtering style #2
 				// simple conditions are added to a list and passed to the filter mechanism.
-//				final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
-//				restrictions.add(new CritRestriction("betaz", CritRestriction.Operation.GE, 9996));
-//				criteriaContainer.filter(restrictions);
+				if (false) {
+					final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
+					restrictions.add(new CritRestriction(Task_.beta.getName(), CritRestriction.Operation.GE, 9996));
+					criteriaContainer.filter(restrictions);
+				}
 			} else {
 				cd.setNameFilterValue(null);
 				criteriaContainer.filter((LinkedList<CritRestriction>)null);          
