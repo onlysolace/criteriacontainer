@@ -60,16 +60,15 @@ public final class CritQuery<T> implements Query, Serializable {
 
     /**
      * Constructor for configuring the query.
-     * @param entityManager the entity manager for the query.
      * @param criteriaQueryDefinition The entity query definition.
      */
-    public CritQuery(EntityManager entityManager, final CritQueryDefinition<T> criteriaQueryDefinition) {
+    public CritQuery(final CritQueryDefinition<T> criteriaQueryDefinition) {
         this.queryDefinition = criteriaQueryDefinition;
         this.entityClass = criteriaQueryDefinition.getEntityClass();
         
-        this.entityManager = entityManager;
-        this.selectQuery = criteriaQueryDefinition.getSelectQuery(entityManager);
-        this.selectCountQuery = criteriaQueryDefinition.getCountQuery(entityManager);
+        this.entityManager = queryDefinition.getEntityManager();
+        this.selectQuery = criteriaQueryDefinition.getSelectQuery();
+        this.selectCountQuery = criteriaQueryDefinition.getCountQuery();
         this.applicationTransactionManagement = criteriaQueryDefinition.isApplicationManagedTransactions();
     }
 

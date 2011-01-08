@@ -15,8 +15,6 @@
  */
 package org.vaadin.addons.criteriacontainer;
 
-import javax.persistence.EntityManager;
-
 import org.vaadin.addons.lazyquerycontainer.Query;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
@@ -34,19 +32,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 public class CritQueryFactory<T> implements QueryFactory {
 
 	private CritQueryDefinition<T> queryDefinition;
-	private EntityManager entityManager;
 	
-	/**
-	 * Constructor.
-	 * 
-	 * Remember the entity manager to use for the current instance.
-	 * 
-	 * @param entityManager the entity manager for the current instance.
-	 */
-	public CritQueryFactory(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setQueryDefinition(QueryDefinition queryDefinition) {
@@ -55,9 +41,7 @@ public class CritQueryFactory<T> implements QueryFactory {
 
 	@Override
 	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-		return new CritQuery<T>(
-				entityManager, 
-				queryDefinition);
+		return new CritQuery<T>(queryDefinition);
 	}
 
 }
