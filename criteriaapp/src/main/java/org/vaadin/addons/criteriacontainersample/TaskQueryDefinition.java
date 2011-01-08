@@ -1,5 +1,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -27,13 +28,13 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/**
 	 * Constructor.
-	 * 
+	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
 	 * @param batchSize how many tuples to retrieve at once.
 	 */
-	public TaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
+	public TaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 		// We pass Task.class because the parameterized type of this class is <Task>
-		super(applicationManagedTransactions, Task.class, batchSize);
+		super(entityManager, applicationManagedTransactions, Task.class, batchSize);
 	}
 	
 
@@ -42,6 +43,10 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	 * 
 	 * This class creates the equivalent of
 	 * SELECT * FROM Task t WHERE t.name LIKE "..."
+	 * 
+	 * More precisely, the query by this method should not call cb.select() and cb.setOrdering().
+	 * The default implementations of {@link #getCountQuery()} and {@link #getSelectQuery()} both
+	 * call this method in order to guarantee that they ar consistent with one another.
 	 * 
 	 * @see org.vaadin.addons.criteriacontainer.CritQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 	 */

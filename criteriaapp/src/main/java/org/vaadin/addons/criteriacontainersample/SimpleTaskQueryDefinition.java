@@ -2,6 +2,7 @@ package org.vaadin.addons.criteriacontainersample;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -32,11 +33,12 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/**
 	 * Constructor.
+	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
 	 * @param batchSize how many tuples to retrieve at once.
 	 */
-	public SimpleTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
-		super(applicationManagedTransactions, Task.class, batchSize);
+	public SimpleTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		super(entityManager, applicationManagedTransactions, Task.class, batchSize);
 	}
 	
 

@@ -10,7 +10,6 @@ import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.criteriacontainer.CritQueryFactory;
 import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -156,11 +155,8 @@ public class MyVaadinApplication extends Application implements ClickListener {
 
 		entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
 
-		cd = new SimpleTaskQueryDefinition(true,100);
-		criteriaContainer = new CriteriaContainer<Task>(
-				cd,
-				new CritQueryFactory<Task>(entityManager)
-		);
+		cd = new SimpleTaskQueryDefinition(entityManager,true,100);
+		criteriaContainer = new CriteriaContainer<Task>(cd);
 
 		criteriaContainer.addContainerProperty(LazyQueryView.PROPERTY_ID_ITEM_STATUS, QueryItemStatus.class,
 				QueryItemStatus.None, true, false);
