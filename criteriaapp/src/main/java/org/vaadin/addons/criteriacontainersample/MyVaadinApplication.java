@@ -128,14 +128,14 @@ public class MyVaadinApplication extends Application implements ClickListener {
 		buttonPanel2.addComponent(removeItemButton);
 
 		visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
-		visibleColumnIds.add("taskId");
-		visibleColumnIds.add("name");
-		visibleColumnIds.add("reporter");
-		visibleColumnIds.add("assignee");
-		visibleColumnIds.add("alpha");
-		visibleColumnIds.add("beta");
-		visibleColumnIds.add("gamma");
-		visibleColumnIds.add("delta");
+		visibleColumnIds.add(Task_.taskId.getName());
+		visibleColumnIds.add(Task_.name.getName());
+		visibleColumnIds.add(Task_.reporter.getName());
+		visibleColumnIds.add(Task_.assignee.getName());
+		visibleColumnIds.add(Task_.alpha.getName());
+		visibleColumnIds.add(Task_.beta.getName());
+		visibleColumnIds.add(Task_.gamma.getName());
+		visibleColumnIds.add(Task_.delta.getName());
 		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
 		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
 		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
@@ -160,14 +160,14 @@ public class MyVaadinApplication extends Application implements ClickListener {
 
 		criteriaContainer.addContainerProperty(LazyQueryView.PROPERTY_ID_ITEM_STATUS, QueryItemStatus.class,
 				QueryItemStatus.None, true, false);
-		criteriaContainer.addContainerProperty("taskId", Long.class, new Long(0), true, true);
-		criteriaContainer.addContainerProperty("name", String.class, "", true, true);
-		criteriaContainer.addContainerProperty("reporter", String.class, "", true, true);
-		criteriaContainer.addContainerProperty("assignee", String.class, "", true, true);
-		criteriaContainer.addContainerProperty("alpha", String.class, "", false, true);
-		criteriaContainer.addContainerProperty("beta", String.class, "", false, true);
-		criteriaContainer.addContainerProperty("gamma", String.class, "", false, true);
-		criteriaContainer.addContainerProperty("delta", String.class, "", false, true);
+		criteriaContainer.addContainerProperty(Task_.taskId.getName(), Long.class, new Long(0), true, true);
+		criteriaContainer.addContainerProperty(Task_.name.getName(), String.class, "", true, true);
+		criteriaContainer.addContainerProperty(Task_.reporter.getName(), String.class, "", true, true);
+		criteriaContainer.addContainerProperty(Task_.assignee.getName(), String.class, "", true, true);
+		criteriaContainer.addContainerProperty(Task_.alpha.getName(), String.class, "", false, true);
+		criteriaContainer.addContainerProperty(Task_.beta.getName(), String.class, "", false, true);
+		criteriaContainer.addContainerProperty(Task_.gamma.getName(), String.class, "", false, true);
+		criteriaContainer.addContainerProperty(Task_.delta.getName(), String.class, "", false, true);
 		criteriaContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX, Integer.class, 0, true, false);
 		criteriaContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX, Integer.class, 0, true, false);
 		criteriaContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME, Integer.class, 0, true,
