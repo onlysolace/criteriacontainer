@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

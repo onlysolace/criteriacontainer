@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.vaadin.data.util.BeanItem;
  * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
  * and buffered writes.
  * @param <T> Entity class.
- * @author Jean-François Lamy
+ * @author Jean-FranÃ§ois Lamy
  */
 @SuppressWarnings("serial")
 public final class CriteriaContainer<T extends Object> extends LazyQueryContainer {

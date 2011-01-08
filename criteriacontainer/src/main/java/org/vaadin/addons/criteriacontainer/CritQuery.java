@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import com.vaadin.data.util.ObjectProperty;
  * Entity query implementation which dynamically injects missing query
  * definition properties to CompositeItems.
  * 
- * @author Tommi S.E. Laukkanen, modified by Jean-François Lamy
+ * @author Tommi S.E. Laukkanen, modified by Jean-FranÃ§ois Lamy
  * 
  * @param <T> The type of entity returned by the Query.
  */
