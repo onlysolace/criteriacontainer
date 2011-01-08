@@ -28,8 +28,8 @@ public class TaskQueryDefinition extends CritQueryDefinition<Task> {
 	/**
 	 * Constructor.
 	 * 
-	 * @param applicationManagedTransactions
-	 * @param batchSize
+	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
+	 * @param batchSize how many tuples to retrieve at once.
 	 */
 	public TaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
 		// We pass Task.class because the parameterized type of this class is <Task>
