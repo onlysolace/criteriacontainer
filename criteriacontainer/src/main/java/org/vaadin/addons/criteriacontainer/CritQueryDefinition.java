@@ -17,6 +17,7 @@ package org.vaadin.addons.criteriacontainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,12 +46,30 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 @SuppressWarnings("serial")
 public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
+	/** the Class for the parameterized type (T.class) */
 	protected Class<T> entityClass;
+	
+	/** 
+	 * false if the container manages the transactions, true otherwise.
+	 * true if running under Jetty or under J2SE 
+	 */
 	protected boolean applicationManagedTransactions;
+	
+	/** the default of property ids to be sorted (normally, Strings) */
 	protected Object[] nativeSortPropertyIds;
+	
+	/** default sort order for each sortable property, true means ascending sort, false means descending sort */
 	protected boolean[] nativeSortPropertyAscendingStates;
+	
+	/** the actual list of property ids to be sorted (normally, Strings) */
 	protected Object[] sortPropertyIds;
+	
+	/** actual sort order for each sortable property, true means ascending sort, false means descending sort */
 	protected boolean[] sortPropertyAscendingStates;
+	
+	/**
+	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
+	 */
 	protected Map<String, Object> namedParameterValues;
 	
 	private ArrayList<Order> ordering;
@@ -253,17 +272,17 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	}
 	
 	/**
-	 * Prepare the query so that {@link CriteriaContainer#filter(Map)} works.
+	 * Prepare the query so that {@link CriteriaContainer#filter(LinkedList)} works.
 	 * 
 	 * For each field named in the whereParameters map, create a parameter place holder
 	 * in the query.  There is no setFilterParameters method, the container does the
 	 * processing in the filter() method.
-	 * @param filterExpressions 
 	 * 
-	 * @param cb
-	 * @param cq
-	 * @param t
-	 * @return 
+	 * @param filterExpressions the predicates created by filtering mechanisms so far.
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @param t the root of the query.
+	 * @return a list of predicates to be added to the query 
 	 */
 	protected List<Predicate> addFilterRestrictions(List<Predicate> filterExpressions, CriteriaBuilder cb,
 			CriteriaQuery<?> cq, Root<T> t) {
@@ -277,13 +296,11 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Create conditions in the query
 	 * 
-	 * @param filterExpressions2 
-	 * 			a list of Predicate objects. Note: you may use the cb.parameter() method
-	 * 			to create additional parameters.
-	 * @param cb
-	 * @param cq
-	 * @param t
-	 * @return 
+	 * @param filterExpressions the predicates created by filtering mechanisms so far.
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @param t the root of the query as it has been built
+	 * @return an augmented list of conditions to be added to the WHERE clause.
 	 */
 	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<T> t) {
 		// do nothing, will be overridden by classes that need it.
@@ -294,10 +311,9 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Define FROM and WHERE part of query.
 	 * This definition is shared between the query returning items and the count.
 	 * Must call nb.from(), must call nb.where() for the parameter place holders.
-	 * 
-	 * @param cb
-	 * @param nb
-	 * @return
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @return the root for the query
 	 */
 	protected Root<T> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
 		Root<T> t = cq.from(getEntityClass());
@@ -324,7 +340,8 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Provide values for the named parameters defined via{@link #setNamedParameterValues(java.util.Map)}.
 	 * This method is overridden by subclasses that define additional parameters.
 	 * 
-	 * @param tq
+	 * @param tq the runnable query that needs to have its parameter set
+	 * @return the query after its parameters have been set.
 	 */
 	protected TypedQuery<?> setParameters(TypedQuery<?> tq) {
         if (namedParameterValues != null) {
