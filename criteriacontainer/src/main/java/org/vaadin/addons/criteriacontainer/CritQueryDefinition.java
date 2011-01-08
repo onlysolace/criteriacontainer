@@ -40,7 +40,7 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
  * 
  * @author jflamy
  * 
- * @param <T>
+ * @param <T> the Entity type returned by the query being defined
  */
 @SuppressWarnings("serial")
 public class CritQueryDefinition<T> extends LazyQueryDefinition {
@@ -64,16 +64,14 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	
 	/**
 	 * Constructor for simple usage.
-	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(Map)}
+	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(java.util.LinkedList)}
 	 * is used to restrict information.
 	 * 
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
 	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
 	 * @param batchSize how many entities to recover at one time.
-	 * @param nativeSortPropertyIds
-	 * @param nativeSortPropertyAscendingStates
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
+	 * @param nativeSortPropertyIds the property names to be sorted
+	 * @param nativeSortPropertyAscendingStates for each property name, true means sort in ascending order, false in descending order
 	 */
 	public CritQueryDefinition(
 			boolean applicationManagedTransactions,
@@ -95,7 +93,6 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
 	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
 	 * @param batchSize how many entities to recover at one time.
-	 * @throws InstantiationException
 	 */
 	public CritQueryDefinition(
 			boolean applicationManagedTransactions,
@@ -109,8 +106,8 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
 	/**
 	 * This method returns the number of entities.
-	 * @param em
-	 * @return
+	 * @param em the entity manager for the current query
+	 * @return number of entities.
 	 */
 	public TypedQuery<Long> getCountQuery(EntityManager em) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -124,12 +121,18 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	
 	/**
 	 * Get the class of the entity being managed.
-	 * If not explicitly specified, the generic type of implementation is used.
+	 * 
+	 * @return the Class for the Entity being returned.
 	 */
 	public Class<T> getEntityClass() {
 		return entityClass;
 	}
 
+	/**
+	 * Create the Predicates that match the filters requested through {@link #setFilterExpressions(ArrayList)}
+	 * 
+	 * @return a list of Predicates that corresponds to the declared filters.
+	 */
 	public List<Predicate> getFilterExpressions() {
 		return filterExpressions;
 	}
@@ -139,11 +142,9 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Applies the sort state.
 	 * A JPA ordering is created based on the saved sort orders.
 	 * 
-	 * @param sortPropertyIds
-	 *            Properties participating in the sorting.
-	 * @param sortPropertyAscendingStates
-	 *            List of sort direction for the properties.
-	 * @return 
+	 * @param t the root or joins from which columns are being selected
+	 * @param cb the criteria builder for the query being built
+	 * @return a list of Order objects to be added to the query.
 	 */
 	public final List<Order> getOrdering(Path<T> t, CriteriaBuilder cb) {
         if (sortPropertyIds == null || sortPropertyIds.length == 0) {
@@ -167,10 +168,14 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
 	
 	/**
-	 * This method returns the matching entities, sorted as requested.
+	 * This method adds the ordering and the parameters on a query definition.
 	 * 
-	 * @param em
-	 * @return
+	 * {@link #defineQuery(CriteriaBuilder, CriteriaQuery)} creates the portion of
+	 * the query that is shared between counting and retrieving. This method returns
+	 * a runnable query by adding the ordering and setting the parameters.
+	 * 
+	 * @param em the entity manager for the current query
+	 * @return a runnable TypedQuery
 	 */
 	public TypedQuery<T> getSelectQuery(EntityManager em) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -203,6 +208,11 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	}
 
 	
+	/**
+	 * Define a list of conditions to be added to the query's WHERE clause
+	 * 
+	 * @param filterExpressions a list of Predicate objects to be added
+	 */
 	public void setFilterExpressions(ArrayList<Predicate> filterExpressions) {
 		this.filterExpressions = filterExpressions;
 	}
@@ -224,10 +234,9 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Sets named parameter values
 	 * 
-	 * @param whereCriteria
-	 *            the where criteria to be included in JPA query.
 	 * @param namedParameterValues
-	 *            the where parameters to set to JPA query.
+	 *            For each pair, the key is the name of the parameter, and the value is the value to
+	 *            set for that parameter.
 	 */
 	public final void setNamedParameterValues(final Map<String, Object> namedParameterValues) {
 		this.namedParameterValues = namedParameterValues;
@@ -237,7 +246,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Store a list of restrictions.
 	 * Each restriction will be transformed into a predicate added to the WHERE clause.
 	 * 
-	 * @param restrictions
+	 * @param restrictions a list of objects that each define a condition to be added
 	 */
 	public final void setRestrictions(Collection<CritRestriction> restrictions) {
 		this.restrictions = restrictions;

@@ -37,8 +37,8 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
      * Standard constructor for type-safe queries.
      * Note: contrary to standard LazyQueryContainer, the entityManager is specified on the
      * Factory, to allow better reuse of CritQueryDefinition.
-     * @param cd
-     * @param cf
+     * @param cd the definition of the query (independent of its execution context)
+     * @param cf the factory that will generate a context in which the query will run.
      */
     public CriteriaContainer(
     		CritQueryDefinition<T> cd,
@@ -55,8 +55,6 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
      * @param batchSize The batch size.
      * @param nativeSortPropertyIds Properties participating in the native sort.
      * @param nativeSortPropertyAscendingStates List of property sort directions for the native sort.
-     * @throws IllegalAccessException 
-     * @throws InstantiationException 
      */
     public CriteriaContainer(
     		final EntityManager entityManager,
@@ -65,7 +63,7 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
             final int batchSize,
             final Object[] nativeSortPropertyIds,
             final boolean[] nativeSortPropertyAscendingStates
-            ) throws InstantiationException, IllegalAccessException 
+            )
             {
     	super(
     			new CritQueryDefinition<T>(

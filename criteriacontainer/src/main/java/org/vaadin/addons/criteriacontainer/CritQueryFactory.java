@@ -21,15 +21,28 @@ import org.vaadin.addons.lazyquerycontainer.Query;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 
+/**
+ * Create a query based on a query definition.
+ * 
+ * The query object returned contains the actual JPA 2.0 query and the context
+ * necessary to run it (e.g., the entity manager)
+ * 
+ * TODO: remember generated instances so that existing queries are not built needlessly.
+ *
+ * @param <T> the type of the entity that the query will return
+ */
 public class CritQueryFactory<T> implements QueryFactory {
 
 	private CritQueryDefinition<T> queryDefinition;
 	private EntityManager entityManager;
 	
-
-	public CritQueryFactory() {
-	}
-	
+	/**
+	 * Constructor.
+	 * 
+	 * Remember the entity manager to use for the current instance.
+	 * 
+	 * @param entityManager the entity manager for the current instance.
+	 */
 	public CritQueryFactory(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
@@ -45,14 +58,6 @@ public class CritQueryFactory<T> implements QueryFactory {
 		return new CritQuery<T>(
 				entityManager, 
 				queryDefinition);
-	}
-
-	public EntityManager getEntityManager() {
-		return entityManager;
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
 	}
 
 }

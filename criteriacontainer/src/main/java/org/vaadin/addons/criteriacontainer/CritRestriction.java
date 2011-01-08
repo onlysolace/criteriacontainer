@@ -53,7 +53,16 @@ public class CritRestriction {
 	 *
 	 */
 	public enum Operation {
-		EQ, GE, GT, LE, LT, LIKE, IS_NULL, IS_NOT_NULL, IS_TRUE, IS_FALSE;
+		/** = */ EQ, 
+		/** >= */ GE,
+		/** > */ GT, 
+		/** <= */LE, 
+		/** <  */LT, 
+		/** LIKE */ LIKE, 
+		/** IS NULL */IS_NULL,
+		/** IS NOT NULL */ IS_NOT_NULL,
+		/** = TRUE */ IS_TRUE,
+		/** = FALSE */ IS_FALSE;
 	}
 	
 	
@@ -68,7 +77,7 @@ public class CritRestriction {
 	 * 			 {@link Attribute#getName()} method, never with a hard-coded string. For example
 	 * 			 Customer_.telephone.getName()  instead of "telephone", to prevent errors if the
 	 * 			 field telephone is renamed.
-	 * @param operator
+	 * @param operator the constant that corresponds to the desired comparison
 	 * @param comparisonValue  for binary operators, the value being compared to, else null.
 	 */
 	public CritRestriction(String propertyId, Operation operator, Object comparisonValue) {

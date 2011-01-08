@@ -35,7 +35,10 @@ import com.vaadin.data.util.ObjectProperty;
 /**
  * Entity query implementation which dynamically injects missing query
  * definition properties to CompositeItems.
+ * 
  * @author Tommi S.E. Laukkanen, modified by Jean-François Lamy
+ * 
+ * @param <T> The type of entity returned by the Query.
  */
 public final class CritQuery<T> implements Query, Serializable {
     /** Java serialization version UID. */
@@ -57,6 +60,7 @@ public final class CritQuery<T> implements Query, Serializable {
 
     /**
      * Constructor for configuring the query.
+     * @param entityManager the entity manager for the query.
      * @param criteriaQueryDefinition The entity query definition.
      */
     public CritQuery(EntityManager entityManager, final CritQueryDefinition<T> criteriaQueryDefinition) {
