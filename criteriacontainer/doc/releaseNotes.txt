@@ -1,5 +1,8 @@
 #summary Release Notes
 
+== Release 0.2.0 ==
+  * Moved the entityManager back to the CritQueryDefinition constructor, as in the original API.
+
 == Release 0.1.1 ==
   * Enabled sorting.
   
