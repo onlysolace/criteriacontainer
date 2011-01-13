@@ -9,7 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
-	<artifactId>criteriasample</artifactId>
+	<artifactId>criteriaapp_test</artifactId>
 	<packaging>war</packaging>
 	<version>0.2.0</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
