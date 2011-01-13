@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacontainer;
+package org.vaadin.addons.tuplecontainer;
 
 import java.util.LinkedList;
 
 import javax.persistence.EntityManager;
 
+import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacontainer.CritQueryFactory;
+import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.lazyquerycontainer.CompositeItem;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
