@@ -15,3 +15,4 @@ syntax: regexp
 ^criteriaapp/target$
 syntax: regexp
 ^criteriaapp/target$
+glob:criteriaapp_test/target/*
