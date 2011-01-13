@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,23 @@ import com.vaadin.data.util.BeanItem;
  * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
  * and buffered writes.
  * @param <T> Entity class.
- * @author Jean-François Lamy
+ * @author Jean-FranÃ§ois Lamy
  */
 @SuppressWarnings("serial")
 public final class CriteriaContainer<T extends Object> extends LazyQueryContainer {
     
     /**
      * Standard constructor for type-safe queries.
-     * Note: contrary to standard LazyQueryContainer, the entityManager is specified on the
-     * Factory, to allow better reuse of CritQueryDefinition.
-     * @param cd
-     * @param cf
+     * @param cd the definition of the query
+     */
+    public CriteriaContainer(CritQueryDefinition<T> cd){
+    	super(new CritQueryView<T>(cd,new CritQueryFactory<T>()));
+    }
+    
+    /**
+     * Standard constructor for type-safe queries.
+     * @param cd the definition of the query (independent of its execution context)
+     * @param cf the factory that will generate a context in which the query will run.
      */
     public CriteriaContainer(
     		CritQueryDefinition<T> cd,
@@ -55,8 +61,6 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
      * @param batchSize The batch size.
      * @param nativeSortPropertyIds Properties participating in the native sort.
      * @param nativeSortPropertyAscendingStates List of property sort directions for the native sort.
-     * @throws IllegalAccessException 
-     * @throws InstantiationException 
      */
     public CriteriaContainer(
     		final EntityManager entityManager,
@@ -65,16 +69,17 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
             final int batchSize,
             final Object[] nativeSortPropertyIds,
             final boolean[] nativeSortPropertyAscendingStates
-            ) throws InstantiationException, IllegalAccessException 
+            )
             {
     	super(
     			new CritQueryDefinition<T>(
+    					entityManager,
     					applicationManagedTransactions,
     					entityClass,
     					batchSize,
     					nativeSortPropertyIds,
     					nativeSortPropertyAscendingStates),
-    			new CritQueryFactory<T>(entityManager));
+    			new CritQueryFactory<T>());
     }
     
     

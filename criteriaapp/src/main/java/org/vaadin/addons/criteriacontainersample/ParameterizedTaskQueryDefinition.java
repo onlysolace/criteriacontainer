@@ -1,7 +1,23 @@
+/**
+ * Copyright 2011 Jean-François Lamy
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -25,7 +41,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * management done by the container.
  * 
  * The method {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)} shows how
- * to integrated with additional filtering that can be performed by the container.
+ * to integrate with additional filtering that can be performed by the container.
  * 
  * @author jflamy
  *
@@ -43,22 +59,21 @@ public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> 
 	final static private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 
 	/**
-	 * 
-	 * @param applicationManagedTransactions
-	 * @param batchSize
+	 * Constructor.
+	 * @param entityManager the entityManager that gives us access to the database and cache
+	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
+	 * @param batchSize how many tuples to retrieve at once. 
 	 */
-	public ParameterizedTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
-		super(applicationManagedTransactions, Task.class, batchSize);
+	public ParameterizedTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		super(entityManager, applicationManagedTransactions, Task.class, batchSize);
 	}
 	
 
 	/**
-	 * Define filtering conditions for the query.
+	 * Define the WHERE clause conditions specific to this query.
 	 * 
-	 * If the {@link CriteriaBuilder#parameter(Class)} is used in this method, then
-	 * the {@link #setParameters(TypedQuery)} method must set the parameter values.
-	 * Note that using parameters is currently not very useful, because the refresh() method
-	 * throws out the query.
+	 * In this example, the {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
+	 * place holder.  In such a case, the {@link #setParameters(TypedQuery)} method must set the parameter values.
 	 */
 	@Override
 	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
@@ -77,7 +92,7 @@ public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> 
 	 * Set values for the parameters used in the predicates.
 	 * 
 	 * Should provide a value for all the parameter objects added in the {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)}
-	 * method.  Should call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
+	 * method.  Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
 	 */
 	@Override
 	public TypedQuery<?> setParameters(final TypedQuery<?> tq) {

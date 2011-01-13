@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@ package org.vaadin.addons.criteriacontainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -40,22 +43,45 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
  * 
  * @author jflamy
  * 
- * @param <T>
+ * @param <T> the Entity type returned by the query being defined
  */
 @SuppressWarnings("serial")
 public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
+	/** the Class for the parameterized type (T.class) */
 	protected Class<T> entityClass;
+	
+	/** 
+	 * false if the container manages the transactions, true otherwise.
+	 * true if running under Jetty or under J2SE 
+	 */
 	protected boolean applicationManagedTransactions;
+	
+	/** the default of property ids to be sorted (normally, Strings) */
 	protected Object[] nativeSortPropertyIds;
+	
+	/** default sort order for each sortable property, true means ascending sort, false means descending sort */
 	protected boolean[] nativeSortPropertyAscendingStates;
+	
+	/** the actual list of property ids to be sorted (normally, Strings) */
 	protected Object[] sortPropertyIds;
+	
+	/** actual sort order for each sortable property, true means ascending sort, false means descending sort */
 	protected boolean[] sortPropertyAscendingStates;
+	
+	/**
+	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
+	 */
 	protected Map<String, Object> namedParameterValues;
 	
-	private ArrayList<Order> ordering;
+	/**
+	 * A list of sorting criteria
+	 */
+	protected ArrayList<Order> ordering;
 	private List<Predicate> filterExpressions;
 	private Collection<CritRestriction> restrictions;
+
+	private EntityManager entityManager;
 	
 	@SuppressWarnings("unused")
 	final static private Logger logger = LoggerFactory.getLogger(CritQueryDefinition.class);
@@ -64,25 +90,25 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	
 	/**
 	 * Constructor for simple usage.
-	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(Map)}
+	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(java.util.LinkedList)}
 	 * is used to restrict information.
 	 * 
+	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
-	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
+	 * @param entityClass the class for the entity (should be the same as T.class)
 	 * @param batchSize how many entities to recover at one time.
-	 * @param nativeSortPropertyIds
-	 * @param nativeSortPropertyAscendingStates
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
+	 * @param nativeSortPropertyIds the property names to be sorted
+	 * @param nativeSortPropertyAscendingStates for each property name, true means sort in ascending order, false in descending order
 	 */
 	public CritQueryDefinition(
+			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			Class<T> entityClass, 
 			int batchSize,
 			Object[] nativeSortPropertyIds,
 			boolean[] nativeSortPropertyAscendingStates
 			) {
-		this(applicationManagedTransactions, entityClass, batchSize);
+		this(entityManager, applicationManagedTransactions, entityClass, batchSize);
         
         this.applicationManagedTransactions = applicationManagedTransactions;
         this.nativeSortPropertyIds = nativeSortPropertyIds;
@@ -92,44 +118,51 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Simple constructor, used when extending the class.
 	 * 
+	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
-	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
+	 * @param entityClass the class for the entity (should be the same as T.class)
 	 * @param batchSize how many entities to recover at one time.
-	 * @throws InstantiationException
 	 */
 	public CritQueryDefinition(
+			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			final Class<T> entityClass,
 			int batchSize
 			) {
 		super(batchSize);
+		this.entityManager = entityManager;
 		this.entityClass = entityClass;
 		this.applicationManagedTransactions = applicationManagedTransactions;
 	}
 
 	/**
 	 * This method returns the number of entities.
-	 * @param em
-	 * @return
+	 * @return number of entities.
 	 */
-	public TypedQuery<Long> getCountQuery(EntityManager em) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
+	public TypedQuery<Long> getCountQuery() {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<Long> nb = cb.createQuery(Long.class);
-		Root<T> t = defineQuery(cb, nb);
+		Root<?> t = defineQuery(cb, nb);
 		nb.select(cb.count(t));
-		final TypedQuery<Long> countQuery = em.createQuery(nb);
+		final TypedQuery<Long> countQuery = entityManager.createQuery(nb);
 		setParameters(countQuery);
 		return countQuery;
 	}
 	
 	/**
 	 * Get the class of the entity being managed.
-	 * If not explicitly specified, the generic type of implementation is used.
+	 * 
+	 * @return the Class for the Entity being returned.
 	 */
 	public Class<T> getEntityClass() {
 		return entityClass;
 	}
 
+	/**
+	 * Create the Predicates that match the filters requested through {@link #setFilterExpressions(ArrayList)}
+	 * 
+	 * @return a list of Predicates that corresponds to the declared filters.
+	 */
 	public List<Predicate> getFilterExpressions() {
 		return filterExpressions;
 	}
@@ -139,13 +172,11 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Applies the sort state.
 	 * A JPA ordering is created based on the saved sort orders.
 	 * 
-	 * @param sortPropertyIds
-	 *            Properties participating in the sorting.
-	 * @param sortPropertyAscendingStates
-	 *            List of sort direction for the properties.
-	 * @return 
+	 * @param t the root or joins from which columns are being selected
+	 * @param cb the criteria builder for the query being built
+	 * @return a list of Order objects to be added to the query.
 	 */
-	public final List<Order> getOrdering(Path<T> t, CriteriaBuilder cb) {
+	protected final List<Order> getOrdering(Path<?> t, CriteriaBuilder cb) {
         if (sortPropertyIds == null || sortPropertyIds.length == 0) {
             sortPropertyIds = nativeSortPropertyIds;
             sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
@@ -167,20 +198,25 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
 	
 	/**
-	 * This method returns the matching entities, sorted as requested.
+	 * This method adds the ordering and the parameters on a query definition.
 	 * 
-	 * @param em
-	 * @return
+	 * {@link #defineQuery(CriteriaBuilder, CriteriaQuery)} creates the portion of
+	 * the query that is shared between counting and retrieving. This method returns
+	 * a runnable query by adding the ordering and setting the parameters.
+	 * @return a runnable TypedQuery
 	 */
-	public TypedQuery<T> getSelectQuery(EntityManager em) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
+	public TypedQuery<T> getSelectQuery() {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		Root<T> t = defineQuery(cb, cq);
+		Root<?> t = defineQuery(cb, cq);
+		
+		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering(t, cb);
 		if (ordering != null) {
 			cq.orderBy(ordering);
-		}
-		final TypedQuery<T> tq = em.createQuery(cq);
+		}		
+		
+		final TypedQuery<T> tq = entityManager.createQuery(cq);
 		// the container deals with the parameter values set through the filter() method
 		// so we only handle those that we add ourselves
 		setParameters(tq);
@@ -203,6 +239,11 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	}
 
 	
+	/**
+	 * Define a list of conditions to be added to the query's WHERE clause
+	 * 
+	 * @param filterExpressions a list of Predicate objects to be added
+	 */
 	public void setFilterExpressions(ArrayList<Predicate> filterExpressions) {
 		this.filterExpressions = filterExpressions;
 	}
@@ -224,10 +265,9 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Sets named parameter values
 	 * 
-	 * @param whereCriteria
-	 *            the where criteria to be included in JPA query.
 	 * @param namedParameterValues
-	 *            the where parameters to set to JPA query.
+	 *            For each pair, the key is the name of the parameter, and the value is the value to
+	 *            set for that parameter.
 	 */
 	public final void setNamedParameterValues(final Map<String, Object> namedParameterValues) {
 		this.namedParameterValues = namedParameterValues;
@@ -237,24 +277,24 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Store a list of restrictions.
 	 * Each restriction will be transformed into a predicate added to the WHERE clause.
 	 * 
-	 * @param restrictions
+	 * @param restrictions a list of objects that each define a condition to be added
 	 */
 	public final void setRestrictions(Collection<CritRestriction> restrictions) {
 		this.restrictions = restrictions;
 	}
 	
 	/**
-	 * Prepare the query so that {@link CriteriaContainer#filter(Map)} works.
+	 * Prepare the query so that {@link CriteriaContainer#filter(LinkedList)} works.
 	 * 
 	 * For each field named in the whereParameters map, create a parameter place holder
 	 * in the query.  There is no setFilterParameters method, the container does the
 	 * processing in the filter() method.
-	 * @param filterExpressions 
 	 * 
-	 * @param cb
-	 * @param cq
-	 * @param t
-	 * @return 
+	 * @param filterExpressions the predicates created by filtering mechanisms so far.
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @param t the root of the query.
+	 * @return a list of predicates to be added to the query 
 	 */
 	protected List<Predicate> addFilterRestrictions(List<Predicate> filterExpressions, CriteriaBuilder cb,
 			CriteriaQuery<?> cq, Root<T> t) {
@@ -268,13 +308,11 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * Create conditions in the query
 	 * 
-	 * @param filterExpressions2 
-	 * 			a list of Predicate objects. Note: you may use the cb.parameter() method
-	 * 			to create additional parameters.
-	 * @param cb
-	 * @param cq
-	 * @param t
-	 * @return 
+	 * @param filterExpressions the predicates created by filtering mechanisms so far.
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @param t the root of the query as it has been built
+	 * @return an augmented list of conditions to be added to the WHERE clause.
 	 */
 	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<T> t) {
 		// do nothing, will be overridden by classes that need it.
@@ -283,14 +321,25 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 
 	/**
 	 * Define FROM and WHERE part of query.
-	 * This definition is shared between the query returning items and the count.
-	 * Must call nb.from(), must call nb.where() for the parameter place holders.
 	 * 
-	 * @param cb
-	 * @param nb
-	 * @return
+	 * This definition is shared between the query returning items and the count. That is,
+	 * the default implementations of {@link #getCountQuery()} and {@link #getSelectQuery()} both
+	 * call this method in order to guarantee that they ar consistent with one another.
+	 *
+	 * Because of this sharing method must not call cb.select.
+	 * The method should not call cb.setOrdering() because only the select method needs it and sorting
+	 * has a major performance impact.
+	 * 
+	 * <p>Advanced usage: If the query needs to perform ordering on elements other than those returned 
+	 * (for example, if it needs to sort on the columns of a join) then this method and {@link #getOrdering(Path, CriteriaBuilder)}
+	 * will both need to be overridden in such a way that the {@link Join} in the query are visible to both methods.
+	 * In other words, the joins should be defined as {@link Join} fields, set by defineQuery, and accessed by getOrdering.</p>
+	 * 
+	 * @param cb the current query builder
+	 * @param cq the query as built so far
+	 * @return the root for the query
 	 */
-	protected Root<T> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
+	protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
 		Root<T> t = cq.from(getEntityClass());
 		filterExpressions = new ArrayList<Predicate>();
 
@@ -301,11 +350,12 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
 		
 		// peculiar call to toArray with argument is required to cast all the elements.
-		final Predicate[] array = getFilterExpressions().toArray(new Predicate[]{});
+		final Predicate[] array = getFilterExpressions().toArray(new Predicate[0]);
 		
 		// must call where() exactly once.  This call to where() expects a sequence of
 		// Predicates. Java accepts an array instead.
 		cq.where(array);
+		
 		return t;
 	}
 
@@ -315,7 +365,8 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * Provide values for the named parameters defined via{@link #setNamedParameterValues(java.util.Map)}.
 	 * This method is overridden by subclasses that define additional parameters.
 	 * 
-	 * @param tq
+	 * @param tq the runnable query that needs to have its parameter set
+	 * @return the query after its parameters have been set.
 	 */
 	protected TypedQuery<?> setParameters(TypedQuery<?> tq) {
         if (namedParameterValues != null) {
@@ -324,6 +375,20 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
             }
         }
 		return tq;
+	}
+
+	/**
+	 * @return the entity manager used for the definition
+	 */
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	/**
+	 * @return a tuple query rooted on type T
+	 */
+	public TypedQuery<Tuple> getTupleSelectQuery() {
+		return null;
 	}
 	
 

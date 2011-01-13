@@ -16,9 +16,11 @@
 package org.vaadin.addons.criteriacontainersample.data;
 
 import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 /**
  * Task entity for JPA testing.
@@ -46,6 +48,10 @@ public final class Task implements Serializable {
 	private String gamma;
     /** Delta value. */ 
 	private String delta;
+	
+	@ManyToOne
+	private Person assignedTo;
+	
     /**
      * @return the taskId
      */
@@ -153,5 +159,11 @@ public final class Task implements Serializable {
     public String toString() {
         return "Task name: " + name + " reporter: " + reporter + " assignee: " + assignee;
     }
+	public void setAssignedTo(Person assignedTo) {
+		this.assignedTo = assignedTo;
+	}
+	public Person getAssignedTo() {
+		return assignedTo;
+	}
   
 }

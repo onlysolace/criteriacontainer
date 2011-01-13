@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>criteriaapptest</name>
+	<name>criteriaapp_test</name>
 	<comment></comment>
 	<projects>
 		<project>criteriacontainer</project>
@@ -40,4 +40,11 @@
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/main/java</name>
+			<type>2</type>
+			<locationURI>WORKSPACE_LOC/criteriacontainer/criteriaapp/src/main/java</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

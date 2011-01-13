@@ -1,13 +1,30 @@
+/**
+ * Copyright 2011 Jean-François Lamy
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
 
@@ -16,6 +33,8 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * 
  * Uses JPA2.0 Criteria mechanisms to create a safe version of the query that can be validated
  * at compile time.
+ * 
+ * This version integrates with the filter() mechanism.
  * 
  * @author jflamy
  *
@@ -29,16 +48,20 @@ public class SimpleTaskQueryDefinition extends CritQueryDefinition<Task> {
 
 	/**
 	 * Constructor.
-	 * @param applicationManagedTransactions
-	 * @param batchSize
+	 * @param entityManager the entityManager that gives us access to the database and cache
+	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
+	 * @param batchSize how many tuples to retrieve at once.
 	 */
-	public SimpleTaskQueryDefinition(boolean applicationManagedTransactions, int batchSize) {
-		super(applicationManagedTransactions, Task.class, batchSize);
+	public SimpleTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		super(entityManager, applicationManagedTransactions, Task.class, batchSize);
 	}
 	
 
 	/**
 	 * Define filtering conditions for the query.
+	 * 
+	 * A list of predicates is created. The container will add these predicates to those created by the
+	 * {@link CriteriaContainer#filter(java.util.LinkedList)} mechanism.
 	 */
 	@Override
 	protected List<Predicate> addPredicates(
