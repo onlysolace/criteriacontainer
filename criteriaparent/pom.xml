@@ -3,11 +3,28 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaparent</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 	<packaging>pom</packaging>
 	<name>Criteria Container Add-on and Demo</name>
 	<modules>
 		<module>../criteriacontainer</module>
-		<module>../criteriasample</module>
+		<module>../criteriaapp</module>
 	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<build>
+		<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>2.7</version>
+			<configuration>
+				<aggregate>true</aggregate>
+			</configuration>
+		</plugin>
+	</plugins>
+	</build>
 </project>

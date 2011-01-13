@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.metamodel.Attribute;
 
 
 /**
@@ -30,10 +31,9 @@ import javax.persistence.criteria.Predicate;
  * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager.
  * This class creates JPA2.0 predicates based on a list of simple criteria.
  * 
- * This reduces the need to create subclasses of {@link CritQueryDefinition} in order to
- * define an {@link CritQueryDefinition#addPredicates(java.util.ArrayList, CriteriaBuilder, javax.persistence.criteria.CriteriaQuery, javax.persistence.criteria.Root)
- * addPredicates} method.  The addPredicates method remains preferred, as it is the only way
- * to remain fully type-safe.
+ * This reduces the need to create subclasses of {@link CritQueryDefinition}.
+ * 
+
  * 
  * @author jflamy
  *
@@ -53,18 +53,32 @@ public class CritRestriction {
 	 *
 	 */
 	public enum Operation {
-		EQ, GE, GT, LE, LT, LIKE, IS_NULL, IS_NOT_NULL, IS_TRUE, IS_FALSE;
+		/** = */ EQ, 
+		/** >= */ GE,
+		/** > */ GT, 
+		/** <= */LE, 
+		/** <  */LT, 
+		/** LIKE */ LIKE, 
+		/** IS NULL */IS_NULL,
+		/** IS NOT NULL */ IS_NOT_NULL,
+		/** = TRUE */ IS_TRUE,
+		/** = FALSE */ IS_FALSE;
 	}
 	
 	
 	/**
 	 * A restriction to be added to the WHERE clause.
+	 * 
 	 * The type of the property is assumed to be the same as the comparison value.
 	 * The comparison value is ignored for the "IS_" operations where it is meaningless.
 	 * 
 	 * @param propertyId
-	 * @param operator
-	 * @param comparisonValue
+	 * 			 Note that in order to be type-safe, the restrictions should be created using the 
+	 * 			 {@link Attribute#getName()} method, never with a hard-coded string. For example
+	 * 			 Customer_.telephone.getName()  instead of "telephone", to prevent errors if the
+	 * 			 field telephone is renamed.
+	 * @param operator the constant that corresponds to the desired comparison
+	 * @param comparisonValue  for binary operators, the value being compared to, else null.
 	 */
 	public CritRestriction(String propertyId, Operation operator, Object comparisonValue) {
 		this.propertyId = propertyId;
@@ -72,6 +86,13 @@ public class CritRestriction {
 		this.value = comparisonValue;
 	}
 
+	/**
+	 * Return a predicate for a given restriction.
+	 *  
+	 * @param cb the criteria builder for the CriteriaQuery in which the predicate will be used
+	 * @param r	typically, the root of the Query, or a join.
+	 * @return a JPA 2.0 Predicate for the restriction
+	 */
 	Predicate getPredicate(CriteriaBuilder cb, Path<?> r) {
 		try {
 			Predicate pred = null;

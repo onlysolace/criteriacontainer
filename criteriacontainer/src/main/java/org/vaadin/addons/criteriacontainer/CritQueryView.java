@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import com.vaadin.data.Property.ValueChangeListener;
  * For some reason, LazyQueryView was defined as final.
  * 
  * @author jflamy
+ * 
+ * @param <T> the type of entity (class annotated by @Entity returned by the Query
  *
  */
 @SuppressWarnings("serial")
@@ -57,14 +59,9 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 	 * Additional methods
 	 */
 	
-	public void setLazyQueryView(LazyQueryView lazyQueryView) {
-		this.lazyQueryView = lazyQueryView;
-	}
-
-	public LazyQueryView getLazyQueryView() {
-		return lazyQueryView;
-	}
-
+	/**
+	 * @return the query factory that creates the views.
+	 */
 	public CritQueryFactory<?> getQueryFactory() {
 		return queryFactory;
 	}
@@ -95,6 +92,9 @@ public class CritQueryView<T> implements QueryView, ValueChangeListener {
 		return queryDefinition;
 	}
 
+	/**
+	 * @return the number of instances retrieved each time
+	 */
 	public int getBatchSize() {
 		return lazyQueryView.getBatchSize();
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,22 @@
  */
 package org.vaadin.addons.criteriacontainer;
 
-import javax.persistence.EntityManager;
-
 import org.vaadin.addons.lazyquerycontainer.Query;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 
+/**
+ * Create a query based on a query definition.
+ * 
+ * The query object returned contains the actual JPA 2.0 query and the context
+ * necessary to run it (e.g., the entity manager)
+ *
+ * @param <T> the type of the entity that the query will return
+ */
 public class CritQueryFactory<T> implements QueryFactory {
 
 	private CritQueryDefinition<T> queryDefinition;
-	private EntityManager entityManager;
 	
-
-	public CritQueryFactory() {
-	}
-	
-	public CritQueryFactory(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setQueryDefinition(QueryDefinition queryDefinition) {
@@ -42,17 +39,7 @@ public class CritQueryFactory<T> implements QueryFactory {
 
 	@Override
 	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-		return new CritQuery<T>(
-				entityManager, 
-				queryDefinition);
-	}
-
-	public EntityManager getEntityManager() {
-		return entityManager;
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
+		return new CritQuery<T>(queryDefinition);
 	}
 
 }
