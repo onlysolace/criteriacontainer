@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -73,7 +74,10 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 */
 	protected Map<String, Object> namedParameterValues;
 	
-	private ArrayList<Order> ordering;
+	/**
+	 * A list of sorting criteria
+	 */
+	protected ArrayList<Order> ordering;
 	private List<Predicate> filterExpressions;
 	private Collection<CritRestriction> restrictions;
 
@@ -91,7 +95,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * 
 	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
-	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
+	 * @param entityClass the class for the entity (should be the same as T.class)
 	 * @param batchSize how many entities to recover at one time.
 	 * @param nativeSortPropertyIds the property names to be sorted
 	 * @param nativeSortPropertyAscendingStates for each property name, true means sort in ascending order, false in descending order
@@ -116,7 +120,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * 
 	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
-	 * @param entityClass the class for the entity (should be the same as T when the class is instanciated)
+	 * @param entityClass the class for the entity (should be the same as T.class)
 	 * @param batchSize how many entities to recover at one time.
 	 */
 	public CritQueryDefinition(
@@ -138,7 +142,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	public TypedQuery<Long> getCountQuery() {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<Long> nb = cb.createQuery(Long.class);
-		Root<T> t = defineQuery(cb, nb);
+		Root<?> t = defineQuery(cb, nb);
 		nb.select(cb.count(t));
 		final TypedQuery<Long> countQuery = entityManager.createQuery(nb);
 		setParameters(countQuery);
@@ -172,7 +176,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * @param cb the criteria builder for the query being built
 	 * @return a list of Order objects to be added to the query.
 	 */
-	protected final List<Order> getOrdering(Path<T> t, CriteriaBuilder cb) {
+	protected final List<Order> getOrdering(Path<?> t, CriteriaBuilder cb) {
         if (sortPropertyIds == null || sortPropertyIds.length == 0) {
             sortPropertyIds = nativeSortPropertyIds;
             sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
@@ -204,7 +208,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	public TypedQuery<T> getSelectQuery() {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		Root<T> t = defineQuery(cb, cq);
+		Root<?> t = defineQuery(cb, cq);
 		
 		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering(t, cb);
@@ -335,7 +339,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 * @param cq the query as built so far
 	 * @return the root for the query
 	 */
-	protected Root<T> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
+	protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
 		Root<T> t = cq.from(getEntityClass());
 		filterExpressions = new ArrayList<Predicate>();
 
@@ -346,7 +350,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
 		
 		// peculiar call to toArray with argument is required to cast all the elements.
-		final Predicate[] array = getFilterExpressions().toArray(new Predicate[]{});
+		final Predicate[] array = getFilterExpressions().toArray(new Predicate[0]);
 		
 		// must call where() exactly once.  This call to where() expects a sequence of
 		// Predicates. Java accepts an array instead.
@@ -378,6 +382,13 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 */
 	public EntityManager getEntityManager() {
 		return entityManager;
+	}
+
+	/**
+	 * @return a tuple query rooted on type T
+	 */
+	public TypedQuery<Tuple> getTupleSelectQuery() {
+		return null;
 	}
 	
 

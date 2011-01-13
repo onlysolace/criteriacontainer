@@ -24,8 +24,6 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
  * 
  * The query object returned contains the actual JPA 2.0 query and the context
  * necessary to run it (e.g., the entity manager)
- * 
- * TODO: remember generated instances so that existing queries are not built needlessly.
  *
  * @param <T> the type of the entity that the query will return
  */
