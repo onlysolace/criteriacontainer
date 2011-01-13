@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacontainer;
+package org.vaadin.addons.tuplecontainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,8 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
+
+import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
 
 /**
  * Type-safe implementation of a query definition.

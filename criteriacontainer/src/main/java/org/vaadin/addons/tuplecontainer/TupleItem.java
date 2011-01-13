@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacontainer;
+package org.vaadin.addons.tuplecontainer;
 
 import java.util.Collection;
 import java.util.List;
