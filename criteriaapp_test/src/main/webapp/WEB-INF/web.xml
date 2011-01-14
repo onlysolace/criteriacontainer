@@ -10,7 +10,7 @@
 		<param-value>false</param-value>
 	</context-param>
 	<servlet>
-		<servlet-name>Vaadin Application Servlet</servlet-name>
+		<servlet-name>Entity Testing</servlet-name>
 		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
 		<init-param>
 			<description>Vaadin application class to start</description>
@@ -27,12 +27,26 @@
 			<param-value>org.vaadin.addons.criteriacontainersample.TupleApplication</param-value>
 		</init-param>
 	</servlet>
+	<servlet>
+		<servlet-name>Vaadin Application Servlet</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<init-param>
+			<description>Vaadin application class to start</description>
+			<param-name>application</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.TaskApplication</param-value>
+		</init-param>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>Tuple Testing</servlet-name>
-		<url-pattern>/1</url-pattern>
+		<url-pattern>/t/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Entity Testing</servlet-name>
+		<url-pattern>/e/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Vaadin Application Servlet</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/VAADIN/*</url-pattern>
 	</servlet-mapping>
 </web-app>
