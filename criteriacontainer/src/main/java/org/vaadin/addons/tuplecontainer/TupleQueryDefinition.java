@@ -16,6 +16,7 @@
 package org.vaadin.addons.tuplecontainer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public abstract class TupleQueryDefinition extends CritQueryDefinition<Tuple> {
 	 * we must memorize the correspondence between propertyIds and the expression that fetch
 	 * item properties for that id.
 	 */
-	protected Map<Object,Expression<?>> sortExpressions;
+	protected Map<Object,Expression<?>> sortExpressions = new HashMap<Object, Expression<?>>();
 
 
 	/**
