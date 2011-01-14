@@ -58,7 +58,7 @@ public final class TupleQuery implements Query, Serializable {
         this.queryDefinition = criteriaQueryDefinition;
         
         this.entityManager = queryDefinition.getEntityManager();
-        this.selectQuery = criteriaQueryDefinition.getTupleSelectQuery();
+        this.selectQuery = criteriaQueryDefinition.getSelectQuery();
         this.selectCountQuery = criteriaQueryDefinition.getCountQuery();
         this.applicationTransactionManagement = criteriaQueryDefinition.isApplicationManagedTransactions();
     }
@@ -158,7 +158,8 @@ public final class TupleQuery implements Query, Serializable {
     }
 
     /**
-     * Converts tup to Item.
+     * Converts tuple to Item.
+     * The item is filled with default value for each property.
      * 
      * @param tuple to be converted.
      * @return item converted from tuple.
@@ -168,6 +169,7 @@ public final class TupleQuery implements Query, Serializable {
         TupleItem tupleItem = new TupleItem();
         tupleItem.setTuple(tuple);
 
+        // if tuple did not fill all properties, set default values according to property definitions
         for (Object propertyId : queryDefinition.getPropertyIds()) {
             if (tupleItem.getItemProperty(propertyId) == null) {
                 tupleItem.addItemProperty(

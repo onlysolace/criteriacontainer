@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -77,7 +76,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	/**
 	 * A list of sorting criteria
 	 */
-	protected ArrayList<Order> ordering;
+
 	private List<Predicate> filterExpressions;
 	private Collection<CritRestriction> restrictions;
 
@@ -182,7 +181,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
             sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
         }
         
-        ordering = new ArrayList<Order>();
+        ArrayList<Order> ordering = new ArrayList<Order>();
     	if (sortPropertyIds == null || sortPropertyIds.length == 0) return ordering;
     	
 		for (int curItem = 0; curItem < sortPropertyIds.length; curItem++ ) {
@@ -384,12 +383,6 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		return entityManager;
 	}
 
-	/**
-	 * @return a tuple query rooted on type T
-	 */
-	public TypedQuery<Tuple> getTupleSelectQuery() {
-		return null;
-	}
 	
 
 	
