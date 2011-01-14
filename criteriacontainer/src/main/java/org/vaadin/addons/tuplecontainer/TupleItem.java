@@ -15,13 +15,11 @@
  */
 package org.vaadin.addons.tuplecontainer;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.PropertysetItem;
@@ -34,12 +32,9 @@ import com.vaadin.data.util.PropertysetItem;
  */
 @SuppressWarnings("serial")
 public final class TupleItem extends PropertysetItem {
-    
-    /** The default item. */
-    private Item item = new PropertysetItem();
-    
+
 	/** The backing tuple */
-	private Object tuple;
+	private Tuple tuple;
 
     /**
      * Default constructor initializes default Item.
@@ -48,24 +43,27 @@ public final class TupleItem extends PropertysetItem {
     }
 
 	/**
-	 * Set the backing tuple.
-	 * Each value in the tuple is assigned to the corresponding property
-	 * in the item (respecting the order)
+	 * Set the backing tuple without assigning values to properties
 	 * 
 	 * @param tuple   from which the item properties are extracted.
 	 */
 	public void setTuple(Tuple tuple) {
 		this.tuple = tuple;
+		initializeFromTuple();
+	}
+
+	/**
+	 * Set item properties based on values returned in tuple.
+	 */
+	protected void initializeFromTuple() {
 		final List<TupleElement<?>> elements = tuple.getElements();
-		Collection<?> propertyIds = item.getItemPropertyIds();
 		
-		if (elements.size() != propertyIds.size()) {
-			throw new RuntimeException("Tuple must have same number of elements as Item");
-		}
-		
-		int i = 0;
-		for (Object curPropertyId : propertyIds) {
-			final Object value = tuple.get(i);
+		for (TupleElement<?> curElem  : elements) {
+			String curPropertyId = curElem.getAlias();
+			if (curPropertyId == null) {
+				throw new RuntimeException("Selection element "+curElem.toString()+"does not have an alias");
+			}
+			final Object value = tuple.get(curPropertyId);
 			Property property = new ObjectProperty<Object>(value);
 			this.addItemProperty(curPropertyId, property);
 		}
