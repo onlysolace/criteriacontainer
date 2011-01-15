@@ -15,9 +15,15 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
+import java.util.LinkedList;
+
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.vaadin.addons.tuplecontainer.TupleContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacontainer.CritRestriction;
+import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 /**
  * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
@@ -26,7 +32,8 @@ import org.vaadin.addons.tuplecontainer.TupleContainer;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public final class BeanTupleContainer extends TupleContainer {
+public final class BeanTupleContainer extends LazyQueryContainer {
+	final static Logger logger = LoggerFactory.getLogger(BeanTupleContainer.class);
     
     /**
      * Standard constructor for type-safe queries.
@@ -42,15 +49,42 @@ public final class BeanTupleContainer extends TupleContainer {
 	 * @param attribute the attribute being retrieved 
 	 * @param defaultValue value to set for the item
 	 * @param readOnly the property cannot be set
-	 * @param sortable the property can be used for sorting
 	 */
-	public void addContainerNestedProperty(
+	public void addContainerSortableProperty(
 			String entityAlias, 
 			SingularAttribute<?, ?> attribute,
 			Object defaultValue, 
-			boolean readOnly, 
-			boolean sortable) {
-		addContainerProperty(entityAlias+"."+attribute.getName(), attribute.getJavaType(), defaultValue, readOnly, sortable);
+			boolean readOnly) {
+		String propertyId = entityAlias+"."+attribute.getName();
+		Class<?> javaType = instantatiableType(attribute.getJavaType());
+		addContainerProperty(propertyId, javaType, defaultValue, readOnly, true);
+	}
+
+
+	/**
+	 * @param javaType
+	 * @return the corresponding class for which newInstance can be called.
+	 */
+	private Class<?> instantatiableType(Class<?> javaType) {
+		if (javaType == long.class) {
+			javaType = Long.class;
+		} else if (javaType == int.class) {
+			javaType = Integer.class;
+		} else if (javaType == boolean.class) {
+			javaType = Boolean.class;
+		}
+		return javaType;
+	}
+
+
+	/**
+	/**
+	 * Filters the container content by setting "where" criteria in the JPA Criteria.
+	 * @param restrictions  restrictions to set to JPA query or null to clear.
+	 */
+	public void filter(LinkedList<CritRestriction> restrictions) {
+        ((CritQueryDefinition<?>) getQueryView().getQueryDefinition()).setRestrictions(restrictions);
+        refresh();
 	}
 
 

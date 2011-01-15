@@ -23,6 +23,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addons.lazyquerycontainer.Query;
 
 import com.vaadin.data.Item;
@@ -35,7 +37,8 @@ import com.vaadin.data.util.ObjectProperty;
  */
 @SuppressWarnings("serial")
 public final class BeanTupleQuery implements Query, Serializable {
-    
+	private Logger logger = LoggerFactory.getLogger(BeanTupleQuery.class);
+	
     /** The JPA EntityManager. */
     private EntityManager entityManager;
     /** Flag reflecting whether application manages transactions. */
@@ -49,6 +52,7 @@ public final class BeanTupleQuery implements Query, Serializable {
     private BeanTupleQueryDefinition queryDefinition;
     /** The size of the query. */
     private int querySize = -1;
+
 
     /**
      * Constructor for configuring the query.
@@ -172,11 +176,13 @@ public final class BeanTupleQuery implements Query, Serializable {
         // if tuple did not fill all properties, set default values according to property definitions
         for (Object propertyId : queryDefinition.getPropertyIds()) {
             if (tupleItem.getItemProperty(propertyId) == null) {
-                tupleItem.addItemProperty(
+                Class<?> propertyType = queryDefinition.getPropertyType(propertyId);
+                logger.warn("property type = {}",propertyType);
+				tupleItem.addItemProperty(
                         propertyId,
                         new ObjectProperty<Object>(
                         		queryDefinition.getPropertyDefaultValue(propertyId),
-                        		(Class<Object>) queryDefinition.getPropertyType(propertyId),
+                        		(Class<Object>) propertyType,
                         		queryDefinition.isPropertyReadOnly(propertyId)));
             }
         }

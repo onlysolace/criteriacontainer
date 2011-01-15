@@ -15,8 +15,9 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
+import org.vaadin.addons.lazyquerycontainer.Query;
+import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
-import org.vaadin.addons.tuplecontainer.TupleQueryFactory;
 
 /**
  * Create a query based on a query definition.
@@ -24,6 +25,16 @@ import org.vaadin.addons.tuplecontainer.TupleQueryFactory;
  * The query object returned contains the actual JPA 2.0 query and the context
  * necessary to run it (e.g., the entity manager)
  */
-public class BeanTupleQueryFactory extends TupleQueryFactory implements QueryFactory {
+public class BeanTupleQueryFactory implements QueryFactory {
+	private BeanTupleQueryDefinition queryDefinition;
+	
+	@Override
+	public void setQueryDefinition(QueryDefinition queryDefinition) {
+		this.queryDefinition = (BeanTupleQueryDefinition) queryDefinition;
+	}
 
+	@Override
+	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
+		return new BeanTupleQuery(queryDefinition);
+	}
 }

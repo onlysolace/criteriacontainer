@@ -15,9 +15,11 @@
  */
 
 package org.vaadin.addons.beantuplecontainer;
+import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
-import org.vaadin.addons.tuplecontainer.TupleQueryView;
 
+import com.vaadin.data.Item;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 
 
@@ -30,11 +32,12 @@ import com.vaadin.data.Property.ValueChangeListener;
  * 
  */
 @SuppressWarnings("serial")
-public class BeanTupleQueryView extends TupleQueryView implements QueryView, ValueChangeListener {
+public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	private BeanTupleQueryFactory queryFactory;
-	@SuppressWarnings("unused")
 	private BeanTupleQueryDefinition queryDefinition;
+	private LazyQueryView lazyQueryView;
+	
 	
 
     /**
@@ -45,9 +48,9 @@ public class BeanTupleQueryView extends TupleQueryView implements QueryView, Val
      * @param queryFactory The QueryFactory to be used.
      */
     public BeanTupleQueryView(final BeanTupleQueryDefinition queryDefinition, final BeanTupleQueryFactory queryFactory) {
-    	super(queryDefinition, queryFactory);
     	this.queryFactory = queryFactory;
     	this.queryDefinition = queryDefinition;
+        this.lazyQueryView = new LazyQueryView(queryDefinition, queryFactory);
     }
 
 	
@@ -58,7 +61,6 @@ public class BeanTupleQueryView extends TupleQueryView implements QueryView, Val
 	/**
 	 * @return the query factory that creates the views.
 	 */
-	@Override
 	public BeanTupleQueryFactory getQueryFactory() {
 		return queryFactory;
 	}
@@ -68,6 +70,91 @@ public class BeanTupleQueryView extends TupleQueryView implements QueryView, Val
 	 * Methods below are simply delegates
 	 */
 
+	@Override
+	public void commit() {
+		lazyQueryView.commit();
+	}
+
+	@Override
+	public void discard() {
+		lazyQueryView.discard();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return lazyQueryView.equals(obj);
+	}
+
+	@Override
+	public BeanTupleQueryDefinition getQueryDefinition() {
+		return queryDefinition;
+	}
+
+	/**
+	 * @return the number of instances retrieved each time
+	 */
+	public int getBatchSize() {
+		return lazyQueryView.getBatchSize();
+	}
+
+	@Override
+	public Item getItem(int index) {
+		return lazyQueryView.getItem(index);
+	}
+
+	@Override
+	public int hashCode() {
+		return lazyQueryView.hashCode();
+	}
+
+	@Override
+	public void sort(Object[] sortPropertyIds, boolean[] ascendingStates) {
+		queryDefinition.setSortState(sortPropertyIds, ascendingStates);
+        refresh();
+	}
+
+	@Override
+	public void refresh() {
+		lazyQueryView.refresh();
+	}
+
+
+	@Override
+	public void removeItem(int index) {
+		lazyQueryView.removeItem(index);
+	}
+
+	@Override
+	public void removeAllItems() {
+		lazyQueryView.removeAllItems();
+	}
+
+	@Override
+	public boolean isModified() {
+		return lazyQueryView.isModified();
+	}
+
+	@Override
+	public String toString() {
+		return lazyQueryView.toString();
+	}
+
+	@Override
+	public void valueChange(ValueChangeEvent event) {
+		lazyQueryView.valueChange(event);
+	}
+
+	@Override
+	public int addItem() {
+		return lazyQueryView.addItem();
+	}
+
+
+	@Override
+	public int size() {
+		return lazyQueryView.size();
+	}
+	
 
 
 }
