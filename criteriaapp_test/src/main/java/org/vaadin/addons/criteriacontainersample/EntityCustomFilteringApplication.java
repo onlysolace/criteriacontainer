@@ -19,16 +19,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
 import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
@@ -43,64 +38,46 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public class ParameterizedFilteringTaskApplication extends AbstractTaskApplication {
+public class EntityCustomFilteringApplication extends AbstractEntityApplication {
 	
-	public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> {
-
-		/** parameter to be set at query time */
-		private ParameterExpression<String> nameFilter;
+	public class CustomFilteringQueryDefinition extends CritQueryDefinition<Task> {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;
 
-		@SuppressWarnings("unused")
-		final private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 
 		/**
 		 * Constructor.
 		 * @param entityManager the entityManager that gives us access to the database and cache
 		 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
-		 * @param batchSize how many tuples to retrieve at once. 
+		 * @param batchSize how many tuples to retrieve at once.
 		 */
-		public ParameterizedTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		public CustomFilteringQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, Task.class, batchSize);
 		}
 		
 
 		/**
-		 * Define the WHERE clause conditions specific to this query.
+		 * Define filtering conditions for the query.
 		 * 
-		 * In this example, the {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
-		 * place holder.  In such a case, the {@link #setParameters(TypedQuery)} method must set the parameter values.
+		 * A list of predicates is created. The container will add these predicates to those created by the
+		 * {@link CriteriaContainer#filter(java.util.LinkedList)} mechanism.
 		 */
 		@Override
-		protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
-			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-
-				// This example shows how to add a parameter to the query so the query does not have to be changed.
-				Expression<String> nameField = t.get(Task_.name);
-				nameFilter = cb.parameter(String.class);
-				filterExpressions.add(cb.like(nameField,nameFilter));
+		protected List<Predicate> addPredicates(
+				List<Predicate> filterExpressions, 
+				CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
+			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+				// WHERE t.name LIKE ...
+				Predicate condition = cb.like(
+						t.get(Task_.name), // t.name
+						nameFilterValue);  // pattern to be matched
+				filterExpressions.add(condition);
 			}
 			return filterExpressions;
-
 		}
 		
-		/**
-		 * Set values for the parameters used in the predicates.
-		 * 
-		 * Should provide a value for all the parameter objects added in the {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)}
-		 * method.  Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
-		 */
-		@Override
-		public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
-			super.setParameters(tq);
-			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-				tq.setParameter(nameFilter, nameFilterValue);
-			}
-			return tq;
-		}
-		
+		/* getters and setters */
 		
 		public String getNameFilterValue() {
 			return nameFilterValue;
@@ -111,16 +88,15 @@ public class ParameterizedFilteringTaskApplication extends AbstractTaskApplicati
 		}
 
 	}
-
 	
-	private ParameterizedTaskQueryDefinition cd;
+	private CustomFilteringQueryDefinition cd;
 
 	/**
 	 * @return the container used to feed the table
 	 */
 	@Override
 	protected CriteriaContainer<Task> createTaskContainer() {
-		cd = new ParameterizedTaskQueryDefinition(entityManager,true,100);
+		cd = new CustomFilteringQueryDefinition(entityManager,true,100);
 		
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
 		addContainerProperties(taskContainer);

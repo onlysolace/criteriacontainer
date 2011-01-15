@@ -34,7 +34,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public class SimpleFilteringTaskApplication extends AbstractTaskApplication  {
+public class EntitySimpleFilteringApplication extends AbstractEntityApplication  {
 	
 	protected CritQueryDefinition<Task> cd;
 	
@@ -57,7 +57,7 @@ public class SimpleFilteringTaskApplication extends AbstractTaskApplication  {
 	 * In this version, we use the generic filtering mechanism provided
 	 * by CriteriaContainer.
 	 * 
-	 * @see {@link CustomFilteringTaskApplication} and {@link CustomFilteringQueryDefinition} for
+	 * @see {@link EntityCustomFilteringApplication} and {@link CustomFilteringQueryDefinition} for
 	 * an alternate approach where arbitrary complex filtering can be done through methods.
 	 */
 	@Override

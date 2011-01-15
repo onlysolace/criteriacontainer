@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011 Tommi S.E. Laukkanen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,33 +26,29 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 
-import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
-import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
 import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
+import org.vaadin.addons.tuplecontainer.TupleContainer;
+import org.vaadin.addons.tuplecontainer.TupleQueryDefinition;
 
 import com.vaadin.ui.Button.ClickListener;
 
 /**
- * Demonstrate use of {@link BeanTupleContainer}.
- * 
- * This container fetches a tuple containing Entities. The properties of the
- * container refer either to the fields of the entities or to additional columns
- * retrieved by the query.
- * 
+ * Example application demonstrating the Lazy Query Container features.
+ * @author Tommi S.E. Laukkanen
  * @author Modified by Jean-François Lamy
  */
 
-public class CustomFilteringBeanTupleApplication extends AbstractTupleApplication implements ClickListener {
+public class TupleCustomFilteringApplication extends AbstractTupleApplication implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
-	private CustomFilteringBeanTupleQueryDefinition cd;
+	private CustomFilteringTupleQueryDefinition cd;
 
 	@SuppressWarnings("serial")
-	class CustomFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
+	class CustomFilteringTupleQueryDefinition extends TupleQueryDefinition {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;
@@ -65,7 +61,8 @@ public class CustomFilteringBeanTupleApplication extends AbstractTupleApplicatio
 		 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
 		 * @param batchSize how many tuples to retrieve at once.
 		 */
-		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		public CustomFilteringTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+			// We pass Task.class because the parameterized type of this class is <Task>
 			super(entityManager, applicationManagedTransactions, batchSize);
 		}
 		
@@ -93,7 +90,6 @@ public class CustomFilteringBeanTupleApplication extends AbstractTupleApplicatio
 			task = person.join(Person_.tasks); 
 			
 			// WHERE t.name LIKE nameFilterValue
-			// this version prevents the container from adding additional filters.
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
 				cq.where(
 						cb.like(
@@ -106,17 +102,16 @@ public class CustomFilteringBeanTupleApplication extends AbstractTupleApplicatio
 			// propertyExpression is used to ensure that the query and the item
 			// are consistent (the propertyId is used as alias)
 			cq.multiselect(
-					// must add all the entities expected, each with an alias
-					task.alias("task"),
-					person.alias("person"),
-					// must add all columns on which sorting is needed
 					propertyExpression(task, Task_.taskId, sortExpressions),
-					propertyExpression(task, Task_.name, sortExpressions),
+					propertyExpression("taskName", task, Task_.name, sortExpressions),
 					propertyExpression(person, Person_.lastName, sortExpressions),
 					propertyExpression(person, Person_.firstName, sortExpressions)
 					);
 			return person;
 		}
+		
+
+		/* getters and setters */
 		
 		public String getNameFilterValue() {
 			return nameFilterValue;
@@ -125,30 +120,26 @@ public class CustomFilteringBeanTupleApplication extends AbstractTupleApplicatio
 		public void setNameFilterValue(String nameFilterValue) {
 			this.nameFilterValue = nameFilterValue;
 		}
+
+
 	}
 
 	/**
 	 * @return
 	 */
 	@Override
-	protected BeanTupleContainer createTupleContainer() {
-		cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
-		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
+	protected TupleContainer createTupleContainer() {
+		cd = new CustomFilteringTupleQueryDefinition(entityManager,true,100);
+		TupleContainer tupleContainer = new TupleContainer(cd);
 
-		final String taskPrefix = Task.class.getSimpleName();
-		final String personPrefix = Person.class.getSimpleName();
-		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
-		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
-		
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.taskId, new Long(0), true, true);
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.name, "", true, true);
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.alpha, "", true, true);
-		tupleContainer.addContainerNestedProperty(personPrefix, Person_.lastName, "", true, true);
-		tupleContainer.addContainerNestedProperty(personPrefix, Person_.firstName, "", false, true);
+		tupleContainer.addContainerProperty(Task_.taskId.getName(), Long.class, new Long(0), true, true);
+		tupleContainer.addContainerProperty("taskName", String.class, "", true, true);
+		tupleContainer.addContainerProperty(Task_.alpha.getName(), String.class, "", true, true);
+		tupleContainer.addContainerProperty(Person_.lastName.getName(), String.class, "", true, true);
+		tupleContainer.addContainerProperty(Person_.firstName.getName(), String.class, "", false, true);
 
 		return tupleContainer;
 	}
-
 
 	@Override
 	protected void doFiltering() {
@@ -165,23 +156,4 @@ public class CustomFilteringBeanTupleApplication extends AbstractTupleApplicatio
 			criteriaContainer.filter((LinkedList<CritRestriction>)null);          
 		}
 	}
-
-
-	@Override
-	protected void defineTableColumns() {
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.taskId.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.taskId.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Person_.firstName.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Person_.lastName.getName());
-		
-		visibleColumnLabels.add("Task ID");
-		visibleColumnLabels.add("Name");
-		visibleColumnLabels.add("Assignee First Name");
-		visibleColumnLabels.add("Assignee Last Name");
-		
-		table.setVisibleColumns(visibleColumnIds.toArray());
-		table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
-	}
-	
-	
 }
