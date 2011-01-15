@@ -67,7 +67,7 @@ public abstract class AbstractTaskApplication extends Application implements Cli
 	protected CriteriaContainer<Task> criteriaContainer;
 	protected ArrayList<Object> visibleColumnIds = new ArrayList<Object>();
 	protected ArrayList<String> visibleColumnLabels = new ArrayList<String>();
-	protected Logger logger = LoggerFactory.getLogger(TaskApplication.class);
+	protected Logger logger = LoggerFactory.getLogger(SimpleFilteringTaskApplication.class);
 
 
 	/**
