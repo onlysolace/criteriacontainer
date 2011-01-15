@@ -15,17 +15,41 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
 import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.PropertysetItem;
 
 /**
- * BeanTupleItem allows accessing a Tuple's values through the Item interface.
+ * BeanTupleItem allows accessing and modifying entities retrieved in a Tuple.
+ * 
+ * For each tuple element that is an entity, a BeanItem is created.
+ * The properties inside each beanItem can be accessed through the parent property.
+ * 
+ * In the following code, assume that the query returns Person entities under the alias
+ * "person", and a number under the alias "total".
+ * 
+ * <pre>
+ * BeanTupleItem queryResult = ...
+ * queryResult.getTuple().get("person"); // returns an entity of type Person
+ * queryResult.getTuple().get("total"); // returns a number
+ * 
+ * queryResult.getItemProperty("person") // returns a Property with a BeanItem inside
+ * queryResult.getItemProperty("person").getValue() // returns a BeanItem
+ * queryResult.getItemProperty("person").getValue().getBean() // returns a Person
+ * 
+ * queryResult.getItemProperty("person.lastName") // returns a Property
+ * queryResult.getItemProperty("person.lastName").getValue() // returns a String
+ * </pre>
  * 
  * @author jflamy
  * 
@@ -36,9 +60,14 @@ public final class BeanTupleItem extends PropertysetItem {
 	/** The backing tuple */
 	private Tuple tuple;
 
-    /**
-     * Default constructor initializes default Item.
-     */
+	/** 
+	 * elements in the tuple that are entities, and can be edited as BeanItem
+	 * the alias for the element in the tuple, and the propertyId of the 
+	 * corresponding property are the same.
+	 */
+	private Set<Object> entities = new HashSet<Object>();
+	
+    /** Default constructor initializes default Item. */
     public BeanTupleItem() {
     }
 
@@ -61,9 +90,16 @@ public final class BeanTupleItem extends PropertysetItem {
 		for (TupleElement<?> curElem  : elements) {
 			String curPropertyId = curElem.getAlias();
 			if (curPropertyId == null) {
-				throw new RuntimeException("Selection element "+curElem.toString()+"does not have an alias");
+				throw new RuntimeException("Selection element "+curElem.toString()+" does not have an alias");
 			}
-			final Object value = tuple.get(curPropertyId);
+			
+			Object value = tuple.get(curPropertyId);
+			if (value.getClass().isAnnotationPresent(Entity.class)) {
+				// the class is an entity, create a bean item
+				value = new BeanItem<Object>(value);
+				entities.add(value);
+			}
+			
 			Property property = new ObjectProperty<Object>(value);
 			this.addItemProperty(curPropertyId, property);
 		}
@@ -76,10 +112,35 @@ public final class BeanTupleItem extends PropertysetItem {
 		return tuple;
 	}
 	
+	
 	/**
 	 * persist all entities in the tuple.
+	 * @param entityManager to be used for storing
 	 */
-	public void persist() {
+	public void persist(EntityManager entityManager) {
+		for (Object curEntity: entities){
+			entityManager.persist(curEntity);
+		}
+	}
+	
+	/**
+	 * merge all entities in the tuple.
+	 * @param entityManager to be used for storing
+	 */
+	public void merge(EntityManager entityManager) {
+		for (Object curEntity: entities){
+			entityManager.merge(curEntity);
+		}
+	}
+	
+	/**
+	 * remove all entities in the tuple.
+	 * @param entityManager to be used for storing
+	 */
+	public void remove(EntityManager entityManager) {
+		for (Object curEntity: entities){
+			entityManager.remove(curEntity);
+		}
 	}
 
 }

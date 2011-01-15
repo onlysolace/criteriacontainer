@@ -61,7 +61,7 @@ public final class TupleItem extends PropertysetItem {
 		for (TupleElement<?> curElem  : elements) {
 			String curPropertyId = curElem.getAlias();
 			if (curPropertyId == null) {
-				throw new RuntimeException("Selection element "+curElem.toString()+"does not have an alias");
+				throw new RuntimeException("Selection element "+curElem.toString()+" does not have an alias");
 			}
 			final Object value = tuple.get(curPropertyId);
 			Property property = new ObjectProperty<Object>(value);
@@ -76,10 +76,5 @@ public final class TupleItem extends PropertysetItem {
 		return tuple;
 	}
 	
-	/**
-	 * persist all entities in the tuple.
-	 */
-	public void persist() {
-	}
 
 }

@@ -134,13 +134,13 @@ public final class BeanTupleQuery implements Query, Serializable {
             entityManager.getTransaction().begin();
         }
         for (Item item : addedItems) {
-            entityManager.persist(fromItem(item));
+        	((BeanTupleItem)item).persist(entityManager);
         }
         for (Item item : modifiedItems) {
-            entityManager.persist(fromItem(item));
+        	((BeanTupleItem)item).persist(entityManager);
         }
         for (Item item : removedItems) {
-            entityManager.remove(fromItem(item));
+        	((BeanTupleItem)item).remove(entityManager);
         }
         if (applicationTransactionManagement) {
             entityManager.getTransaction().commit();
@@ -182,14 +182,5 @@ public final class BeanTupleQuery implements Query, Serializable {
         }
 
         return tupleItem;
-    }
-
-    /**
-     * Converts item back to bean.
-     * @param item Item to be converted to bean.
-     * @return Resulting bean.
-     */
-    private Object fromItem(final Item item) {
-        return ((BeanTupleItem)item).getTuple();
     }
 }

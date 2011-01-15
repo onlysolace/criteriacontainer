@@ -27,7 +27,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
 
@@ -138,7 +140,52 @@ public abstract class TupleQueryDefinition extends CritQueryDefinition<Tuple> {
 	}
 
 
+	/**
+	 * Define the expression required to retrieve a column.
+	 * This version is used when the propertyId is the same as the field name in the entity.
+	 * 
+	 * The entity field will be retrieved as a tuple element, and copied to the container item.
+	 * In order to enable sorting, we must memorize the query expression used to retrieve each 
+	 * field.
+	 * 
+	 * @param path the root or join from which the desired column will be fetched
+	 * @param column the expression used to get the desired column in the query results
+	 * @param sortExpressions a map to enable sorting on 
+	 * @return an expression that can be used in JPA order()
+	 */
+	protected Expression<?> propertyExpression(
+			final Path<?> path,
+			final SingularAttribute<?, ?> column,
+			Map<Object, Expression<?>> sortExpressions) {
+		return propertyExpression(column.getName(), path, column, sortExpressions);
+	}
 
+	/**
+	 * Define the expression required to retrieve an item property.
+	 * This version is used when the propertyId must differ from the field name in the Entity
+	 * (for example, when two fields have the same name, and aliases must be used, this method
+	 * ensures that the aliases are defined consistently with the propertyId).
+	 * 
+	 * The entity field will be retrieved as a tuple element, and copied to the container item.
+	 * In order to enable sorting, we must memorize the query expression used to retrieve each 
+	 * field.
+	 * 
+	 * @param propertyId the property identifier in the items that will be constructed
+	 * @param path the root or join from which the desired column will be fetched
+	 * @param column the expression used to get the desired column in the query results
+	 * @param sortExpressions a map to enable sorting on 
+	 * @return an expression that can be used in JPA order()
+	 */
+	protected Expression<?> propertyExpression(
+			final String propertyId,
+			final Path<?> path,
+			final SingularAttribute<?, ?> column,
+			Map<Object, Expression<?>> sortExpressions) {
+		final Expression<?> expression = path.get(column.getName());
+		sortExpressions.put(propertyId,expression);
+		expression.alias(propertyId);
+		return expression;
+	}
 
 }
 

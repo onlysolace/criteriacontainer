@@ -15,26 +15,18 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
-import java.util.LinkedList;
+import javax.persistence.metamodel.SingularAttribute;
 
-import javax.persistence.EntityManager;
-
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
-import org.vaadin.addons.criteriacontainer.CritQueryFactory;
-import org.vaadin.addons.criteriacontainer.CritRestriction;
-import org.vaadin.addons.lazyquerycontainer.CompositeItem;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-
-import com.vaadin.data.util.BeanItem;
+import org.vaadin.addons.tuplecontainer.TupleContainer;
 
 /**
  * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
  * and buffered writes.
- * @param <T> Entity class.
+ * 
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public final class BeanTupleContainer<T extends Object> extends LazyQueryContainer {
+public final class BeanTupleContainer extends TupleContainer {
     
     /**
      * Standard constructor for type-safe queries.
@@ -43,91 +35,23 @@ public final class BeanTupleContainer<T extends Object> extends LazyQueryContain
     public BeanTupleContainer(BeanTupleQueryDefinition cd){
     	super(new BeanTupleQueryView(cd,new BeanTupleQueryFactory()));
     }
-    
-    /**
-     * Standard constructor for type-safe queries.
-     * @param cd the definition of the query (independent of its execution context)
-     * @param cf the factory that will generate a context in which the query will run.
-     */
-    public BeanTupleContainer(
-    		BeanTupleQueryDefinition cd,
-    		BeanTupleQueryFactory cf
-            ){
-    	super(new BeanTupleQueryView(cd,cf));
-    }
 
-    /**
-     * Constructor for typical case where an entity is queried and sorted.
-     * @param entityManager The JPA EntityManager.
-     * @param applicationManagedTransactions True if application manages transactions instead of container.
-     * @param entityClass The entity class.
-     * @param batchSize The batch size.
-     * @param nativeSortPropertyIds Properties participating in the native sort.
-     * @param nativeSortPropertyAscendingStates List of property sort directions for the native sort.
-     */
-    public BeanTupleContainer(
-    		final EntityManager entityManager,
-    		final boolean applicationManagedTransactions,
-    		final Class<T> entityClass,
-            final int batchSize,
-            final Object[] nativeSortPropertyIds,
-            final boolean[] nativeSortPropertyAscendingStates
-            )
-            {
-    	super(
-    			new CritQueryDefinition<T>(
-    					entityManager,
-    					applicationManagedTransactions,
-    					entityClass,
-    					batchSize,
-    					nativeSortPropertyIds,
-    					nativeSortPropertyAscendingStates),
-    			new CritQueryFactory<T>());
-    }
-    
-    
+
 	/**
-	 * Filters the container content by setting "where" criteria in the JPA Criteria.
-	 * @param restrictions  restrictions to set to JPA query or null to clear.
+	 * @param entityAlias the alias under which the parent entity is retrieved
+	 * @param attribute the attribute being retrieved 
+	 * @param defaultValue value to set for the item
+	 * @param readOnly the property cannot be set
+	 * @param sortable the property can be used for sorting
 	 */
-	@SuppressWarnings("unchecked")
-	public void filter(LinkedList<CritRestriction> restrictions) {
-        ((CritQueryDefinition<T>) getQueryView().getQueryDefinition()).setRestrictions(restrictions);
-        refresh();
+	public void addContainerNestedProperty(
+			String entityAlias, 
+			SingularAttribute<?, ?> attribute,
+			Object defaultValue, 
+			boolean readOnly, 
+			boolean sortable) {
+		addContainerProperty(entityAlias+"."+attribute.getName(), attribute.getJavaType(), defaultValue, readOnly, sortable);
 	}
-
-
-    /**
-     * Adds entity to the container as first item i.e. at index 0.
-     * @return the new constructed entity.
-     */
-    public T addEntity() {
-        final Object itemId = addItem();
-        return getEntity((Integer) itemId);
-    }
-
-    /**
-     * Removes given entity at given index and returns it.
-     * @param index Index of the entity to be removed.
-     * @return The removed entity.
-     */
-    public T removeEntity(final int index) {
-        final T entityToRemove = getEntity(index);
-        removeItem(new Integer(index));
-        return entityToRemove;
-    }
-    
-    /**
-     * Gets entity at given index.
-     * @param index The index of the entity.
-     * @return the entity.
-     */
-    @SuppressWarnings("unchecked")
-    public T getEntity(final int index) {
-        final CompositeItem compositeItem = (CompositeItem) getItem(new Integer(index));
-        final BeanItem<T> beanItem = (BeanItem<T>) compositeItem.getItem("bean");
-        return beanItem.getBean();
-    }
 
 
 
