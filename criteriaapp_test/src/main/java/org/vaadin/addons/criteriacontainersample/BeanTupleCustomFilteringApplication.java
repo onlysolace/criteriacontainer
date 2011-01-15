@@ -15,15 +15,17 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
@@ -46,7 +48,7 @@ import com.vaadin.ui.Button.ClickListener;
  * @author Modified by Jean-François Lamy
  */
 
-public class BeanTupleCustomFilteringApplication extends AbstractTupleApplication implements ClickListener {
+public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
 	private CustomFilteringBeanTupleQueryDefinition cd;
@@ -85,7 +87,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractTupleApplicatio
 		@Override
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
-				CriteriaQuery<Tuple> cq,
+				CriteriaQuery<?> cq,
 				Map<Object, Expression<?>> sortExpressions) {
 			
 			// FROM task JOIN PERSON 
@@ -103,19 +105,31 @@ public class BeanTupleCustomFilteringApplication extends AbstractTupleApplicatio
 			}
 			
 			// SELECT task.taskId as taskId, task.name as taskName, ...
-			// propertyExpression is used to ensure that the query and the item
-			// are consistent (the propertyId is used as alias)
-			cq.multiselect(
-					// must add all the entities expected, each with an alias
-					task.alias("task"),
-					person.alias("person"),
-					// must add all columns on which sorting is needed
-					propertyExpression(task, Task_.taskId, sortExpressions),
-					propertyExpression(task, Task_.name, sortExpressions),
-					propertyExpression(person, Person_.lastName, sortExpressions),
-					propertyExpression(person, Person_.firstName, sortExpressions)
-					);
+			List<Selection<?>> selections = new ArrayList<Selection<?>>();
+			// must add all the entities expected, each with an alias
+			selections.add(task.alias("task"));
+			selections.add(person.alias("person"));
+			// add columns for the sortable properties of the container
+			addSortSelections(sortExpressions, selections);
+			
+			cq.multiselect(selections.toArray(new Selection[0]));
+			
 			return person;
+		}
+
+
+		/**
+		 * @param sortExpressions
+		 * @param selections
+		 */
+		private void addSortSelections(
+				Map<Object, Expression<?>> sortExpressions,
+				List<Selection<?>> selections) {
+			selections.add(sortExpression(task, Task_.taskId, sortExpressions));
+			selections.add(sortExpression(task, Task_.name, sortExpressions));
+			selections.add(sortExpression(task, Task_.alpha, sortExpressions));
+			selections.add(sortExpression(person, Person_.lastName, sortExpressions));
+			selections.add(sortExpression(person, Person_.firstName, sortExpressions));
 		}
 		
 		public String getNameFilterValue() {
@@ -140,12 +154,14 @@ public class BeanTupleCustomFilteringApplication extends AbstractTupleApplicatio
 		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
 		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
 		
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.taskId, new Long(0), true, true);
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.name, "", true, true);
-		tupleContainer.addContainerNestedProperty(taskPrefix, Task_.alpha, "", true, true);
-		tupleContainer.addContainerNestedProperty(personPrefix, Person_.lastName, "", true, true);
-		tupleContainer.addContainerNestedProperty(personPrefix, Person_.firstName, "", false, true);
-
+		// one line is needed for each field extracted from an entity on which sorting is needed.
+		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.taskId, new Long(0), true);
+		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.name, "", true);
+		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.alpha, "", true);
+		tupleContainer.addContainerSortableProperty(personPrefix, Person_.lastName, "", true);
+		tupleContainer.addContainerSortableProperty(personPrefix, Person_.firstName, "", false);
+		
+		logger.warn("created container");
 		return tupleContainer;
 	}
 
@@ -170,9 +186,9 @@ public class BeanTupleCustomFilteringApplication extends AbstractTupleApplicatio
 	@Override
 	protected void defineTableColumns() {
 		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.taskId.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.taskId.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Person_.firstName.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Person_.lastName.getName());
+		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.name.getName());
+		visibleColumnIds.add(Person.class.getSimpleName()+"."+Person_.firstName.getName());
+		visibleColumnIds.add(Person.class.getSimpleName()+"."+Person_.lastName.getName());
 		
 		visibleColumnLabels.add("Task ID");
 		visibleColumnLabels.add("Name");
