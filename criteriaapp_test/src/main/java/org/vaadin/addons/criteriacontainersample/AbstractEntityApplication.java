@@ -49,7 +49,7 @@ import com.vaadin.ui.themes.Runo;
  * @author jflamy
  *
  */
-public abstract class AbstractTaskApplication extends Application implements ClickListener {
+public abstract class AbstractEntityApplication extends Application implements ClickListener {
 
 	private static final long serialVersionUID = 1L;
 	protected static final String PERSISTENCE_UNIT = "vaadin-lazyquerycontainer-example";
@@ -67,13 +67,13 @@ public abstract class AbstractTaskApplication extends Application implements Cli
 	protected CriteriaContainer<Task> criteriaContainer;
 	protected ArrayList<Object> visibleColumnIds = new ArrayList<Object>();
 	protected ArrayList<String> visibleColumnLabels = new ArrayList<String>();
-	protected Logger logger = LoggerFactory.getLogger(SimpleFilteringTaskApplication.class);
+	protected Logger logger = LoggerFactory.getLogger(EntitySimpleFilteringApplication.class);
 
 
 	/**
 	 * 
 	 */
-	public AbstractTaskApplication() {
+	public AbstractEntityApplication() {
 		super();
 	}
 
