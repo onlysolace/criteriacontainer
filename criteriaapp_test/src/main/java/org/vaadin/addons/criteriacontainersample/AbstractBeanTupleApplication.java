@@ -25,14 +25,13 @@ import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.tuplecontainer.TupleContainer;
 
 import com.vaadin.Application;
-import com.vaadin.data.Container;
 import com.vaadin.ui.AbstractSelect.MultiSelectMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -51,7 +50,7 @@ import com.vaadin.ui.themes.Runo;
  * @author Modified by Jean-François Lamy
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractTupleApplication extends Application implements ClickListener {
+public abstract class AbstractBeanTupleApplication extends Application implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
 	public static final String PERSISTENCE_UNIT = "vaadin-lazyquerycontainer-example";
@@ -68,12 +67,12 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 	protected Button removeItemButton;
 
 	protected Table table;
-	protected TupleContainer criteriaContainer;
+	protected BeanTupleContainer criteriaContainer;
 
 	protected ArrayList<Object> visibleColumnIds = new ArrayList<Object>();
 	protected ArrayList<String> visibleColumnLabels = new ArrayList<String>();
 
-	protected Logger logger = LoggerFactory.getLogger(AbstractTupleApplication.class);
+	protected Logger logger = LoggerFactory.getLogger(AbstractBeanTupleApplication.class);
 
 
 	@Override
@@ -89,7 +88,7 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 		createTopPanel(mainWindow, filterPanel);
 
 		entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
-		criteriaContainer =  (TupleContainer) createTupleContainer();
+		criteriaContainer =  createTupleContainer();
 		int size = criteriaContainer.size();
 		if (size == 0) {
 			createEntities();
@@ -104,7 +103,7 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 	/**
 	 * @return
 	 */
-	protected abstract Container createTupleContainer();
+	protected abstract BeanTupleContainer createTupleContainer();
 	
 	/**
 	 * 
@@ -283,7 +282,7 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 	/**
 	 * 
 	 */
-	private void createTable(TupleContainer criteriaContainer2) {
+	private void createTable(BeanTupleContainer criteriaContainer2) {
 		criteriaContainer2.refresh();
 		table = new Table();
 
