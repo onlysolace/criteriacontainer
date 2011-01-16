@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -45,11 +44,14 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Runo;
 
 /**
- * Example application demonstrating the Lazy Query Container features.
+ * Shared core for applications demonstrating the BeaunTupleContainer features.
+ * (Lazy Query Container extended to work with JPA 2.0 Tuple queries, in such
+ * a way that it remains possible to edit the entities shown on each line).
+ * 
  * @author Tommi S.E. Laukkanen
  * @author Modified by Jean-François Lamy
  */
-@SuppressWarnings("rawtypes")
+
 public abstract class AbstractBeanTupleApplication extends Application implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
@@ -63,8 +65,9 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 	protected Button editButton;
 	protected Button saveButton;
 	protected Button cancelButton;
-	protected Button addItemButton;
-	protected Button removeItemButton;
+// with tuple queries there is no general way to add a row to the table.
+//	protected Button addItemButton;
+//	protected Button removeItemButton;
 
 	protected Table table;
 	protected BeanTupleContainer criteriaContainer;
@@ -254,27 +257,27 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			criteriaContainer.refresh();
 			setEditMode(false);
 		}
-		if (event.getButton() == addItemButton) {
-			criteriaContainer.addItem();
-		}
-		if (event.getButton() == removeItemButton) {
-			Object selection = table.getValue();
-			if (selection == null) {
-				return;
-			}
-			if (selection instanceof Integer) {
-				Integer selectedIndex = (Integer) selection;
-				if (selectedIndex != null) {
-					criteriaContainer.removeItem(selectedIndex);
-				}
-			}
-			if (selection instanceof Collection) {
-				Collection selectionIndexes = (Collection) selection;
-				for (Object selectedIndex : selectionIndexes) {
-					criteriaContainer.removeItem((Integer) selectedIndex);
-				}
-			}
-		}
+//		if (event.getButton() == addItemButton) {
+//			criteriaContainer.addItem();
+//		}
+//		if (event.getButton() == removeItemButton) {
+//			Object selection = table.getValue();
+//			if (selection == null) {
+//				return;
+//			}
+//			if (selection instanceof Integer) {
+//				Integer selectedIndex = (Integer) selection;
+//				if (selectedIndex != null) {
+//					criteriaContainer.removeItem(selectedIndex);
+//				}
+//			}
+//			if (selection instanceof Collection) {
+//				Collection selectionIndexes = (Collection) selection;
+//				for (Object selectedIndex : selectionIndexes) {
+//					criteriaContainer.removeItem((Integer) selectedIndex);
+//				}
+//			}
+//		}
 	}
 	
 

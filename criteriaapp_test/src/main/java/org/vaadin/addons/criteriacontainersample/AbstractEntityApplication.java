@@ -46,8 +46,12 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Runo;
 
 /**
- * @author jflamy
- *
+ * Shared core for applications demonstrating the CriteriaContainer features.
+ * (Lazy Query Container extended to work with JPA 2.0 queries returning
+ * a single entity type).
+ * 
+ * @author Tommi S.E. Laukkanen
+ * @author Modified by Jean-François Lamy
  */
 public abstract class AbstractEntityApplication extends Application implements ClickListener {
 

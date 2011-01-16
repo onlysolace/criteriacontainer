@@ -22,8 +22,9 @@ import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 /**
- * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
- * and buffered writes.
+ * A read-only version of a lazy container that enables fields from several entities to be displayed together.
+ * The underlying query is an arbitrarily complex JPA 2.0 Criteria query (with joins, groups, computed
+ * expressions, etc.)
  * 
  * @author Jean-François Lamy
  */
@@ -66,8 +67,5 @@ public class TupleContainer extends LazyQueryContainer {
         ((CritQueryDefinition<?>) getQueryView().getQueryDefinition()).setRestrictions(restrictions);
         refresh();
 	}
-
-
-
 
 }
