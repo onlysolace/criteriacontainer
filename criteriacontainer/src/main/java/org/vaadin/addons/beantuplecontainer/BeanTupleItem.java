@@ -15,7 +15,9 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +26,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.ObjectProperty;
@@ -57,6 +63,9 @@ import com.vaadin.data.util.PropertysetItem;
 @SuppressWarnings("serial")
 public final class BeanTupleItem extends PropertysetItem {
 
+	@SuppressWarnings("unused")
+	private final static Logger logger = LoggerFactory.getLogger(BeanTupleItem.class);
+
 	/** The backing tuple */
 	private Tuple tuple;
 
@@ -66,10 +75,10 @@ public final class BeanTupleItem extends PropertysetItem {
 	 * corresponding property are the same.
 	 */
 	private Set<Object> entities = new HashSet<Object>();
-	
-    /** Default constructor initializes default Item. */
-    public BeanTupleItem() {
-    }
+
+	/** Default constructor initializes default Item. */
+	public BeanTupleItem() {
+	}
 
 	/**
 	 * Set the backing tuple without assigning values to properties
@@ -79,6 +88,7 @@ public final class BeanTupleItem extends PropertysetItem {
 	public void setTuple(Tuple tuple) {
 		this.tuple = tuple;
 		initializeFromTuple();
+		//logger.warn("item = {}",toString());
 	}
 
 	/**
@@ -86,22 +96,26 @@ public final class BeanTupleItem extends PropertysetItem {
 	 */
 	protected void initializeFromTuple() {
 		final List<TupleElement<?>> elements = tuple.getElements();
-		
+
 		for (TupleElement<?> curElem  : elements) {
 			String curPropertyId = curElem.getAlias();
 			if (curPropertyId == null) {
 				throw new RuntimeException("Selection element "+curElem.toString()+" does not have an alias");
 			}
-			
+
 			Object value = tuple.get(curPropertyId);
 			if (value.getClass().isAnnotationPresent(Entity.class)) {
 				// the class is an entity, create a bean item
-				value = new BeanItem<Object>(value);
+				Item item = new BeanItem<Object>(value);
 				entities.add(value);
+				Property property = new ObjectProperty<Object>(item);
+				this.addItemProperty(curPropertyId, property);
+			} else {
+				Property property = new ObjectProperty<Object>(value);
+				this.addItemProperty(curPropertyId, property);
 			}
-			
-			Property property = new ObjectProperty<Object>(value);
-			this.addItemProperty(curPropertyId, property);
+
+
 		}
 	}
 
@@ -111,8 +125,8 @@ public final class BeanTupleItem extends PropertysetItem {
 	public Object getTuple() {
 		return tuple;
 	}
-	
-	
+
+
 	/**
 	 * persist all entities in the tuple.
 	 * @param entityManager to be used for storing
@@ -122,7 +136,7 @@ public final class BeanTupleItem extends PropertysetItem {
 			entityManager.persist(curEntity);
 		}
 	}
-	
+
 	/**
 	 * merge all entities in the tuple.
 	 * @param entityManager to be used for storing
@@ -132,7 +146,7 @@ public final class BeanTupleItem extends PropertysetItem {
 			entityManager.merge(curEntity);
 		}
 	}
-	
+
 	/**
 	 * remove all entities in the tuple.
 	 * @param entityManager to be used for storing
@@ -142,5 +156,114 @@ public final class BeanTupleItem extends PropertysetItem {
 			entityManager.remove(curEntity);
 		}
 	}
+
+	/**
+	 * Gets the Property corresponding to the given Property ID stored in the Item.
+	 * If the Item does not contain the Property, null is returned.
+	 * If the property Id is a string and contains a ".", then 
+	 * 
+	 * @see com.vaadin.data.util.PropertysetItem#getItemProperty(java.lang.Object)
+	 */
+	@Override
+	public Property getItemProperty(Object id) {
+		Property retVal;
+		if (!(id instanceof String)) {
+			retVal = super.getItemProperty(id);
+		} else {
+			// check for nested property
+			String propertyId = (String) id;
+			int dotIndex = propertyId.indexOf('.');
+			if (dotIndex == -1) {
+				retVal = super.getItemProperty(propertyId);
+			} else {
+				retVal = retrieveNestedProperty(propertyId, dotIndex);
+			}
+		}
+		//logger.warn("sought id={} property={} value={}",new Object[]{id,retVal,(retVal != null ? retVal.getValue() : "n/a")});
+		return retVal;
+	}
+
+	/**
+	 * Retrieve property "x.y", where "x" is the name of a property that contains an item.
+	 * "y" is assumed to be a property of the item contained in property "x".  If that
+	 * is not the case, check for the presence of a property called "x.y".
+	 * 
+	 * @param propertyId
+	 * @param dotIndex
+	 * @return
+	 */
+	private Property retrieveNestedProperty(String propertyId, int dotIndex) {
+		Property retVal;
+		String prefix = propertyId.substring(0,dotIndex);		
+		Property itemProperty = super.getItemProperty(prefix);
+		if (itemProperty != null) {
+			// prefix exists as a property on its own,
+			// assume that rest of string is a property id inside
+
+			@SuppressWarnings("unchecked")
+			// get the property designated by the prefix
+			BeanItem<Object> item = (BeanItem<Object>) itemProperty.getValue();
+			propertyId = propertyId.substring(dotIndex+1);
+			if (item == null) {
+				retVal = null;
+			} else {
+				// not null, return the nested property
+				retVal = item.getItemProperty(propertyId);			
+			}
+		} else {
+			// attempt to retrieve the dotted name as a propertyId
+			retVal = super.getItemProperty(propertyId);
+		}
+		return retVal;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.util.PropertysetItem#getItemPropertyIds()
+	 */
+	@Override
+	public Collection<?> getItemPropertyIds() {
+		// TODO Auto-generated method stub
+		return super.getItemPropertyIds();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.util.PropertysetItem#toString()
+	 */
+	@Override
+	public String toString() {
+		return dumpItem(this,"",new StringBuffer());
+	}
+
+	/**
+	 * @return
+	 */
+	private static String dumpItem(Item item, String indent, StringBuffer retValue) {
+
+		retValue.append("\n");
+		for (final Iterator<?> i = item.getItemPropertyIds().iterator(); i.hasNext();) {
+			final Object propertyId = i.next();
+			retValue.append(indent);
+			retValue.append(propertyId);
+			retValue.append("=");
+			Property itemProperty = item.getItemProperty(propertyId);
+			if (itemProperty != null) {
+				Object value = itemProperty.getValue();
+				if (value instanceof Item) {
+					dumpItem((Item) value, "   ", retValue);
+				} else {
+					retValue.append(itemProperty.toString());
+					retValue.append("\n");
+				}
+			} else {
+				retValue.append("null***");
+				retValue.append("\n");
+			}
+		}
+		retValue.append("\n");
+		return retValue.toString();
+	}
+
+
+
 
 }

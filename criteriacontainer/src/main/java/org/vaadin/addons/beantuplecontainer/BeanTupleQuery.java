@@ -37,6 +37,7 @@ import com.vaadin.data.util.ObjectProperty;
  */
 @SuppressWarnings("serial")
 public final class BeanTupleQuery implements Query, Serializable {
+	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(BeanTupleQuery.class);
 	
     /** The JPA EntityManager. */
@@ -177,7 +178,6 @@ public final class BeanTupleQuery implements Query, Serializable {
         for (Object propertyId : queryDefinition.getPropertyIds()) {
             if (tupleItem.getItemProperty(propertyId) == null) {
                 Class<?> propertyType = queryDefinition.getPropertyType(propertyId);
-                logger.warn("property type = {}",propertyType);
 				tupleItem.addItemProperty(
                         propertyId,
                         new ObjectProperty<Object>(
