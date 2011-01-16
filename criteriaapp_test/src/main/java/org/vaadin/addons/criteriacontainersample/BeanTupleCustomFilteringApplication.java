@@ -24,6 +24,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.SetJoin;
@@ -95,7 +96,6 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 			task = person.join(Person_.tasks); 
 			
 			// WHERE t.name LIKE nameFilterValue
-			// this version prevents the container from adding additional filters.
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
 				cq.where(
 						cb.like(
@@ -106,15 +106,24 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 			
 			// SELECT task.taskId as taskId, task.name as taskName, ...
 			List<Selection<?>> selections = new ArrayList<Selection<?>>();
-			// must add all the entities expected, each with an alias
-			selections.add(task.alias("task"));
-			selections.add(person.alias("person"));
+			// must add all the entities selected in the tuple, each with an alias
+			addEntitySelection(task,selections);
+			addEntitySelection(person,selections);
 			// add columns for the sortable properties of the container
 			addSortSelections(sortExpressions, selections);
 			
 			cq.multiselect(selections.toArray(new Selection[0]));
 			
 			return person;
+		}
+
+
+		/**
+		 * @param selections
+		 */
+		private void addEntitySelection(Path<?> path,List<Selection<?>> selections) {
+			//TODO do this by introspection, if getJavaType() is annotated as entity
+			selections.add(path.alias(path.getJavaType().getSimpleName()));
 		}
 
 
@@ -151,6 +160,8 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 
 		final String taskPrefix = Task.class.getSimpleName();
 		final String personPrefix = Person.class.getSimpleName();
+		
+		logger.warn("adding container property for {}",taskPrefix);
 		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
 		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
 		
