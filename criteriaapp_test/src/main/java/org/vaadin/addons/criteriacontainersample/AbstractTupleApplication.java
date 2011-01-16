@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -46,11 +45,15 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Runo;
 
 /**
- * Example application demonstrating the Lazy Query Container features.
+ * Shared core for applications demonstrating the TupleContainer features.
+ * (Lazy Query Container extended to work with JPA 2.0 Tuple queries,
+ * in which columns from several tables are shown together).
+ * 
+ * TupleContainer cannot be used in editing mode.
+ * 
  * @author Tommi S.E. Laukkanen
  * @author Modified by Jean-François Lamy
  */
-@SuppressWarnings("rawtypes")
 public abstract class AbstractTupleApplication extends Application implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
@@ -61,11 +64,6 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 	protected TextField nameFilterField;
 
 	protected Button refreshButton;
-	protected Button editButton;
-	protected Button saveButton;
-	protected Button cancelButton;
-	protected Button addItemButton;
-	protected Button removeItemButton;
 
 	protected Table table;
 	protected TupleContainer criteriaContainer;
@@ -147,30 +145,6 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 		refreshButton = new Button("Refresh");
 		refreshButton.addListener(this);
 		buttonPanel.addComponent(refreshButton);
-
-		editButton = new Button("Edit");
-		editButton.addListener(this);
-		buttonPanel.addComponent(editButton);
-
-		saveButton = new Button("Save");
-		saveButton.addListener(this);
-		saveButton.setEnabled(false);
-		buttonPanel2.addComponent(saveButton);
-
-		cancelButton = new Button("Cancel");
-		cancelButton.addListener(this);
-		cancelButton.setEnabled(false);
-		buttonPanel2.addComponent(cancelButton);
-
-		addItemButton = new Button("Add Row");
-		addItemButton.addListener(this);
-		addItemButton.setEnabled(false);
-		buttonPanel2.addComponent(addItemButton);
-
-		removeItemButton = new Button("Remove Row");
-		removeItemButton.addListener(this);
-		removeItemButton.setEnabled(false);
-		buttonPanel2.addComponent(removeItemButton);
 	}
 
 
@@ -210,84 +184,18 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 		transaction.commit();
 	}
 
-
-	private void setEditMode(boolean editMode) {
-		if (editMode) {
-			table.setEditable(true);
-			table.setSortDisabled(true);
-			refreshButton.setEnabled(false);
-			editButton.setEnabled(false);
-			saveButton.setEnabled(true);
-			cancelButton.setEnabled(true);
-			addItemButton.setEnabled(true);
-			removeItemButton.setEnabled(true);
-			nameFilterField.setEnabled(false);
-		} else {
-			table.setEditable(false);
-			table.setSortDisabled(false);
-			refreshButton.setEnabled(true);
-			editButton.setEnabled(true);
-			saveButton.setEnabled(false);
-			cancelButton.setEnabled(false);
-			addItemButton.setEnabled(false);
-			removeItemButton.setEnabled(false);
-			nameFilterField.setEnabled(true);
-		}
-	}
-
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == refreshButton) {
 			doFiltering();
 		}
-		if (event.getButton() == editButton) {
-			setEditMode(true);
-		}
-		if (event.getButton() == saveButton) {
-			criteriaContainer.commit();
-			criteriaContainer.refresh();
-			setEditMode(false);
-		}
-		if (event.getButton() == cancelButton) {
-			criteriaContainer.discard();
-			criteriaContainer.refresh();
-			setEditMode(false);
-		}
-		if (event.getButton() == addItemButton) {
-			criteriaContainer.addItem();
-		}
-		if (event.getButton() == removeItemButton) {
-			Object selection = table.getValue();
-			if (selection == null) {
-				return;
-			}
-			if (selection instanceof Integer) {
-				Integer selectedIndex = (Integer) selection;
-				if (selectedIndex != null) {
-					criteriaContainer.removeItem(selectedIndex);
-				}
-			}
-			if (selection instanceof Collection) {
-				Collection selectionIndexes = (Collection) selection;
-				for (Object selectedIndex : selectionIndexes) {
-					criteriaContainer.removeItem((Integer) selectedIndex);
-				}
-			}
-		}
 	}
-	
 
-
-
-
-	/**
-	 * 
-	 */
 	private void createTable(TupleContainer criteriaContainer2) {
 		criteriaContainer2.refresh();
 		table = new Table();
 
-		table.setCaption("JpaQuery");
+		table.setCaption("Tuple Query");
 		table.setPageLength(40);
 
 		table.setContainerDataSource(criteriaContainer2);
@@ -297,9 +205,6 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 		table.setColumnWidth("lastName", 135);
 		table.setColumnWidth("firstName", 135);
 
-//		table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
-//		table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
-
 		table.setImmediate(true);
 		table.setEditable(false);
 		table.setMultiSelect(true);
@@ -308,9 +213,6 @@ public abstract class AbstractTupleApplication extends Application implements Cl
 		table.setWriteThrough(true);
 	}
 	
-	/**
-	 * 
-	 */
 	protected void defineTableColumns() {
 		visibleColumnIds.add(Task_.taskId.getName());
 		visibleColumnIds.add("taskName");
