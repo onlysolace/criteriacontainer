@@ -161,15 +161,17 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		cancelButton.setEnabled(false);
 		buttonPanel2.addComponent(cancelButton);
 
-		addItemButton = new Button("Add Row");
-		addItemButton.addListener(this);
-		addItemButton.setEnabled(false);
-		buttonPanel2.addComponent(addItemButton);
+// are tricky to implement in a table when dealing with a join
 
-		removeItemButton = new Button("Remove Row");
-		removeItemButton.addListener(this);
-		removeItemButton.setEnabled(false);
-		buttonPanel2.addComponent(removeItemButton);
+//		addItemButton = new Button("Add Row");
+//		addItemButton.addListener(this);
+//		addItemButton.setEnabled(false);
+//		buttonPanel2.addComponent(addItemButton);
+//
+//		removeItemButton = new Button("Remove Row");
+//		removeItemButton.addListener(this);
+//		removeItemButton.setEnabled(false);
+//		buttonPanel2.addComponent(removeItemButton);
 	}
 
 
