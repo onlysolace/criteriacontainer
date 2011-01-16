@@ -220,8 +220,8 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			editButton.setEnabled(false);
 			saveButton.setEnabled(true);
 			cancelButton.setEnabled(true);
-			addItemButton.setEnabled(true);
-			removeItemButton.setEnabled(true);
+//			addItemButton.setEnabled(true);
+//			removeItemButton.setEnabled(true);
 			nameFilterField.setEnabled(false);
 		} else {
 			table.setEditable(false);
@@ -230,8 +230,8 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			editButton.setEnabled(true);
 			saveButton.setEnabled(false);
 			cancelButton.setEnabled(false);
-			addItemButton.setEnabled(false);
-			removeItemButton.setEnabled(false);
+//			addItemButton.setEnabled(false);
+//			removeItemButton.setEnabled(false);
 			nameFilterField.setEnabled(true);
 		}
 	}
