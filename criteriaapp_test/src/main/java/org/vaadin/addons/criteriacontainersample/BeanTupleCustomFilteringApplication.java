@@ -161,16 +161,15 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		final String taskPrefix = Task.class.getSimpleName();
 		final String personPrefix = Person.class.getSimpleName();
 		
-		logger.warn("adding container property for {}",taskPrefix);
 		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
 		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
 		
 		// one line is needed for each field extracted from an entity on which sorting is needed.
-		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.taskId, new Long(0), true);
-		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.name, "", true);
-		tupleContainer.addContainerSortableProperty(taskPrefix, Task_.alpha, "", true);
-		tupleContainer.addContainerSortableProperty(personPrefix, Person_.lastName, "", true);
-		tupleContainer.addContainerSortableProperty(personPrefix, Person_.firstName, "", false);
+		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.taskId, new Long(0), true);
+		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.name, "", true);
+		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.alpha, "", true);
+		tupleContainer.addSortableContainerProperty(personPrefix, Person_.lastName, "", true);
+		tupleContainer.addSortableContainerProperty(personPrefix, Person_.firstName, "", false);
 		
 		logger.warn("created container");
 		return tupleContainer;
