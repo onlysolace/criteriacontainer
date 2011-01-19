@@ -146,17 +146,6 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 	 */	
 	
 
-	// TODO: addProperty
-	
-	/* (non-Javadoc)
-	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
-	 */
-	// TODO
-	@Override
-	public final Collection<?> getSortableContainerPropertyIds() {
-		return lazyQueryContainer.getSortableContainerPropertyIds();
-	}
-
 	
 	
 	
@@ -174,6 +163,16 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 		return lazyQueryContainer.getContainerPropertyIds();
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
+	 */
+	@Override
+	public final Collection<?> getSortableContainerPropertyIds() {
+		return lazyQueryContainer.getSortableContainerPropertyIds();
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container#getType(java.lang.Object)
 	 */
