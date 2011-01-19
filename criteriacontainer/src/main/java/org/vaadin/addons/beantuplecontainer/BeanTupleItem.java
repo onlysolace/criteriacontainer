@@ -63,7 +63,6 @@ import com.vaadin.data.util.PropertysetItem;
 @SuppressWarnings("serial")
 public final class BeanTupleItem extends PropertysetItem {
 
-	@SuppressWarnings("unused")
 	private final static Logger logger = LoggerFactory.getLogger(BeanTupleItem.class);
 
 	/** The backing tuple */
@@ -217,14 +216,17 @@ public final class BeanTupleItem extends PropertysetItem {
 		return retVal;
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.util.PropertysetItem#getItemPropertyIds()
 	 */
 	@Override
 	public Collection<?> getItemPropertyIds() {
-		// TODO Auto-generated method stub
+		//TODO: add nested properties
+		logger.warn("getItemPropertyIds");
 		return super.getItemPropertyIds();
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.util.PropertysetItem#toString()

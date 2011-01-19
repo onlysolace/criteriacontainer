@@ -17,9 +17,12 @@ package org.vaadin.addons.criteriacontainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -33,7 +36,7 @@ import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
+import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**
  * Definition of a JPA 2.0 Criteria Query.
@@ -44,11 +47,10 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
  * 
  * @param <T> the Entity type returned by the query being defined
  */
-@SuppressWarnings("serial")
-public class CritQueryDefinition<T> extends LazyQueryDefinition {
+public class CritQueryDefinition<T> implements QueryDefinition {
 
-	/** the Class for the parameterized type (T.class) */
-	protected Class<T> entityClass;
+	@SuppressWarnings("unused")
+	final static private Logger logger = LoggerFactory.getLogger(CritQueryDefinition.class);
 	
 	/** 
 	 * false if the container manages the transactions, true otherwise.
@@ -56,37 +58,78 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 	 */
 	protected boolean applicationManagedTransactions;
 	
-	/** the default of property ids to be sorted (normally, Strings) */
-	protected Object[] nativeSortPropertyIds;
+	/** Batch size of the query. */
+    private int batchSize;
 	
-	/** default sort order for each sortable property, true means ascending sort, false means descending sort */
-	protected boolean[] nativeSortPropertyAscendingStates;
+	/** Default values for the properties. */
+    private Map<Object, Object> defaultValues = new HashMap<Object, Object>();
 	
-	/** the actual list of property ids to be sorted (normally, Strings) */
-	protected Object[] sortPropertyIds;
+	/** the Class for the parameterized type (T.class) */
+	protected Class<T> entityClass;
 	
-	/** actual sort order for each sortable property, true means ascending sort, false means descending sort */
-	protected boolean[] sortPropertyAscendingStates;
-	
-	/**
-	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
-	 */
-	protected Map<String, Object> namedParameterValues;
+	private EntityManager entityManager;
 	
 	/**
 	 * A list of sorting criteria
 	 */
 
 	private List<Predicate> filterExpressions;
+	/**
+	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
+	 */
+	protected Map<String, Object> namedParameterValues;
+
+	/** default sort order for each sortable property, true means ascending sort, false means descending sort */
+	protected boolean[] nativeSortPropertyAscendingStates;
+
+	/** the default of property ids to be sorted (normally, Strings) */
+	protected Object[] nativeSortPropertyIds;
+
+
+	
+	/** Lust of property IDs included in this QueryDefinition. */
+    private List<Object> propertyIds = new ArrayList<Object>();
+	
+	/** Map of types of the properties. */
+    private Map<Object, Object> propertyTypes = new TreeMap<Object, Object>();
+
+	/** Flags reflecting whether the properties are read only. */
+    private Map<Object, Boolean> readOnlyStates = new HashMap<Object, Boolean>();
+	
 	private Collection<CritRestriction> restrictions;
 
-	private EntityManager entityManager;
-	
-	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(CritQueryDefinition.class);
+	/** The sort states of the properties. */
+    private Map<Object, Boolean> sortableStates = new HashMap<Object, Boolean>();
 
 
+	/** actual sort order for each sortable property, true means ascending sort, false means descending sort */
+	protected boolean[] sortPropertyAscendingStates;
+
 	
+	/** the actual list of property ids to be sorted (normally, Strings) */
+	protected Object[] sortPropertyIds;
+
+    /**
+	 * Simple constructor, used when extending the class.
+	 * 
+	 * @param entityManager the entityManager that gives us access to the database and cache
+	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
+	 * @param entityClass the class for the entity (should be the same as T.class)
+	 * @param batchSize how many entities to recover at one time.
+	 */
+	public CritQueryDefinition(
+			EntityManager entityManager,
+			boolean applicationManagedTransactions,
+			final Class<T> entityClass,
+			int batchSize
+			) {
+		this.batchSize = batchSize;
+		this.entityManager = entityManager;
+		this.entityClass = entityClass;
+		this.applicationManagedTransactions = applicationManagedTransactions;
+	}
+
+
 	/**
 	 * Constructor for simple usage.
 	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(java.util.LinkedList)}
@@ -113,174 +156,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
         this.nativeSortPropertyIds = nativeSortPropertyIds;
         this.nativeSortPropertyAscendingStates = nativeSortPropertyAscendingStates;
 	}
-	
-	/**
-	 * Simple constructor, used when extending the class.
-	 * 
-	 * @param entityManager the entityManager that gives us access to the database and cache
-	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
-	 * @param entityClass the class for the entity (should be the same as T.class)
-	 * @param batchSize how many entities to recover at one time.
-	 */
-	public CritQueryDefinition(
-			EntityManager entityManager,
-			boolean applicationManagedTransactions,
-			final Class<T> entityClass,
-			int batchSize
-			) {
-		super(batchSize);
-		this.entityManager = entityManager;
-		this.entityClass = entityClass;
-		this.applicationManagedTransactions = applicationManagedTransactions;
-	}
 
-	/**
-	 * This method returns the number of entities.
-	 * @return number of entities.
-	 */
-	public TypedQuery<Long> getCountQuery() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<Long> nb = cb.createQuery(Long.class);
-		Root<?> t = defineQuery(cb, nb);
-		nb.select(cb.count(t));
-		final TypedQuery<Long> countQuery = entityManager.createQuery(nb);
-		setParameters(countQuery);
-		return countQuery;
-	}
-	
-	/**
-	 * Get the class of the entity being managed.
-	 * 
-	 * @return the Class for the Entity being returned.
-	 */
-	public Class<T> getEntityClass() {
-		return entityClass;
-	}
-
-	/**
-	 * Create the Predicates that match the filters requested through {@link #setFilterExpressions(ArrayList)}
-	 * 
-	 * @return a list of Predicates that corresponds to the declared filters.
-	 */
-	public List<Predicate> getFilterExpressions() {
-		return filterExpressions;
-	}
-
-
-	/**
-	 * Applies the sort state.
-	 * A JPA ordering is created based on the saved sort orders.
-	 * 
-	 * @param t the root or joins from which columns are being selected
-	 * @param cb the criteria builder for the query being built
-	 * @return a list of Order objects to be added to the query.
-	 */
-	protected final List<Order> getOrdering(Path<?> t, CriteriaBuilder cb) {
-        if (sortPropertyIds == null || sortPropertyIds.length == 0) {
-            sortPropertyIds = nativeSortPropertyIds;
-            sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
-        }
-        
-        ArrayList<Order> ordering = new ArrayList<Order>();
-    	if (sortPropertyIds == null || sortPropertyIds.length == 0) return ordering;
-    	
-		for (int curItem = 0; curItem < sortPropertyIds.length; curItem++ ) {
-	    	final String id = (String)sortPropertyIds[curItem];
-			if (sortPropertyAscendingStates[curItem]) {
-				ordering.add(cb.asc(t.get(id)));
-			} else {
-				ordering.add(cb.desc(t.get(id)));
-			}
-		}
-		return ordering;
-	}
-
-	
-	/**
-	 * This method adds the ordering and the parameters on a query definition.
-	 * 
-	 * {@link #defineQuery(CriteriaBuilder, CriteriaQuery)} creates the portion of
-	 * the query that is shared between counting and retrieving. This method returns
-	 * a runnable query by adding the ordering and setting the parameters.
-	 * @return a runnable TypedQuery
-	 */
-	public TypedQuery<T> getSelectQuery() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		Root<?> t = defineQuery(cb, cq);
-		
-		// apply the ordering defined by the container on the returned entity.
-		final List<Order> ordering = getOrdering(t, cb);
-		if (ordering != null) {
-			cq.orderBy(ordering);
-		}		
-		
-		final TypedQuery<T> tq = entityManager.createQuery(cq);
-		// the container deals with the parameter values set through the filter() method
-		// so we only handle those that we add ourselves
-		setParameters(tq);
-		return tq;
-	}
-
-    /**
-     * @return the whereParameters
-     */
-    public final Map<String, Object> getNamedParameterValues() {
-    	return namedParameterValues;
-    }
-
-
-	/**
-	 * @return the applicationManagedTransactions
-	 */
-	public final boolean isApplicationManagedTransactions() {
-		return applicationManagedTransactions;
-	}
-
-	
-	/**
-	 * Define a list of conditions to be added to the query's WHERE clause
-	 * 
-	 * @param filterExpressions a list of Predicate objects to be added
-	 */
-	public void setFilterExpressions(ArrayList<Predicate> filterExpressions) {
-		this.filterExpressions = filterExpressions;
-	}
-	
-	/**
-	 * Sets the sort state.
-	 * 
-	 * @param sortPropertyIds
-	 *            Properties participating in the sorting.
-	 * @param sortPropertyAscendingStates
-	 *            List of sort direction for the properties.
-	 */
-	public final void setSortState(final Object[] sortPropertyIds,
-			final boolean[] sortPropertyAscendingStates) {
-		this.sortPropertyIds = sortPropertyIds;
-		this.sortPropertyAscendingStates = sortPropertyAscendingStates;
-	}
-
-	/**
-	 * Sets named parameter values
-	 * 
-	 * @param namedParameterValues
-	 *            For each pair, the key is the name of the parameter, and the value is the value to
-	 *            set for that parameter.
-	 */
-	public final void setNamedParameterValues(final Map<String, Object> namedParameterValues) {
-		this.namedParameterValues = namedParameterValues;
-	}
-
-	/**
-	 * Store a list of restrictions.
-	 * Each restriction will be transformed into a predicate added to the WHERE clause.
-	 * 
-	 * @param restrictions a list of objects that each define a condition to be added
-	 */
-	public final void setRestrictions(Collection<CritRestriction> restrictions) {
-		this.restrictions = restrictions;
-	}
 	
 	/**
 	 * Prepare the query so that {@link CriteriaContainer#filter(LinkedList)} works.
@@ -302,8 +178,7 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		}
 		return filterExpressions;
 	}
-
-
+	
 	/**
 	 * Create conditions in the query
 	 * 
@@ -317,6 +192,20 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		// do nothing, will be overridden by classes that need it.
 		return filterExpressions;
 	}
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#addProperty(java.lang.Object, java.lang.Class, java.lang.Object, boolean, boolean)
+     */
+    @Override
+	public void addProperty(final Object propertyId, Class<?> type, Object defaultValue,
+            boolean readOnly, boolean sortable) {
+        propertyIds.add(propertyId);
+        propertyTypes.put(propertyId, type);
+        defaultValues.put(propertyId, defaultValue);
+        readOnlyStates.put(propertyId, readOnly);
+        sortableStates.put(propertyId, sortable);
+    }
 
 	/**
 	 * Define FROM and WHERE part of query.
@@ -357,8 +246,232 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
 		
 		return t;
 	}
+	
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getBatchSize()
+     */
+    @Override
+	public int getBatchSize() {
+        return batchSize;
+    }
+
 
 	/**
+	 * This method returns the number of entities.
+	 * @return number of entities.
+	 */
+	public TypedQuery<Long> getCountQuery() {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    	CriteriaQuery<Long> nb = cb.createQuery(Long.class);
+		Root<?> t = defineQuery(cb, nb);
+		nb.select(cb.count(t));
+		final TypedQuery<Long> countQuery = entityManager.createQuery(nb);
+		setParameters(countQuery);
+		return countQuery;
+	}
+
+	/**
+	 * Get the class of the entity being managed.
+	 * 
+	 * @return the Class for the Entity being returned.
+	 */
+	public Class<T> getEntityClass() {
+		return entityClass;
+	}
+
+	/**
+	 * @return the entity manager used for the definition
+	 */
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	/**
+	 * Create the Predicates that match the filters requested through {@link #setFilterExpressions(ArrayList)}
+	 * 
+	 * @return a list of Predicates that corresponds to the declared filters.
+	 */
+	public List<Predicate> getFilterExpressions() {
+		return filterExpressions;
+	}
+	
+	/** methods defined by interfaces, delegated to the wrapped LazyQueryD =============================*/
+
+    /**
+     * @return the whereParameters
+     */
+    public Map<String, Object> getNamedParameterValues() {
+    	return namedParameterValues;
+    }
+    /**
+	 * Applies the sort state.
+	 * A JPA ordering is created based on the saved sort orders.
+	 * 
+	 * @param t the root or joins from which columns are being selected
+	 * @param cb the criteria builder for the query being built
+	 * @return a list of Order objects to be added to the query.
+	 */
+	protected List<Order> getOrdering(Path<?> t, CriteriaBuilder cb) {
+        if (sortPropertyIds == null || sortPropertyIds.length == 0) {
+            sortPropertyIds = nativeSortPropertyIds;
+            sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
+        }
+        
+        ArrayList<Order> ordering = new ArrayList<Order>();
+    	if (sortPropertyIds == null || sortPropertyIds.length == 0) return ordering;
+    	
+		for (int curItem = 0; curItem < sortPropertyIds.length; curItem++ ) {
+	    	final String id = (String)sortPropertyIds[curItem];
+			if (sortPropertyAscendingStates[curItem]) {
+				ordering.add(cb.asc(t.get(id)));
+			} else {
+				ordering.add(cb.desc(t.get(id)));
+			}
+		}
+		return ordering;
+	}
+
+	
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getPropertyDefaultValue(java.lang.Object)
+     */
+    @Override
+	public Object getPropertyDefaultValue(final Object propertyId) {
+        return defaultValues.get(propertyId);
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getPropertyIds()
+     */
+    @Override
+	public Collection<?> getPropertyIds() {
+        return Collections.unmodifiableCollection(propertyIds);
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getPropertyType(java.lang.Object)
+     */
+    @Override
+	public Class<?> getPropertyType(final Object propertyId) {
+        return (Class<?>) propertyTypes.get(propertyId);
+    }
+    
+    
+    /**
+	 * This method adds the ordering and the parameters on a query definition.
+	 * 
+	 * {@link #defineQuery(CriteriaBuilder, CriteriaQuery)} creates the portion of
+	 * the query that is shared between counting and retrieving. This method returns
+	 * a runnable query by adding the ordering and setting the parameters.
+	 * @return a runnable TypedQuery
+	 */
+	public TypedQuery<T> getSelectQuery() {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		Root<?> t = defineQuery(cb, cq);
+		
+		// apply the ordering defined by the container on the returned entity.
+		final List<Order> ordering = getOrdering(t, cb);
+		if (ordering != null) {
+			cq.orderBy(ordering);
+		}		
+		
+		final TypedQuery<T> tq = entityManager.createQuery(cq);
+		// the container deals with the parameter values set through the filter() method
+		// so we only handle those that we add ourselves
+		setParameters(tq);
+		return tq;
+	}
+
+	
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getSortablePropertyIds()
+     */
+    @Override
+	public Collection<?> getSortablePropertyIds() {
+        List<Object> sortablePropertyIds = new ArrayList<Object>();
+        for (Object propertyId : propertyIds) {
+            if (isPropertySortable(propertyId)) {
+                sortablePropertyIds.add(propertyId);
+            }
+        }
+        return sortablePropertyIds;
+    }
+
+    /**
+	 * @return false if the J2EE container manages the transactions, true if done manually
+	 */
+	public boolean isApplicationManagedTransactions() {
+		return applicationManagedTransactions;
+	}
+	
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#isPropertyReadOnly(java.lang.Object)
+     */
+    @Override
+	public boolean isPropertyReadOnly(final Object propertyId) {
+        return readOnlyStates.get(propertyId);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#isPropertySortable(java.lang.Object)
+     */
+    @Override
+	public boolean isPropertySortable(final Object propertyId) {
+        return sortableStates.get(propertyId);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#removeProperty(java.lang.Object)
+     */
+    @Override
+	public void removeProperty(final Object propertyId) {
+        propertyIds.remove(propertyId);
+        propertyTypes.remove(propertyId);
+        defaultValues.remove(propertyId);
+        readOnlyStates.remove(propertyId);
+        sortableStates.remove(propertyId);
+    }
+    
+
+    /**
+     * After this method has been called the Query has to be discarded immediately.
+     * @param batchSize the batchSize to set
+     */
+    public void setBatchSize(final int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    
+    /**
+	 * Define a list of conditions to be added to the query's WHERE clause
+	 * 
+	 * @param filterExpressions a list of Predicate objects to be added
+	 */
+	public void setFilterExpressions(ArrayList<Predicate> filterExpressions) {
+		this.filterExpressions = filterExpressions;
+	}
+
+	
+    /**
+	 * Sets named parameter values
+	 * 
+	 * @param namedParameterValues
+	 *            For each pair, the key is the name of the parameter, and the value is the value to
+	 *            set for that parameter.
+	 */
+	public void setNamedParameterValues(final Map<String, Object> namedParameterValues) {
+		this.namedParameterValues = namedParameterValues;
+	}
+
+	
+    /**
 	 * Set parameters values.
 	 * 
 	 * Provide values for the named parameters defined via{@link #setNamedParameterValues(java.util.Map)}.
@@ -375,15 +488,29 @@ public class CritQueryDefinition<T> extends LazyQueryDefinition {
         }
 		return tq;
 	}
+	
 
-	/**
-	 * @return the entity manager used for the definition
+    /**
+	 * Store a list of restrictions.
+	 * Each restriction will be transformed into a predicate added to the WHERE clause.
+	 * 
+	 * @param restrictions a list of objects that each define a condition to be added
 	 */
-	public EntityManager getEntityManager() {
-		return entityManager;
+	public void setRestrictions(Collection<CritRestriction> restrictions) {
+		this.restrictions = restrictions;
 	}
-
 	
 
-	
-}
+    /**
+	 * Sets the sort state.
+	 * 
+	 * @param sortPropertyIds
+	 *            Properties participating in the sorting.
+	 * @param sortPropertyAscendingStates
+	 *            List of sort direction for the properties.
+	 */
+	public void setSortState(final Object[] sortPropertyIds,
+			final boolean[] sortPropertyAscendingStates) {
+		this.sortPropertyIds = sortPropertyIds;
+		this.sortPropertyAscendingStates = sortPropertyAscendingStates;
+	}}
