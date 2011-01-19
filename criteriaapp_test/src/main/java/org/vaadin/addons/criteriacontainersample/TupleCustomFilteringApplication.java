@@ -47,7 +47,7 @@ public class TupleCustomFilteringApplication extends AbstractTupleApplication im
 
 	private CustomFilteringTupleQueryDefinition cd;
 
-	@SuppressWarnings("serial")
+
 	class CustomFilteringTupleQueryDefinition extends TupleQueryDefinition {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */

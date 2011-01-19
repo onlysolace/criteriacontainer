@@ -27,7 +27,15 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
  */
 public class BeanTupleQueryFactory implements QueryFactory {
 	private BeanTupleQueryDefinition queryDefinition;
+	private BeanTupleContainer container;
 	
+	/**
+	 * @param beanTupleContainer the container that the factory will feed
+	 */
+	public BeanTupleQueryFactory(BeanTupleContainer beanTupleContainer) {
+		this.container = beanTupleContainer;
+	}
+
 	@Override
 	public void setQueryDefinition(QueryDefinition queryDefinition) {
 		this.queryDefinition = (BeanTupleQueryDefinition) queryDefinition;
@@ -35,6 +43,6 @@ public class BeanTupleQueryFactory implements QueryFactory {
 
 	@Override
 	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-		return new BeanTupleQuery(queryDefinition);
+		return new BeanTupleQuery(queryDefinition,container);
 	}
 }

@@ -44,7 +44,7 @@ import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
  * @author jflamy
  *
  */
-@SuppressWarnings("serial")
+
 public abstract class TupleQueryDefinition extends CritQueryDefinition<Tuple> {
 
 	/**

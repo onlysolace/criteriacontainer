@@ -58,8 +58,9 @@ public final class BeanTupleQuery implements Query, Serializable {
     /**
      * Constructor for configuring the query.
      * @param criteriaQueryDefinition The entity query definition.
+     * @param btc the bean container fed by this query.
      */
-    public BeanTupleQuery(final BeanTupleQueryDefinition criteriaQueryDefinition) {
+    public BeanTupleQuery(final BeanTupleQueryDefinition criteriaQueryDefinition, BeanTupleContainer btc) {
         this.queryDefinition = criteriaQueryDefinition;
         
         this.entityManager = queryDefinition.getEntityManager();

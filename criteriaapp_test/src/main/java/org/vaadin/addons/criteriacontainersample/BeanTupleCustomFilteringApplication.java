@@ -15,7 +15,6 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.SetJoin;
@@ -54,13 +52,11 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 
 	private CustomFilteringBeanTupleQueryDefinition cd;
 
-	@SuppressWarnings("serial")
 	class CustomFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;
-		private Root<Person> person;
-		private SetJoin<Person, Task> task;
+
 
 		/**
 		 * Constructor.
@@ -70,6 +66,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 */
 		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
+			logger.warn("new CustomFilteringBeanTupleQueryDefinition done");
 		}
 		
 
@@ -79,7 +76,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 * This class creates the equivalent of
 		 * SELECT * FROM Task t WHERE t.name LIKE "..."
 		 * 
-		 * More precisely, the query by this method should not call cb.select() and cb.setOrdering().
+		 * More precisely, the query defined by this method should not call cb.select() and cb.setOrdering().
 		 * The default implementations of {@link #getCountQuery()} and {@link #getSelectQuery()} both
 		 * call this method in order to guarantee that they are consistent with one another.
 		 * 
@@ -89,12 +86,15 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
 				CriteriaQuery<?> cq,
-				Map<Object, Expression<?>> sortExpressions) {
+				Map<Object, Expression<?>> sortExpressions,
+				List<Selection<?>> selections) {
+			
+			logger.warn("defining query");
 			
 			// FROM task JOIN PERSON 
-			person = cq.from(Person.class);
-			task = person.join(Person_.tasks); 
-			
+			Root<Person> person = (Root<Person>) cq.from(Person.class);
+			SetJoin<Person, Task> task = person.join(Person_.tasks); 
+
 			// WHERE t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
 				cq.where(
@@ -103,44 +103,19 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 								nameFilterValue)  // pattern to be matched?
 				);
 			}
+			// TODO: integrate filtering criteria
 			
-			// SELECT task.taskId as taskId, task.name as taskName, ...
-			List<Selection<?>> selections = new ArrayList<Selection<?>>();
-			// must add all the entities selected in the tuple, each with an alias
-			addEntitySelection(task,selections);
-			addEntitySelection(person,selections);
-			// add columns for the sortable properties of the container
-			addSortSelections(sortExpressions, selections);
-			
-			cq.multiselect(selections.toArray(new Selection[0]));
+			// SELECT task as Task, person as Person, ... 
+			// must add all the entities selected in the tuple
+			addEntitySelection(task);
+			addEntitySelection(person);
+			// add computed selections. 
+			addComputedSelection(cb.count(task).alias("count"));
 			
 			return person;
 		}
 
 
-		/**
-		 * @param selections
-		 */
-		private void addEntitySelection(Path<?> path,List<Selection<?>> selections) {
-			//TODO do this by introspection, if getJavaType() is annotated as entity
-			selections.add(path.alias(path.getJavaType().getSimpleName()));
-		}
-
-
-		/**
-		 * @param sortExpressions
-		 * @param selections
-		 */
-		private void addSortSelections(
-				Map<Object, Expression<?>> sortExpressions,
-				List<Selection<?>> selections) {
-			selections.add(sortExpression(task, Task_.taskId, sortExpressions));
-			selections.add(sortExpression(task, Task_.name, sortExpressions));
-			selections.add(sortExpression(task, Task_.alpha, sortExpressions));
-			selections.add(sortExpression(person, Person_.lastName, sortExpressions));
-			selections.add(sortExpression(person, Person_.firstName, sortExpressions));
-		}
-		
 		public String getNameFilterValue() {
 			return nameFilterValue;
 		}
@@ -155,21 +130,24 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 	 */
 	@Override
 	protected BeanTupleContainer createTupleContainer() {
+		logger.warn("+++++++++++++++++++++++++++++");
 		cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
 		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
+		tupleContainer.getContainerPropertyIds();
+		logger.warn("-----------------------------");
 
-		final String taskPrefix = Task.class.getSimpleName();
-		final String personPrefix = Person.class.getSimpleName();
+//		final String taskPrefix = Task.class.getSimpleName();
+//		final String personPrefix = Person.class.getSimpleName();
+//		
+//		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
+//		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
 		
-		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
-		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
-		
-		// one line is needed for each field extracted from an entity on which sorting is needed.
-		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.taskId, new Long(0), true);
-		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.name, "", true);
-		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.alpha, "", true);
-		tupleContainer.addSortableContainerProperty(personPrefix, Person_.lastName, "", true);
-		tupleContainer.addSortableContainerProperty(personPrefix, Person_.firstName, "", false);
+//		// one line is needed for each field extracted from an entity on which sorting is needed.
+//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.taskId, new Long(0), true);
+//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.name, "", true);
+//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.alpha, "", true);
+//		tupleContainer.addSortableContainerProperty(personPrefix, Person_.lastName, "", true);
+//		tupleContainer.addSortableContainerProperty(personPrefix, Person_.firstName, "", false);
 		
 		logger.warn("created container");
 		return tupleContainer;
