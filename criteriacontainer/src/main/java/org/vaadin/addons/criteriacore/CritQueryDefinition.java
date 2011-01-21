@@ -225,9 +225,10 @@ public class CritQueryDefinition<T> implements QueryDefinition {
      * @param cq the query constructed so far
      * @return a root used for counting.
      */
+    @SuppressWarnings("unchecked")
     protected Root<?> addFilteringConditions(CriteriaBuilder cb,
             CriteriaQuery<?> cq) {
-        Root<T> t = cq.from(getEntityClass());
+        Root<T> t = (Root<T>) cq.from(getEntityClass());
 		filterExpressions = new ArrayList<Predicate>();
 		
 		// get the conditions already in the query
@@ -277,7 +278,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * 
 	 * @return the Class for the Entity being returned.
 	 */
-	public Class<T> getEntityClass() {
+	public Class<?> getEntityClass() {
 		return entityClass;
 	}
 
@@ -371,7 +372,8 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 */
 	public TypedQuery<T> getSelectQuery() {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+    	@SuppressWarnings("unchecked")
+        CriteriaQuery<T> cq = (CriteriaQuery<T>) cb.createQuery(getEntityClass());
 		Root<?> t = defineQuery(cb, cq);
 		
 		// apply the ordering defined by the container on the returned entity.
