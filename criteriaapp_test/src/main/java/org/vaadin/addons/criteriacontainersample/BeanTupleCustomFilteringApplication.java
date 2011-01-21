@@ -16,15 +16,11 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
@@ -55,7 +51,8 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 	class CustomFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
-		private String nameFilterValue;
+		private String nameFilterValue = null;
+		private SetJoin<Person, Task> task;
 
 
 		/**
@@ -66,35 +63,29 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 */
 		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
-			logger.warn("new CustomFilteringBeanTupleQueryDefinition done");
+			logger.warn("new querydefinition: nameFilterValue={}",nameFilterValue);
 		}
 		
 
 		/** 
 		 * Define the query to be executed.
-		 * 
-		 * This class creates the equivalent of
-		 * SELECT * FROM Task t WHERE t.name LIKE "..."
-		 * 
-		 * More precisely, the query defined by this method should not call cb.select() and cb.setOrdering().
-		 * The default implementations of {@link #getCountQuery()} and {@link #getSelectQuery()} both
-		 * call this method in order to guarantee that they are consistent with one another.
+		 * The container will add the restrictions from container filters, and apply the ordering
+		 * defined by the container.
 		 * 
 		 * @see org.vaadin.addons.criteriacontainer.CritQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
 		@Override
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
-				CriteriaQuery<?> cq,
-				Map<Object, Expression<?>> sortExpressions,
-				List<Selection<?>> selections) {
-			
-			logger.warn("defining query");
+				CriteriaQuery<?> cq) {
 			
 			// FROM task JOIN PERSON 
 			Root<Person> person = (Root<Person>) cq.from(Person.class);
-			SetJoin<Person, Task> task = person.join(Person_.tasks); 
-
+			task = person.join(Person_.tasks); 
+			
+			// SELECT task as Task, person as Person, ... 
+			cq.multiselect(task,person);
+			
 			// WHERE t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
 				cq.where(
@@ -103,56 +94,73 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 								nameFilterValue)  // pattern to be matched?
 				);
 			}
-			// TODO: integrate filtering criteria
-			
-			// SELECT task as Task, person as Person, ... 
-			// must add all the entities selected in the tuple
-			addEntitySelection(task);
-			addEntitySelection(person);
-			// add computed selections. 
-			addComputedSelection(cb.count(task).alias("count"));
-			
+
 			return person;
 		}
 
 
+		/**
+		 * @return the filtering string currently applied to the task name
+		 */
 		public String getNameFilterValue() {
 			return nameFilterValue;
 		}
 
+		/**
+		 * Set the filtering string for restricting task names
+		 * @param nameFilterValue
+		 */
 		public void setNameFilterValue(String nameFilterValue) {
 			this.nameFilterValue = nameFilterValue;
 		}
+
+
+		/* (non-Javadoc)
+		 * @see org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition#refresh()
+		 */
+		@Override
+		public void refresh() {
+			logger.warn("before refresh nameFilterValue='{}'",nameFilterValue);
+			super.refresh();
+		}
+		
+		
 	}
 
+	@Override
+	protected void defineTableColumns() {
+		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
+		visibleColumnLabels.add("Task ID");
+		
+		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
+		visibleColumnLabels.add("Name");
+		
+		visibleColumnIds.add(cd.getPropertyId(Person_.class, Person_.firstName));
+		visibleColumnLabels.add("Assignee First Name");
+		
+		visibleColumnIds.add(cd.getPropertyId(Person_.class, Person_.lastName));
+		visibleColumnLabels.add("Assignee Last Name");
+		
+		table.setVisibleColumns(visibleColumnIds.toArray());
+		table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+	}
+	
+	
+	
+	
 	/**
 	 * @return
 	 */
 	@Override
 	protected BeanTupleContainer createTupleContainer() {
-		logger.warn("+++++++++++++++++++++++++++++");
+		logger.warn("createTupleContainer");
 		cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
 		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
-		tupleContainer.getContainerPropertyIds();
-		logger.warn("-----------------------------");
 
-//		final String taskPrefix = Task.class.getSimpleName();
-//		final String personPrefix = Person.class.getSimpleName();
-//		
-//		tupleContainer.addContainerProperty(taskPrefix, Task.class, null, true, false);
-//		tupleContainer.addContainerProperty(personPrefix, Person.class, null, true, false);
-		
-//		// one line is needed for each field extracted from an entity on which sorting is needed.
-//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.taskId, new Long(0), true);
-//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.name, "", true);
-//		tupleContainer.addSortableContainerProperty(taskPrefix, Task_.alpha, "", true);
-//		tupleContainer.addSortableContainerProperty(personPrefix, Person_.lastName, "", true);
-//		tupleContainer.addSortableContainerProperty(personPrefix, Person_.firstName, "", false);
-		
-		logger.warn("created container");
 		return tupleContainer;
 	}
 
+	
 
 	@Override
 	protected void doFiltering() {
@@ -161,31 +169,20 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 			// filtering style #1: query definition includes type safe filters.
 			// the query has its own specific mechanism for setting the filters up.
 			cd.setNameFilterValue(nameFilterValue);
+			cd.refresh(); // recompute the query
+
 			// do not refresh if calling "filter()" later.
 			criteriaContainer.refresh();
-
 		} else {
 			cd.setNameFilterValue(null);
+			cd.refresh(); // recompute the query
+
 			criteriaContainer.filter((LinkedList<CritRestriction>)null);          
 		}
 	}
 
 
-	@Override
-	protected void defineTableColumns() {
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.taskId.getName());
-		visibleColumnIds.add(Task.class.getSimpleName()+"."+Task_.name.getName());
-		visibleColumnIds.add(Person.class.getSimpleName()+"."+Person_.firstName.getName());
-		visibleColumnIds.add(Person.class.getSimpleName()+"."+Person_.lastName.getName());
-		
-		visibleColumnLabels.add("Task ID");
-		visibleColumnLabels.add("Name");
-		visibleColumnLabels.add("Assignee First Name");
-		visibleColumnLabels.add("Assignee Last Name");
-		
-		table.setVisibleColumns(visibleColumnIds.toArray());
-		table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
-	}
+
 	
 	
 }
