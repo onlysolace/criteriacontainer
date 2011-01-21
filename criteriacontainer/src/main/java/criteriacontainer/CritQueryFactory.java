@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.beantuplecontainer;
+package criteriacontainer;
 
-import org.vaadin.addons.lazyquerycontainer.Query;
-import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
-import org.vaadin.addons.lazyquerycontainer.QueryFactory;
+import org.vaadin.addons.beantuplecontainer.BeanTupleQueryFactory;
 
 /**
  * Create a query based on a query definition.
  * 
  * The query object returned contains the actual JPA 2.0 query and the context
  * necessary to run it (e.g., the entity manager)
+ *
+ * @param <T> the type of the entity that the query will return
  */
-public class BeanTupleQueryFactory implements QueryFactory {
-	private BeanTupleQueryDefinition queryDefinition;
-	
+public class CritQueryFactory<T> extends BeanTupleQueryFactory {
 
-	@Override
-	public void setQueryDefinition(QueryDefinition queryDefinition) {
-		this.queryDefinition = (BeanTupleQueryDefinition) queryDefinition;
-	}
 
-	@Override
-	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-		return new BeanTupleItemHelper(queryDefinition);
-	}
 }

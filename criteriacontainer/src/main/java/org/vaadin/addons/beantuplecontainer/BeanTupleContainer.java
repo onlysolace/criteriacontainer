@@ -41,7 +41,7 @@ import com.vaadin.data.Property;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public final class BeanTupleContainer implements Container, Indexed, Sortable, ItemSetChangeNotifier, PropertySetChangeNotifier, Buffered {
+public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSetChangeNotifier, PropertySetChangeNotifier, Buffered {
 	final static Logger logger = LoggerFactory.getLogger(BeanTupleContainer.class);
     
 	private LazyQueryContainer lazyQueryContainer;
@@ -53,10 +53,18 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
      * @param cd the definition of the query
      */
     public BeanTupleContainer(BeanTupleQueryDefinition cd){
-    	queryView = new BeanTupleQueryView(cd,new BeanTupleQueryFactory(this));
+    	queryView = new BeanTupleQueryView(cd,new BeanTupleQueryFactory());
 		lazyQueryContainer = new LazyQueryContainer(queryView);
     }
 	
+    /**
+     * Standard constructor for type-safe queries.
+     * @param qv a custom query view for customization of item access
+     */
+    public BeanTupleContainer(BeanTupleQueryView qv){
+        queryView = qv;
+        lazyQueryContainer = new LazyQueryContainer(queryView);
+    }
     
 	/**
 	 * @param entityAlias the alias under which the parent entity is retrieved

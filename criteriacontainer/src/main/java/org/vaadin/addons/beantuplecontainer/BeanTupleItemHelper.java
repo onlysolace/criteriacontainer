@@ -15,7 +15,6 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,32 +34,35 @@ import com.vaadin.data.util.ObjectProperty;
  * 
  * @author Jean-François Lamy
  */
-@SuppressWarnings("serial")
-public final class BeanTupleQuery implements Query, Serializable {
+
+public class BeanTupleItemHelper implements Query {
 	@SuppressWarnings("unused")
-	private Logger logger = LoggerFactory.getLogger(BeanTupleQuery.class);
+	private Logger logger = LoggerFactory.getLogger(BeanTupleItemHelper.class);
 	
     /** The JPA EntityManager. */
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
+    
     /** Flag reflecting whether application manages transactions. */
-    private boolean applicationTransactionManagement;
+    protected boolean applicationTransactionManagement;
 
     /** The JPA select query. */
     private TypedQuery<Tuple> selectQuery;
+    
     /** The JPA select count query. */
     private TypedQuery<Long> selectCountQuery;
+    
     /** QueryDefinition contains definition of the query properties and batch size. */
-    private BeanTupleQueryDefinition queryDefinition;
+    protected BeanTupleQueryDefinition queryDefinition;
+    
     /** The size of the query. */
     private int querySize = -1;
 
 
     /**
      * Constructor for configuring the query.
-     * @param criteriaQueryDefinition The entity query definition.
-     * @param btc the bean container fed by this query.
+     * @param criteriaQueryDefinition The entity query definition..
      */
-    public BeanTupleQuery(final BeanTupleQueryDefinition criteriaQueryDefinition, BeanTupleContainer btc) {
+    public BeanTupleItemHelper(final BeanTupleQueryDefinition criteriaQueryDefinition) {
         this.queryDefinition = criteriaQueryDefinition;
         
         this.entityManager = queryDefinition.getEntityManager();
