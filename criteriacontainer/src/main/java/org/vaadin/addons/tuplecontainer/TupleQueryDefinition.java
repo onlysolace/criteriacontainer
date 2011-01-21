@@ -17,6 +17,7 @@ package org.vaadin.addons.tuplecontainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +29,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacore.CritQueryDefinition;
 
 /**
  * Type-safe implementation of a query definition.
@@ -103,7 +105,7 @@ public abstract class TupleQueryDefinition extends CritQueryDefinition<Tuple> {
 	
 	
 	/* (non-Javadoc)
-	 * @see org.vaadin.addons.criteriacontainer.CritQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
+	 * @see org.vaadin.addons.criteriacore.CritQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -186,6 +188,35 @@ public abstract class TupleQueryDefinition extends CritQueryDefinition<Tuple> {
 		expression.alias(propertyId);
 		return expression;
 	}
+	
+    /**
+     * @param cb the criteria builder
+     * @param cq the query constructed so far
+     * @return a root used for counting.
+     */
+    @Override
+    protected Root<?> addFilteringConditions(CriteriaBuilder cb,
+            CriteriaQuery<?> cq) {
+        
+        Root<?> t = null;
+        Iterator<Root<?>> rootIterator = cq.getRoots().iterator();
+        if (rootIterator.hasNext()) {
+            t = rootIterator.next();
+        }
+        filterExpressions = new ArrayList<Predicate>();
+        
+        // predicates created from CriteriaContainer.filter()
+        filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
+        
+        // peculiar call to toArray with argument is required to cast all the elements.
+        final Predicate[] array = getFilterExpressions().toArray(new Predicate[0]);
+        
+        // must call where() exactly once.  This call to where() expects a sequence of
+        // Predicates. Java accepts an array instead.
+        cq.where(array);
+        
+        return t;
+    }
 
 }
 

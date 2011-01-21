@@ -17,8 +17,8 @@ package org.vaadin.addons.tuplecontainer;
 
 import java.util.LinkedList;
 
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
-import org.vaadin.addons.criteriacontainer.CritRestriction;
+import org.vaadin.addons.criteriacore.CritQueryDefinition;
+import org.vaadin.addons.criteriacore.CritRestriction;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 /**
