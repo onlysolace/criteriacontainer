@@ -16,14 +16,14 @@
 package org.vaadin.addons.beantuplecontainer;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -36,6 +36,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.StaticMetamodel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +44,21 @@ import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**
- * Type-safe implementation of a query definition.
- * Defined for modularity
+ * Type-safe implementation of JPA 2.0 Tuple-based query definition.
+ * 
+ * This class uses the JPA 2.0 Criteria API to automatically infer all the information necessary to
+ * populate a container (the names of the properties, their sorting, etc.)
+ * 
+ * The query returns a Tuple of one or more entities and computed expressions. The query defines
+ * all the attributes of each of the entities as nested propertyIds, so a container using this query will
+ * consider them present.  The {@link BeanTupleItem} used in the {@link BeanTupleContainer} maps
+ * the nested properties to entity fields, and in this way allows properties to be edited.
  * 
  * @author jflamy
- *
  */
 
 public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple> implements QueryDefinition  {
+	
 	final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 
 	/**
@@ -63,7 +71,7 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	protected Map<Object,Expression<?>> sortExpressions = new HashMap<Object, Expression<?>>();
 	
 	/** all columns and expressions returned by the where */
-	protected List<Selection<?>> selections = new ArrayList<Selection<?>>();
+	protected Set<Selection<?>> selections = new HashSet<Selection<?>>();
 
 	private Metamodel metamodel;	
 	private CriteriaBuilder criteriaBuilder;
@@ -72,7 +80,8 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 
 	private Root<?> root;
 
-	private Set<Object> propertyIds;
+	private boolean propertiesDefined;
+
 
 
 	/**
@@ -86,13 +95,24 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 		metamodel = getEntityManager().getMetamodel();
 		criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		
-    	tupleQuery = criteriaBuilder.createTupleQuery();
-    	defineQuery(criteriaBuilder, tupleQuery, sortExpressions, selections);
+		refresh();
+		propertiesDefined = true;
+	}
 
+
+	/**
+	 * reset the query definitions.
+	 */
+	public void refresh() {
     	countingQuery = criteriaBuilder.createQuery(Long.class);
-    	root = defineQuery(criteriaBuilder, countingQuery, sortExpressions, selections);
+    	root = defineQuery(criteriaBuilder, countingQuery);
+    	countingQuery.orderBy();
     	
-    	//TODO: need to call addProperty to define the type and sortable status of the properties
+		tupleQuery = criteriaBuilder.createTupleQuery();
+    	defineQuery(criteriaBuilder, tupleQuery);
+
+    	// define the type and sortable status of the properties
+    	defineProperties();
 	}
 
 
@@ -101,9 +121,7 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 */
 	@Override
 	public TypedQuery<Tuple> getSelectQuery() {
-		// apply the selections
-    	tupleQuery.multiselect(selections.toArray(new Selection[0]));
-		
+
 		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering();
 		if (ordering != null) {
@@ -114,7 +132,6 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 		// the container deals with the parameter values set through the filter() method
 		// so we only handle those that we add ourselves
 		setParameters(tq);
-		logger.warn("end getSelectQuery {} {}", selections, sortExpressions);
 		return tq;
 	}
 	
@@ -124,26 +141,58 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 */
 	@Override
 	public TypedQuery<Long> getCountQuery() {
+    	
+    	// cancel sorting defined by the query
+    	countingQuery.orderBy();
+    	
+		// override the select added in the query definition, we want a count.
 		countingQuery.select(criteriaBuilder.count(root));
 		
 		final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
 		setParameters(countQuery);
-		logger.warn("end getCountQuery {} {}", selections, sortExpressions);
 		return countQuery;
 	}
 
 
 	/**
-	 * Define the common part of the Query to be used for counting and selecting.
-	 * Also memorizes the parts of the query that can be used for sorting.
+	 * Define a query that fetches a tuple of one or more entities.
 	 * 
+     * The following example shows a query that can be used to define a container:
+     * it returns a tuple of entities (through the multiselect() call), and defines
+     * conditions through a where() call.
+	 * 
+	 * The other methods in this class will examine the resulting object structure to
+	 * retrieve the information necessary to list the properties, define sorting, and
+	 * so on.
+	 * <pre>
+{@code protected Root<?> defineQuery( }
+        CriteriaBuilder cb,
+        CriteriaQuery<?> cq) {
+
+    // FROM task JOIN PERSON 
+    {@code Root<Person> person = (Root<Person>) cq.from(Person.class);}
+    task = person.join(Person_.tasks); 
+
+    // SELECT task as Task, person as Person, ... 
+    cq.multiselect(task,person);
+
+    // WHERE t.name LIKE nameFilterValue    
+    cq.where(
+        cb.like(
+            task.get(Task_.name), // t.name
+            "test%")  // sql "like" pattern to be matched
+        );
+    }
+
+    return person;
+}
+}</pre>
 	 * @param criteriaBuilder the CriteriaBuilder used to define the from, where and select
 	 * @param tupleQuery the CriteriaQuery to build the tuples,
-	 * @param sortExpressions a map from a propertyId to the expression used by the CriteriaQuery to set its value
-	 * @param selections the expressions for the select statement (including those necessary for sorting)
-	 * @return the root of the query (used for counting)
+	 * @return a root of the query (used for counting the lines returned)
 	 */
-	protected abstract Root<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery, Map<Object,Expression<?>> sortExpressions, List<Selection<?>> selections);
+	@Override
+	protected abstract Root<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery);
 	
 
 	/**
@@ -157,8 +206,29 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 			javaType = Integer.class;
 		} else if (javaType == boolean.class) {
 			javaType = Boolean.class;
+		} else if (javaType == char.class) {
+			javaType = Character.class;
 		}
 		return javaType;
+	}
+	
+
+	/**
+	 * @param javaType the type
+	 * @return a meaningful default value
+	 */
+	protected Object defaultValue(Class<?> javaType) {
+		if (javaType == long.class) {
+			return new Long(0L);
+		} else if (javaType == int.class) {
+			return new Integer(0);
+		} else if (javaType == boolean.class) {
+			return new Boolean(false);
+		} else if (javaType == char.class) {
+			return new Character(' ');
+		} else {
+			return null;
+		}
 	}
 	
 	
@@ -189,24 +259,6 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 		return ordering;
 	}
 	
-	
-	/**
-	 * Add entries to the where clause in order to support sorting.
-	 */
-	protected void addSortingSelections() {
-        if (sortPropertyIds == null || sortPropertyIds.length == 0) {
-            sortPropertyIds = nativeSortPropertyIds;
-            sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
-        }
-  
-    	if (sortPropertyIds == null || sortPropertyIds.length == 0) return;
-
-		for (int curItem = 0; curItem < sortPropertyIds.length; curItem++ ) {
-	    	final String id = (String)sortPropertyIds[curItem];
-			final Expression<?> sortExpression = sortExpressions.get(id);
-			selections.add(sortExpression);
-		}
-	}
 
 	
 	/**
@@ -217,15 +269,13 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 * 
 	 * @param propertyId the desired property id. An alias will be defined.
 	 * @param selection the root or join from which the desired column will be fetched
-	 * @param sortExpressions a map to enable sorting on 
 	 * @return an expression that can be used in JPA order()
 	 */
-	protected Expression<?> computedExpression(
+	protected Expression<?> addPropertyForComputedValue(
 			final String propertyId,
-			final Selection<?> selection,
-			Map<Object, Expression<?>> sortExpressions) {
+			final Selection<?> selection) {
 		final Expression<?> expression = (Expression<?>) selection;
-		sortExpressions.put(propertyId,expression);
+		addPropertyForExpression(propertyId,expression);
 		return expression;
 	}
 
@@ -241,35 +291,34 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 * @param propertyId the property identifier in the items that will be constructed
 	 * @param path the root or join from which the desired column will be fetched
 	 * @param column the expression used to get the desired column in the query results
-	 * @param sortExpressions a map to enable sorting on 
 	 * @return an expression that can be used in JPA order()
 	 */
-	protected Expression<?> propertyExpression(
+	protected Expression<?> addPropertyForAttribute(
 			final String propertyId,
 			final Path<?> path,
-			final SingularAttribute<?, ?> column,
-			Map<Object, Expression<?>> sortExpressions) {
+			final SingularAttribute<?, ?> column) {
 		final Expression<?> expression = path.get(column.getName());
-		sortExpressions.put(propertyId,expression);
 		expression.alias(propertyId);
+		addPropertyForExpression(propertyId,expression);
 		return expression;
 	}
 	
-	
 	/**
-	 * @see org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition#getPropertyIds()
+	 * Helper routine to add a property.
+	 * @param propertyId
+	 * @param expression
 	 */
-	@Override
-	public Collection<?> getPropertyIds() {
-		if (propertyIds == null) {
-			Set<Object> propSet = new HashSet<Object>(sortExpressions.keySet());
-			for (Selection<?> selection: selections){
-				propSet.add(selection.getAlias());
-			}
-			propertyIds = Collections.unmodifiableSet(propSet);
-			logger.warn("getPropertyIds={}",propSet);
+	private void addPropertyForExpression(Object propertyId,
+			Expression<?> expression) {
+		Class<?> propertyType = instantatiableType(expression.getJavaType());
+		
+		boolean isEntity = propertyType.getClass().isAnnotationPresent(Entity.class);
+		boolean sortable = Comparable.class.isAssignableFrom(propertyType);
+		boolean readOnly = !isEntity; // entities are read-only, attributes and expressions readable
+		if (!propertiesDefined) addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
+		if (sortable){
+			sortExpressions.put(propertyId, expression);
 		}
-		return propertyIds;
 	}
 
 
@@ -289,24 +338,21 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 * 
 	 * @param entityPath path (Root or Join) that designates an entity
 	 */
-	protected void addEntitySelection(Path<?> entityPath) {
+	protected void addEntityProperties(Path<?> entityPath) {
 		Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
 		
 		// make sure there is an alias
-		String alias = entityPath.getAlias();
-		if (alias == null) {
-			entityPath.alias(instantatiableType.getSimpleName());
-		}
+		ensureAlias(entityPath);
 		
-		// add the entity to the tuple
-		selections.add(entityPath);
-		
-		// add all the attributes to the sortable items.  we do not actually
-		// the attributes separately -- the item will fetch them from the entity.
+		// define a property for the entity
+		addPropertyForExpression(entityPath.getAlias(), entityPath);
+
+		// add properties for all the attributes to the sortable items the container knows about
+		// (the BeanTupleItem is smart about this and does not actually duplicate info)
 		Set<?> attributes = getMetamodel().entity(instantatiableType).getSingularAttributes();
 		for (Object attributeObject : attributes) {
 			SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
-			propertyExpression(entityPath.getAlias()+"."+column.getName(), entityPath, column, sortExpressions);
+			addPropertyForAttribute(entityPath.getAlias()+"."+column.getName(), entityPath, column);
 		}
 	}
 
@@ -318,18 +364,87 @@ public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple
 	 * 
 	 * @param selection alias for an Expression for a computed value
 	 */
-	protected void addComputedSelection(Selection<Long> selection) {
+	protected void addComputedProperty(Selection<?> selection) {
 		// make sure there is an alias
 		String alias = selection.getAlias();
 		if (alias == null) {
 			throw new IllegalArgumentException("All computed values must have an alias defined : missing alias on "+selection);
 		}
 		
-		// add the computed value to the tuple
-		selections.add(selection);
-		
 		// remember the expression so we can sort on the computed value
-		computedExpression(selection.getAlias(), selection, sortExpressions);
+		addPropertyForComputedValue(selection.getAlias(), selection);
+	}
+
+
+	/**
+	 * Create property definitions for the container.
+	 * The wrapped container actually calls this method to get its properties.
+	 */
+	private void defineProperties() {
+		Object propertyId ;
+		for ( Entry<Object, Expression<?>>  entry : sortExpressions.entrySet()){
+			propertyId = entry.getKey();
+			Expression<?> expression = entry.getValue();
+			if (propertyId != null){
+				addPropertyForExpression(propertyId, expression);
+			}
+		}
+		// add the other items in the selection that are not meant to be sortable
+		List<Selection<?>> compoundSelectionItems = tupleQuery.getSelection().getCompoundSelectionItems();
+		for (Selection<?> selection: compoundSelectionItems){
+			if (selection.getJavaType().isAnnotationPresent(Entity.class)) {
+				addEntityProperties((Path<?>) selection);
+			} else {
+				addComputedProperty(selection);
+			}
+		}
+		logger.warn("after defineProperties: {}", getPropertyIds());
+	}
+
+
+	/**
+	 * @param selection
+	 * @return
+	 */
+	private String ensureAlias(Selection<?> selection) {
+		String alias = selection.getAlias();
+		if (alias == null || alias.isEmpty()) {
+			selection.alias(instantatiableType(selection.getJavaType()).getSimpleName());
+		}
+		return selection.getAlias();
+	}
+
+
+	/**
+	 * Compute the property id from information available in the static metamodel.
+	 * @param metamodelType the static metamodel in which the attribute is found.
+	 * @param attr a singular attribute defined in the model
+	 * @return a propertyId if it has been found in the defined properties, null if not.
+	 */
+	public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
+		Class<?> entityType = metamodelType.getAnnotation(StaticMetamodel.class).value();
+		String propertyId = entityType.getSimpleName()+"."+attr.getName();
+		if (propertyIds.contains(propertyId)) {
+			return propertyId;
+		} else {
+			return null;
+		}
+	}
+
+	
+	/**
+	 * Compute the property id from information available in the static metamodel.
+	 * @param alias alias used in the query definition.
+	 * @param attr a singular attribute defined in the model
+	 * @return a propertyId if it has been found in the defined properties, null if not.
+	 */
+	public String getPropertyId(String alias, SingularAttribute<?, ?> attr) {
+		String propertyId = alias+"."+attr.getName();
+		if (propertyIds.contains(propertyId)) {
+			return propertyId;
+		} else {
+			return null;
+		}
 	}
 }
 
