@@ -1,5 +1,9 @@
 #summary Release Notes
 
+== Release 0.3.0 ==
+  * Added BeanTupleContainer which allows retrieval of a tuple made up of editable Beans.  All
+    the container configuration is done by examining the JPA2.0 query.
+
 == Release 0.2.0 ==
   * Moved the entityManager back to the CritQueryDefinition constructor, as in the original API.
 
