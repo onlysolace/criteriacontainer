@@ -85,10 +85,8 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	/** the default of property ids to be sorted (normally, Strings) */
 	protected Object[] nativeSortPropertyIds;
 
-
-	
 	/** Lust of property IDs included in this QueryDefinition. */
-    private List<Object> propertyIds = new ArrayList<Object>();
+    protected List<Object> propertyIds = new ArrayList<Object>();
 	
 	/** Map of types of the properties. */
     private Map<Object, Object> propertyTypes = new TreeMap<Object, Object>();

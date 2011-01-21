@@ -123,9 +123,12 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 	 * @return true, always.
 	 * @see org.vaadin.addons.lazyquerycontainer.LazyQueryContainer#addContainerProperty(java.lang.Object, java.lang.Class, java.lang.Object, boolean, boolean)
 	 */
+	
+	// FIXME: test support for generated columns
 	public final boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue, boolean readOnly, boolean sortable) {
-		throw new UnsupportedOperationException("Properties cannot be added, they are defined by the JPA query.");
+		return lazyQueryContainer.addContainerProperty(propertyId, type, defaultValue, readOnly, sortable);
+
 	}
 
 
@@ -138,32 +141,12 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 	}
 	
 	
-	/* ----- method overrides  -----------------------
-	 * 
-	 * All the methods below are defined in the declared Vaadin interfaces, but are re-implemented.
-	 * Care must be taken to ensure interoperability with the other methods.
-	 * 
-	 */	
-	
-
-	
-	
-	
-	/* ----- interface methods that are delegated to the wrapped LazyQueryContainer -----------------------
+	/* ----- method overrides that are delegated to the wrapped LazyQueryContainer -----------------------
 	 * 
 	 * All the methods below are defined in the declared Vaadin interfaces, and are delegated to the LazyQuery container.
 	 * 
 	 */
 
-	/* (non-Javadoc)
-	 * @see com.vaadin.data.Container#getContainerPropertyIds()
-	 */
-	@Override
-	public final Collection<?> getContainerPropertyIds() {
-		return lazyQueryContainer.getContainerPropertyIds();
-	}
-
-	
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
 	 */
@@ -172,7 +155,7 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 		return lazyQueryContainer.getSortableContainerPropertyIds();
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container#getType(java.lang.Object)
 	 */
@@ -515,12 +498,22 @@ public final class BeanTupleContainer implements Container, Indexed, Sortable, I
 
 
 	/* (non-Javadoc)
+	 * @see com.vaadin.data.Container#getContainerPropertyIds()
+	 */
+	@Override
+	public final Collection<?> getContainerPropertyIds() {
+		return lazyQueryContainer.getContainerPropertyIds();
+	}
+
+
+	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container#addContainerProperty(java.lang.Object, java.lang.Class, java.lang.Object)
 	 */
 	@Override
 	public final boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue) {
-		throw new UnsupportedOperationException("Properties are defined by the JPA query.");
+		return lazyQueryContainer.addContainerProperty(propertyId, type,
+				defaultValue);
 	}
 
 

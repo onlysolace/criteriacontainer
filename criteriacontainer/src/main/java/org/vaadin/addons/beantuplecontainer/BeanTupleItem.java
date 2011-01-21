@@ -15,7 +15,6 @@
  */
 package org.vaadin.addons.beantuplecontainer;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -63,6 +62,7 @@ import com.vaadin.data.util.PropertysetItem;
 @SuppressWarnings("serial")
 public final class BeanTupleItem extends PropertysetItem {
 
+	@SuppressWarnings("unused")
 	private final static Logger logger = LoggerFactory.getLogger(BeanTupleItem.class);
 
 	/** The backing tuple */
@@ -87,7 +87,6 @@ public final class BeanTupleItem extends PropertysetItem {
 	public void setTuple(Tuple tuple) {
 		this.tuple = tuple;
 		initializeFromTuple();
-		//logger.warn("item = {}",toString());
 	}
 
 	/**
@@ -217,15 +216,33 @@ public final class BeanTupleItem extends PropertysetItem {
 	}
 
 	
-	/* (non-Javadoc)
+	/**
+	 * Retrieve property ids.
+	 * For properties that correspond to entities, nested property ids are added as well.
+	 * 
 	 * @see com.vaadin.data.util.PropertysetItem#getItemPropertyIds()
 	 */
-	@Override
-	public Collection<?> getItemPropertyIds() {
-		//TODO: add nested properties
-		logger.warn("getItemPropertyIds");
-		return super.getItemPropertyIds();
-	}
+//	@Override
+//	public Collection<?> getItemPropertyIds() {
+//		ArrayList<Object> propertyIds = new ArrayList<Object>();
+//		Collection<?> basicPropertyIds = super.getItemPropertyIds();
+//		for (Object basicPropertyId : basicPropertyIds){
+//			propertyIds.add(basicPropertyId);
+//			Class<?> type = super.getItemProperty(basicPropertyId).getType();
+//			if (type.isAnnotationPresent(Entity.class)) {
+//				// property is an entity
+//				Field[] fields = type.getDeclaredFields();
+//				for (Field field: fields){
+//					propertyIds.add(basicPropertyId.toString()+"."+field.getName());
+//				}
+//			}
+//		}
+//
+//		logger.warn("item getItemPropertyIds={}");
+//		return Collections.unmodifiableCollection(propertyIds);
+//	}
+//	
+	
 	
 
 	/* (non-Javadoc)

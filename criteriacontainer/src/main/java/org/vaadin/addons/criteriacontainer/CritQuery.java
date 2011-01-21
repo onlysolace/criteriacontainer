@@ -100,7 +100,6 @@ public final class CritQuery<T> implements Query, Serializable {
      */
     @Override
 	public int size() {
-    	// TODO: should the parameters be set here or in the query definition
         if (querySize == -1) {
             querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
         }
@@ -115,7 +114,6 @@ public final class CritQuery<T> implements Query, Serializable {
      */
     @Override
 	public List<Item> loadItems(final int startIndex, final int count) {
-    	// TODO: should the parameters be set here or in the query definition
         selectQuery.setFirstResult(startIndex);
         selectQuery.setMaxResults(count);
 
