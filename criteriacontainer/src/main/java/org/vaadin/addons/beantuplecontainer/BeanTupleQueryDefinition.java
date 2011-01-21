@@ -40,7 +40,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
+import org.vaadin.addons.criteriacore.CritQueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacontainer;
+package org.vaadin.addons.criteriacore;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,7 +73,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * A list of sorting criteria
 	 */
 
-	private List<Predicate> filterExpressions;
+	protected List<Predicate> filterExpressions;
 	/**
 	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
 	 */
@@ -115,15 +115,16 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * @param entityClass the class for the entity (should be the same as T.class)
 	 * @param batchSize how many entities to recover at one time.
 	 */
-	public CritQueryDefinition(
+	@SuppressWarnings("unchecked")
+    public CritQueryDefinition(
 			EntityManager entityManager,
 			boolean applicationManagedTransactions,
-			final Class<T> entityClass,
+			final Class<?> entityClass,
 			int batchSize
 			) {
 		this.batchSize = batchSize;
 		this.entityManager = entityManager;
-		this.entityClass = entityClass;
+		this.entityClass = (Class<T>) entityClass;
 		this.applicationManagedTransactions = applicationManagedTransactions;
 	}
 
@@ -169,28 +170,17 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * @param t the root of the query.
 	 * @return a list of predicates to be added to the query 
 	 */
-	protected List<Predicate> addFilterRestrictions(List<Predicate> filterExpressions, CriteriaBuilder cb,
-			CriteriaQuery<?> cq, Root<T> t) {
+	protected List<Predicate> addFilterRestrictions(
+	        List<Predicate> filterExpressions,
+	        CriteriaBuilder cb,
+			CriteriaQuery<?> cq, 
+			Root<?> t) {
 		if (restrictions != null) {
 			filterExpressions.add(CritRestriction.getPredicate(restrictions, cb, t));
 		}
 		return filterExpressions;
 	}
 	
-	/**
-	 * Create conditions in the query
-	 * 
-	 * @param filterExpressions the predicates created by filtering mechanisms so far.
-	 * @param cb the current query builder
-	 * @param cq the query as built so far
-	 * @param t the root of the query as it has been built
-	 * @return an augmented list of conditions to be added to the WHERE clause.
-	 */
-	protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<T> t) {
-		// do nothing, will be overridden by classes that need it.
-		return filterExpressions;
-	}
-
 
     /* (non-Javadoc)
      * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#addProperty(java.lang.Object, java.lang.Class, java.lang.Object, boolean, boolean)
@@ -226,24 +216,37 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * @return the root for the query
 	 */
 	protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
-		Root<T> t = cq.from(getEntityClass());
-		filterExpressions = new ArrayList<Predicate>();
+		return addFilteringConditions(cb, cq);
+	}
 
-		// predicates built by the query itself (typically, type-safe predicates)
-		filterExpressions = addPredicates(filterExpressions,cb, cq, t);
+
+    /**
+     * @param cb the criteria builder
+     * @param cq the query constructed so far
+     * @return a root used for counting.
+     */
+    protected Root<?> addFilteringConditions(CriteriaBuilder cb,
+            CriteriaQuery<?> cq) {
+        Root<T> t = cq.from(getEntityClass());
+		filterExpressions = new ArrayList<Predicate>();
+		
+		// get the conditions already in the query
+		Predicate currentRestriction = cq.getRestriction();
+		if (currentRestriction != null){
+		   filterExpressions.add(currentRestriction);
+		}
 		
 		// predicates created from CriteriaContainer.filter()
 		filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
 		
-		// peculiar call to toArray with argument is required to cast all the elements.
+		// build array, casting all the elements to Predicate
 		final Predicate[] array = getFilterExpressions().toArray(new Predicate[0]);
 		
-		// must call where() exactly once.  This call to where() expects a sequence of
-		// Predicates. Java accepts an array instead.
+		// overwrite the conditions that were in the query
 		cq.where(array);
 		
 		return t;
-	}
+    }
 	
 
     /* (non-Javadoc)

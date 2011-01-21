@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.vaadin.addons.criteriacontainer;
+package org.vaadin.addons.criteriacore;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
 
