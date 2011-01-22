@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package criteriacontainer;
+package org.vaadin.addons.criteriacontainer;
 
 import java.util.Collection;
 
@@ -24,6 +24,8 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
 
+import org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition;
+
 
 /**
  * Define simple restrictions to be added to the WHERE clause
@@ -31,7 +33,7 @@ import javax.persistence.metamodel.Attribute;
  * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager.
  * This class creates JPA2.0 predicates based on a list of simple criteria.
  * 
- * This reduces the need to create subclasses of {@link CriteriaQueryDefinition}.
+ * This reduces the need to create subclasses of {@link AbstractCriteriaQueryDefinition}.
  * 
 
  * 

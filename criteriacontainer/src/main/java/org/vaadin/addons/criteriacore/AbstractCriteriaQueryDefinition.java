@@ -46,10 +46,10 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * 
  * @param <T> the Entity type returned by the query being defined
  */
-public class CriteriaQueryDefinition<T> implements QueryDefinition {
+public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinition {
 
 	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(CriteriaQueryDefinition.class);
+	final static private Logger logger = LoggerFactory.getLogger(AbstractCriteriaQueryDefinition.class);
 	
 	/** 
 	 * false if the container manages the transactions, true otherwise.
@@ -115,7 +115,7 @@ public class CriteriaQueryDefinition<T> implements QueryDefinition {
 	 * @param batchSize how many entities to recover at one time.
 	 */
 	@SuppressWarnings("unchecked")
-    public CriteriaQueryDefinition(
+    public AbstractCriteriaQueryDefinition(
 			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			final Class<?> entityClass,
@@ -139,7 +139,7 @@ public class CriteriaQueryDefinition<T> implements QueryDefinition {
 	 * @param nativeSortPropertyIds the property names to be sorted
 	 * @param nativeSortPropertyAscendingStates for each property name, true means sort in ascending order, false in descending order
 	 */
-	public CriteriaQueryDefinition(
+	public AbstractCriteriaQueryDefinition(
 			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			Class<T> entityClass, 
@@ -261,15 +261,7 @@ public class CriteriaQueryDefinition<T> implements QueryDefinition {
 	 * This method returns the number of entities.
 	 * @return number of entities.
 	 */
-	public TypedQuery<Long> getCountQuery() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<Long> nb = cb.createQuery(Long.class);
-		Root<?> t = defineQuery(cb, nb);
-		nb.select(cb.count(t));
-		final TypedQuery<Long> countQuery = entityManager.createQuery(nb);
-		setParameters(countQuery);
-		return countQuery;
-	}
+	abstract public TypedQuery<Long> getCountQuery() ;
 
 	/**
 	 * Get the class of the entity being managed.
@@ -368,24 +360,7 @@ public class CriteriaQueryDefinition<T> implements QueryDefinition {
 	 * a runnable query by adding the ordering and setting the parameters.
 	 * @return a runnable TypedQuery
 	 */
-	public TypedQuery<T> getSelectQuery() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    	@SuppressWarnings("unchecked")
-        CriteriaQuery<T> cq = (CriteriaQuery<T>) cb.createQuery(getEntityClass());
-		Root<?> t = defineQuery(cb, cq);
-		
-		// apply the ordering defined by the container on the returned entity.
-		final List<Order> ordering = getOrdering(t, cb);
-		if (ordering != null) {
-			cq.orderBy(ordering);
-		}		
-		
-		final TypedQuery<T> tq = entityManager.createQuery(cq);
-		// the container deals with the parameter values set through the filter() method
-		// so we only handle those that we add ourselves
-		setParameters(tq);
-		return tq;
-	}
+	abstract public TypedQuery<T> getSelectQuery();
 
 	
     /* (non-Javadoc)

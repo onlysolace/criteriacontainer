@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package criteriacontainer;
+package org.vaadin.addons.criteriacontainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryView;
 
 
