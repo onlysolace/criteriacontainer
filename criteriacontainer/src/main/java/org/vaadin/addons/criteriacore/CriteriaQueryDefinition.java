@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,10 +46,10 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * 
  * @param <T> the Entity type returned by the query being defined
  */
-public class CritQueryDefinition<T> implements QueryDefinition {
+public class CriteriaQueryDefinition<T> implements QueryDefinition {
 
 	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(CritQueryDefinition.class);
+	final static private Logger logger = LoggerFactory.getLogger(CriteriaQueryDefinition.class);
 	
 	/** 
 	 * false if the container manages the transactions, true otherwise.
@@ -94,7 +93,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	/** Flags reflecting whether the properties are read only. */
     private Map<Object, Boolean> readOnlyStates = new HashMap<Object, Boolean>();
 	
-	private Collection<CritRestriction> restrictions;
+	private Collection<CriteriaRestriction> restrictions;
 
 	/** The sort states of the properties. */
     private Map<Object, Boolean> sortableStates = new HashMap<Object, Boolean>();
@@ -116,7 +115,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * @param batchSize how many entities to recover at one time.
 	 */
 	@SuppressWarnings("unchecked")
-    public CritQueryDefinition(
+    public CriteriaQueryDefinition(
 			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			final Class<?> entityClass,
@@ -131,8 +130,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 
 	/**
 	 * Constructor for simple usage.
-	 * With this constructor, entities are retrieved and sorted.  The container's {@link CriteriaContainer#filter(java.util.LinkedList)}
-	 * is used to restrict information.
+	 * With this constructor, entities are retrieved and sorted. 
 	 * 
 	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions true unless the JPA persistence unit is defined by the container
@@ -141,7 +139,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * @param nativeSortPropertyIds the property names to be sorted
 	 * @param nativeSortPropertyAscendingStates for each property name, true means sort in ascending order, false in descending order
 	 */
-	public CritQueryDefinition(
+	public CriteriaQueryDefinition(
 			EntityManager entityManager,
 			boolean applicationManagedTransactions,
 			Class<T> entityClass, 
@@ -158,7 +156,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 
 	
 	/**
-	 * Prepare the query so that {@link CriteriaContainer#filter(LinkedList)} works.
+	 * Prepare the query so that the container filter() works.
 	 * 
 	 * For each field named in the whereParameters map, create a parameter place holder
 	 * in the query.  There is no setFilterParameters method, the container does the
@@ -176,7 +174,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 			CriteriaQuery<?> cq, 
 			Root<?> t) {
 		if (restrictions != null) {
-			filterExpressions.add(CritRestriction.getPredicate(restrictions, cb, t));
+			filterExpressions.add(CriteriaRestriction.getPredicate(restrictions, cb, t));
 		}
 		return filterExpressions;
 	}
@@ -499,7 +497,7 @@ public class CritQueryDefinition<T> implements QueryDefinition {
 	 * 
 	 * @param restrictions a list of objects that each define a condition to be added
 	 */
-	public void setRestrictions(Collection<CritRestriction> restrictions) {
+	public void setRestrictions(Collection<CriteriaRestriction> restrictions) {
 		this.restrictions = restrictions;
 	}
 	

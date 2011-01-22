@@ -29,17 +29,18 @@ import org.vaadin.addons.beantuplecontainer.BeanTupleQueryView;
  *
  */
 @SuppressWarnings("serial")
-public class CritQueryView<T> extends BeanTupleQueryView {
+public class CriteriaQueryView<T> extends BeanTupleQueryView {
 
 
     /**
      * Constructs LazyQueryView with given QueryDefinition and QueryFactory. The
      * role of this constructor is to enable use of custom QueryDefinition
      * implementations.
+     * 
      * @param queryDefinition The QueryDefinition to be used.
      * @param queryFactory The QueryFactory to be used.
      */
-    public CritQueryView(final CritQueryDefinition<T> queryDefinition, final CritQueryFactory<T> queryFactory) {
+    public CriteriaQueryView(final CriteriaQueryDefinition<T> queryDefinition, final CriteriaQueryFactory<T> queryFactory) {
         super(queryDefinition,queryFactory);
     }
 

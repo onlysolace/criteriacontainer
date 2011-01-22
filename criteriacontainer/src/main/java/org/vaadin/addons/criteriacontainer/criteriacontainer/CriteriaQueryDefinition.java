@@ -28,16 +28,28 @@ import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
  * 
  * @param <T> the Entity type returned by the query being defined
  */
-abstract public class CritQueryDefinition<T> extends BeanTupleQueryDefinition {
+abstract public class CriteriaQueryDefinition<T> extends BeanTupleQueryDefinition {
 
     /**
      * @param entityManager the EntityManager to reach the database that contains T objects
      * @param applicationManagedTransactions true unless using J2EE container-managed transactions
      * @param batchSize how many items are retrieved at once
      */
-    public CritQueryDefinition(EntityManager entityManager,
+    public CriteriaQueryDefinition(EntityManager entityManager,
             boolean applicationManagedTransactions, int batchSize) {
         super(entityManager, applicationManagedTransactions, batchSize);
+    }
+    
+    
+    /**
+     * Get the class of the entity being managed.
+     * 
+     * @return the Class for the Entity being returned.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<T> getEntityClass() {
+        return (Class<T>) entityClass;
     }
 
 }

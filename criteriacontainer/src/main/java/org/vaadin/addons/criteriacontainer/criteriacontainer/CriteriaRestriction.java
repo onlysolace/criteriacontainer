@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacore;
+package criteriacontainer;
 
 import java.util.Collection;
 
@@ -31,14 +31,14 @@ import javax.persistence.metamodel.Attribute;
  * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager.
  * This class creates JPA2.0 predicates based on a list of simple criteria.
  * 
- * This reduces the need to create subclasses of {@link CritQueryDefinition}.
+ * This reduces the need to create subclasses of {@link CriteriaQueryDefinition}.
  * 
 
  * 
  * @author jflamy
  *
  */
-public class CritRestriction {
+public class CriteriaRestriction {
 	
 	private String propertyId;
 	private Operation operator;
@@ -80,7 +80,7 @@ public class CritRestriction {
 	 * @param operator the constant that corresponds to the desired comparison
 	 * @param comparisonValue  for binary operators, the value being compared to, else null.
 	 */
-	public CritRestriction(String propertyId, Operation operator, Object comparisonValue) {
+	public CriteriaRestriction(String propertyId, Operation operator, Object comparisonValue) {
 		this.propertyId = propertyId;
 		this.operator = operator;
 		this.value = comparisonValue;
@@ -184,10 +184,10 @@ public class CritRestriction {
 	 * @param r
 	 * @return
 	 */
-	static Predicate getPredicate(Collection<CritRestriction> restrictions, CriteriaBuilder cb, Path<?> r) {
+	static Predicate getPredicate(Collection<CriteriaRestriction> restrictions, CriteriaBuilder cb, Path<?> r) {
 		Predicate[] workList = new Predicate[restrictions.size()];
 		int i = 0;
-		for (CritRestriction curRestr : restrictions) {
+		for (CriteriaRestriction curRestr : restrictions) {
 			workList[i] = curRestr.getPredicate(cb, r);
 			i++;
 		}
