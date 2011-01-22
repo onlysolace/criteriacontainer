@@ -1,5 +1,9 @@
 #summary Release Notes
 
+== Release 0.4.0 ==
+  * Refactored CriteriaContainer to work on top of BeanTupleContainer, meaning that
+    the properties of the CriteriaContainer are inferred from the query.
+    
 == Release 0.3.0 ==
   * Added BeanTupleContainer which allows retrieval of a tuple made up of editable Beans.  All
     the container configuration is done by examining the JPA2.0 query.
