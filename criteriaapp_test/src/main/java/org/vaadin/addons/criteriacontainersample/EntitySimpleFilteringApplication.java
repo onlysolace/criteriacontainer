@@ -22,7 +22,7 @@ import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication.CustomFilteringQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.CriteriaRestriction;
+import org.vaadin.addons.criteriacore.FilterRestriction;
 
 /**
  * Example application demonstrating how to use the generic
@@ -70,11 +70,11 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 		if (nameFilterValue != null && nameFilterValue.length() != 0) {
 			// filtering style #2
 			// simple conditions are added to a list and passed to the filter mechanism.
-			final LinkedList<CriteriaRestriction> restrictions = new LinkedList<CriteriaRestriction>();
-			restrictions.add(new CriteriaRestriction(Task_.name.getName(), CriteriaRestriction.Operation.LIKE, nameFilterValue));
+			final LinkedList<FilterRestriction> restrictions = new LinkedList<FilterRestriction>();
+			restrictions.add(new FilterRestriction(Task_.name.getName(), FilterRestriction.Operation.LIKE, nameFilterValue));
 			criteriaContainer.filter(restrictions);
 		} else {
-			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);          
+			criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
 		}
 	}
 

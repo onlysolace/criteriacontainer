@@ -29,7 +29,7 @@ import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.CriteriaRestriction;
+import org.vaadin.addons.criteriacore.FilterRestriction;
 
 import com.vaadin.ui.Button.ClickListener;
 
@@ -177,7 +177,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 			cd.setNameFilterValue(null);
 			cd.refresh(); // recompute the query
 
-			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);          
+			criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
 		}
 	}
 
