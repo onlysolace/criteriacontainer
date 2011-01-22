@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainersample.data.Person;
-import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
-import org.vaadin.addons.criteriacontainersample.data.Task_;
 
 import com.vaadin.Application;
 import com.vaadin.ui.AbstractSelect.MultiSelectMode;
@@ -257,27 +255,7 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			criteriaContainer.refresh();
 			setEditMode(false);
 		}
-//		if (event.getButton() == addItemButton) {
-//			criteriaContainer.addItem();
-//		}
-//		if (event.getButton() == removeItemButton) {
-//			Object selection = table.getValue();
-//			if (selection == null) {
-//				return;
-//			}
-//			if (selection instanceof Integer) {
-//				Integer selectedIndex = (Integer) selection;
-//				if (selectedIndex != null) {
-//					criteriaContainer.removeItem(selectedIndex);
-//				}
-//			}
-//			if (selection instanceof Collection) {
-//				Collection selectionIndexes = (Collection) selection;
-//				for (Object selectedIndex : selectionIndexes) {
-//					criteriaContainer.removeItem((Integer) selectedIndex);
-//				}
-//			}
-//		}
+
 	}
 	
 
@@ -291,18 +269,11 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		criteriaContainer2.refresh();
 		table = new Table();
 
-		table.setCaption("JpaQuery");
+		table.setCaption("JPA 2.0 Tuple Query");
 		table.setPageLength(40);
 
 		table.setContainerDataSource(criteriaContainer2);
 		defineTableColumns();
-		
-		table.setColumnWidth("taskName", 135);
-		table.setColumnWidth("lastName", 135);
-		table.setColumnWidth("firstName", 135);
-
-//		table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
-//		table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
 
 		table.setImmediate(true);
 		table.setEditable(false);
@@ -312,22 +283,7 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		table.setWriteThrough(true);
 	}
 	
-	/**
-	 * 
-	 */
-	protected void defineTableColumns() {
-		visibleColumnIds.add(Task_.taskId.getName());
-		visibleColumnIds.add("taskName");
-		visibleColumnIds.add(Person_.firstName.getName());
-		visibleColumnIds.add(Person_.lastName.getName());
-		
-		visibleColumnLabels.add("Task ID");
-		visibleColumnLabels.add("Name");
-		visibleColumnLabels.add("Assignee First Name");
-		visibleColumnLabels.add("Assignee Last Name");
-		
-		table.setVisibleColumns(visibleColumnIds.toArray());
-		table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
-	}
+
+	abstract protected void defineTableColumns() ;
 
 }

@@ -61,7 +61,7 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 		 * @param batchSize how many tuples to retrieve at once. 
 		 */
 		public ParameterizedTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
-			super(entityManager, applicationManagedTransactions, batchSize);
+			super(entityManager, applicationManagedTransactions, batchSize, Task.class);
 		}
 		
 

@@ -7,7 +7,7 @@
 	<context-param>
 		<description>Vaadin production mode</description>
 		<param-name>productionMode</param-name>
-		<param-value>false</param-value>
+		<param-value>true</param-value>
 	</context-param>
 
 	<!-- testing entity-based JPA2.0 retrieval -->
@@ -58,7 +58,7 @@
 
 
 	<servlet-mapping>
-		<servlet-name>EntityParameterizedFilteringApplication</servlet-name>
+		<servlet-name>EntityCustomFilteringApplication</servlet-name>
 		<url-pattern>/e/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>

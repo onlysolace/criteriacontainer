@@ -45,7 +45,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	 */
 	@Override
 	protected CriteriaContainer<Task> createTaskContainer() {
-		cd = new CriteriaQueryDefinition<Task>(entityManager,true,100);
+		cd = new CriteriaQueryDefinition<Task>(entityManager,true,100,Task.class);
 		
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
 		addContainerProperties(taskContainer);

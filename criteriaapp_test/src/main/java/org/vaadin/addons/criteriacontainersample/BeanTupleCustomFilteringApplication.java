@@ -113,20 +113,12 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		public void setNameFilterValue(String nameFilterValue) {
 			this.nameFilterValue = nameFilterValue;
 		}
-
-
-		/* (non-Javadoc)
-		 * @see org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition#refresh()
-		 */
-		@Override
-		public void refresh() {
-			logger.warn("before refresh nameFilterValue='{}'",nameFilterValue);
-			super.refresh();
-		}
-		
-		
 	}
 
+	/* Define visible columns, in accordance with the properties defined by the query definition.
+	 * 
+	 * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#defineTableColumns()
+	 */
 	@Override
 	protected void defineTableColumns() {
 		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
