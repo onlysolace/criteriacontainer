@@ -16,9 +16,6 @@
 package org.vaadin.addons.criteriacontainer;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.lazyquerycontainer.CompositeItem;
@@ -39,7 +36,7 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
      * @param cd the definition of the query
      */
     public CriteriaContainer(CriteriaQueryDefinition<T> cd){
-    	super(cd);
+    	super(new CriteriaQueryView<T>(cd, new CriteriaQueryFactory<T>()));
     }
     
     /**
@@ -72,18 +69,11 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
             final boolean[] nativeSortPropertyAscendingStates
             )
             {
-    	super(
-    	        new CriteriaQueryView<T>(
-    	                new CriteriaQueryDefinition<T>(entityManager, applicationManagedTransactions, batchSize){
-
-                            @Override
-                            protected Root<?> defineQuery(CriteriaBuilder criteriaBuilder,
-                                    CriteriaQuery<?> tupleQuery) {
-                                // TODO mettre la requête de défaut SELECT sans restriction
-                                return null;
-                            }},
-    	                new CriteriaQueryFactory<T>())
-    	                );
+        super(
+                new CriteriaQueryView<T>(
+                        new CriteriaQueryDefinition<T>(entityManager, applicationManagedTransactions, batchSize, entityClass),
+                        new CriteriaQueryFactory<T>())
+        );
     }
     
     

@@ -124,8 +124,10 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering();
-		if (ordering != null) {
+		if (ordering != null && ordering.size() > 0) {
 			tupleQuery.orderBy(ordering);
+		} else {
+		    tupleQuery.orderBy();
 		}		
 		
 		final TypedQuery<Tuple> tq = getEntityManager().createQuery(tupleQuery);
@@ -207,8 +209,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		} else if (javaType == boolean.class) {
 			javaType = Boolean.class;
 		} else if (javaType == char.class) {
-			javaType = Character.class;
-		}
+            javaType = Character.class;
+        }
 		return javaType;
 	}
 	
@@ -219,15 +221,25 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	protected Object defaultValue(Class<?> javaType) {
 		if (javaType == long.class) {
-			return new Long(0L);
+			return 0L;
 		} else if (javaType == int.class) {
-			return new Integer(0);
+			return 0;
 		} else if (javaType == boolean.class) {
-			return new Boolean(false);
+			return false;
 		} else if (javaType == char.class) {
-			return new Character(' ');
+			return ' ';
+		} else if (javaType == Long.class) {
+            return 0L;
+        } else if (javaType == Integer.class) {
+            return 0;
+        } else if (javaType == Boolean.class) {
+            return new Boolean(false);
+        } else if (javaType == Character.class) {
+            return new Character(' ');
+        } else if (javaType  == String.class) {
+			return "";
 		} else {
-			return null;
+		    return null;
 		}
 	}
 	
@@ -278,6 +290,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		addPropertyForExpression(propertyId,expression);
 		return expression;
 	}
+	
 
 	/**
 	 * Define the expression required to retrieve an item property. 
@@ -303,12 +316,13 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		return expression;
 	}
 	
+	
 	/**
 	 * Helper routine to add a property.
-	 * @param propertyId
-	 * @param expression
+	 * @param propertyId the property Id
+	 * @param expression the expression that fetches the value for propertyId
 	 */
-	private void addPropertyForExpression(Object propertyId,
+	protected void addPropertyForExpression(Object propertyId,
 			Expression<?> expression) {
 		Class<?> propertyType = instantatiableType(expression.getJavaType());
 		
@@ -403,10 +417,11 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 
 	/**
-	 * @param selection
-	 * @return
+	 * If the selection has no alias, add one based on the type name.
+	 * @param selection the selection for which the alias is sought.
+	 * @return the alias string
 	 */
-	private String ensureAlias(Selection<?> selection) {
+	protected String ensureAlias(Selection<?> selection) {
 		String alias = selection.getAlias();
 		if (alias == null || alias.isEmpty()) {
 			selection.alias(instantatiableType(selection.getJavaType()).getSimpleName());

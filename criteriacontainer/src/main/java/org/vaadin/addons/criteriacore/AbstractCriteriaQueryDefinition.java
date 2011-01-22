@@ -420,6 +420,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
      * After this method has been called the Query has to be discarded immediately.
      * @param batchSize the batchSize to set
      */
+    @Override
     public void setBatchSize(final int batchSize) {
         this.batchSize = batchSize;
     }
