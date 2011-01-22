@@ -17,11 +17,12 @@ package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
 
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
-import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
+import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
+import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication.CustomFilteringQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
+import org.vaadin.addons.criteriacore.CriteriaRestriction;
 
 /**
  * Example application demonstrating how to use the generic
@@ -36,7 +37,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
 @SuppressWarnings("serial")
 public class EntitySimpleFilteringApplication extends AbstractEntityApplication  {
 	
-	protected CritQueryDefinition<Task> cd;
+	protected CriteriaQueryDefinition<Task> cd;
 	
 	
 	/**
@@ -44,7 +45,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	 */
 	@Override
 	protected CriteriaContainer<Task> createTaskContainer() {
-		cd = new CritQueryDefinition<Task>(entityManager,true,Task.class,100);
+		cd = new CriteriaQueryDefinition<Task>(entityManager,true,100);
 		
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
 		addContainerProperties(taskContainer);
@@ -69,11 +70,11 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 		if (nameFilterValue != null && nameFilterValue.length() != 0) {
 			// filtering style #2
 			// simple conditions are added to a list and passed to the filter mechanism.
-			final LinkedList<CritRestriction> restrictions = new LinkedList<CritRestriction>();
-			restrictions.add(new CritRestriction(Task_.name.getName(), CritRestriction.Operation.LIKE, nameFilterValue));
+			final LinkedList<CriteriaRestriction> restrictions = new LinkedList<CriteriaRestriction>();
+			restrictions.add(new CriteriaRestriction(Task_.name.getName(), CriteriaRestriction.Operation.LIKE, nameFilterValue));
 			criteriaContainer.filter(restrictions);
 		} else {
-			criteriaContainer.filter((LinkedList<CritRestriction>)null);          
+			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);          
 		}
 	}
 

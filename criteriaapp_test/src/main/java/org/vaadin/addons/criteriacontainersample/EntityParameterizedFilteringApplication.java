@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -24,16 +23,15 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.ParameterExpression;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
-import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
+import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
+import org.vaadin.addons.criteriacore.CriteriaRestriction;
 
 /**
  * Example application demonstrating how to implement
@@ -45,7 +43,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
 @SuppressWarnings("serial")
 public class EntityParameterizedFilteringApplication extends AbstractEntityApplication {
 	
-	public class ParameterizedTaskQueryDefinition extends CritQueryDefinition<Task> {
+	public class ParameterizedTaskQueryDefinition extends CriteriaQueryDefinition<Task> {
 
 		/** parameter to be set at query time */
 		private ParameterExpression<String> nameFilter;
@@ -63,38 +61,49 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 		 * @param batchSize how many tuples to retrieve at once. 
 		 */
 		public ParameterizedTaskQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
-			super(entityManager, applicationManagedTransactions, Task.class, batchSize);
+			super(entityManager, applicationManagedTransactions, batchSize);
 		}
 		
 
 		/**
-		 * Define the WHERE clause conditions specific to this query.
+		 * Define SELECT, FROM and WHERE clauses
 		 * 
-		 * In this example, the {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
-		 * place holder.  In such a case, the {@link #setParameters(TypedQuery)} method must set the parameter values.
+		 * In this example, a {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
+		 * place holder.  This requires that the {@link #setParameters(TypedQuery)} be overridden to
+		 * define the parameters.
 		 */
 		@Override
-		protected List<Predicate> addPredicates(List<Predicate> filterExpressions, CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
+		protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
+		    
+            Root<Task> t = cq.from(Task.class);
+            
+            cq.multiselect(t);
+            
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-
-				// This example shows how to add a parameter to the query so the query does not have to be changed.
+				// This example shows how to create a parameterized query.
 				Expression<String> nameField = t.get(Task_.name);
 				nameFilter = cb.parameter(String.class);
-				filterExpressions.add(cb.like(nameField,nameFilter));
+				cq.where(
+				        (cb.like(nameField,nameFilter)));
 			}
-			return filterExpressions;
+			return t;
 
 		}
 		
 		/**
 		 * Set values for the parameters used in the predicates.
 		 * 
-		 * Should provide a value for all the parameter objects added in the {@link #addPredicates(List, CriteriaBuilder, CriteriaQuery, Root)}
-		 * method.  Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
+		 * Should provide a value for all the parameter objects.
+		 * Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
+		 * It should also define all Parameter objects defined in {@link #defineQuery(CriteriaBuilder, CriteriaQuery)}
+         * (in the current application, the field "nameFilter" is such a parameter.)
 		 */
 		@Override
 		public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
+		    // set named parameters
 			super.setParameters(tq);
+			
+			// set parameters defined as JPA 2.0 Parameter objects
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
 				tq.setParameter(nameFilter, nameFilterValue);
 			}
@@ -141,7 +150,7 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			criteriaContainer.filter((LinkedList<CritRestriction>)null);    
+			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);    
 		}
 	}
 	
