@@ -15,6 +15,8 @@
  */
 
 package org.vaadin.addons.beantuplecontainer;
+import java.util.List;
+
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
 
@@ -115,6 +117,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public void refresh() {
+	    queryDefinition.refresh();
 		lazyQueryView.refresh();
 	}
 
@@ -152,8 +155,51 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public int size() {
-		return lazyQueryView.size();
+	    return queryDefinition.getCountQuery().getSingleResult().intValue();
+		//return lazyQueryView.size();
 	}
+
+
+    @Override
+    public int getMaxCacheSize() {
+        return lazyQueryView.getMaxCacheSize();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryView#setMaxCacheSize(int)
+     */
+    @Override
+    public void setMaxCacheSize(int maxCacheSize) {
+        lazyQueryView.setMaxCacheSize(maxCacheSize);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryView#getAddedItems()
+     */
+    @Override
+    public List<Item> getAddedItems() {
+        return lazyQueryView.getAddedItems();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryView#getModifiedItems()
+     */
+    @Override
+    public List<Item> getModifiedItems() {
+        return lazyQueryView.getModifiedItems();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryView#getRemovedItems()
+     */
+    @Override
+    public List<Item> getRemovedItems() {
+        return lazyQueryView.getRemovedItems();
+    }
 	
 
 

@@ -18,8 +18,6 @@ package org.vaadin.addons.beantuplecontainer;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.persistence.metamodel.SingularAttribute;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacore.FilterRestriction;
@@ -65,38 +63,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
         queryView = qv;
         lazyQueryContainer = new LazyQueryContainer(queryView);
     }
-    
-	/**
-	 * @param entityAlias the alias under which the parent entity is retrieved
-	 * @param attribute the attribute being retrieved 
-	 * @param defaultValue value to set for the item
-	 * @param readOnly the property cannot be set
-	 */
-	public void addSortableContainerProperty(
-			String entityAlias, 
-			SingularAttribute<?, ?> attribute,
-			Object defaultValue, 
-			boolean readOnly) {
-		String propertyId = entityAlias+"."+attribute.getName();
-		Class<?> javaType = instantatiableType(attribute.getJavaType());
-		lazyQueryContainer.addContainerProperty(propertyId, javaType, defaultValue, readOnly, true);
-	}
 
-
-	/**
-	 * @param javaType
-	 * @return the corresponding class for which newInstance can be called.
-	 */
-	private Class<?> instantatiableType(Class<?> javaType) {
-		if (javaType == long.class) {
-			javaType = Long.class;
-		} else if (javaType == int.class) {
-			javaType = Integer.class;
-		} else if (javaType == boolean.class) {
-			javaType = Boolean.class;
-		}
-		return javaType;
-	}
 
 	
 	/* ----- method replacements 
@@ -115,8 +82,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public void filter(LinkedList<FilterRestriction> restrictions) {
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
         critQueryDefinition.setRestrictions(restrictions);
-        critQueryDefinition.refresh();
-        refresh();
+        queryView.refresh(); // also refreshes critQueryDefinition.
 	}
 	
 

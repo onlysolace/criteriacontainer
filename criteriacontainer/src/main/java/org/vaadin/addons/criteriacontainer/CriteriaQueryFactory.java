@@ -16,6 +16,7 @@
 package org.vaadin.addons.criteriacontainer;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryFactory;
+import org.vaadin.addons.lazyquerycontainer.Query;
 
 /**
  * Create a query based on a query definition.
@@ -27,5 +28,8 @@ import org.vaadin.addons.beantuplecontainer.BeanTupleQueryFactory;
  */
 public class CriteriaQueryFactory<T> extends BeanTupleQueryFactory {
 
-
+    @Override
+    public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
+        return new CriteriaItemHelper<T>(queryDefinition);
+    }
 }

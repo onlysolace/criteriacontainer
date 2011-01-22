@@ -36,8 +36,9 @@ import com.vaadin.data.util.ObjectProperty;
  */
 
 public class BeanTupleItemHelper implements Query {
+	
 	@SuppressWarnings("unused")
-	private Logger logger = LoggerFactory.getLogger(BeanTupleItemHelper.class);
+    private Logger logger = LoggerFactory.getLogger(BeanTupleItemHelper.class);
 	
     /** The JPA EntityManager. */
     protected EntityManager entityManager;
@@ -121,10 +122,10 @@ public class BeanTupleItemHelper implements Query {
         for (Object entity : entities) {
             items.add(toItem((Tuple) entity));
         }
-
         return items;
     }
 
+    
     /**
      * Saves the modifications done by container to the query result.
      * Query will be discarded after changes have been saved
@@ -171,7 +172,7 @@ public class BeanTupleItemHelper implements Query {
      * @return item converted from tuple.
      */
 	@SuppressWarnings("unchecked")
-	private Item toItem(final Tuple tuple) {
+    protected Item toItem(final Tuple tuple) {
         BeanTupleItem tupleItem = new BeanTupleItem();
         tupleItem.setTuple(tuple);
 
@@ -189,5 +190,23 @@ public class BeanTupleItemHelper implements Query {
         }
 
         return tupleItem;
+    }
+
+	
+	
+
+    /**
+     * @param selectQuery the selectQuery to set
+     */
+    public void setSelectQuery(TypedQuery<Tuple> selectQuery) {
+        this.selectQuery = selectQuery;
+    }
+
+
+    /**
+     * @return the selectQuery
+     */
+    public TypedQuery<Tuple> getSelectQuery() {
+        return selectQuery;
     }
 }

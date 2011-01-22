@@ -26,7 +26,8 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
  * necessary to run it (e.g., the entity manager)
  */
 public class BeanTupleQueryFactory implements QueryFactory {
-	private BeanTupleQueryDefinition queryDefinition;
+	/** the query definition */
+	protected BeanTupleQueryDefinition queryDefinition;
 	
 
 	@Override

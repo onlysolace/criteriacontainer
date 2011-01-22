@@ -18,11 +18,16 @@ package org.vaadin.addons.criteriacontainer;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Tuple;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addons.beantuplecontainer.BeanTupleItemHelper;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
-import org.vaadin.addons.lazyquerycontainer.CompositeItem;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
@@ -37,6 +42,9 @@ import com.vaadin.data.util.ObjectProperty;
  * @param <T> The type of entity underneath the items.
  */
 public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
+    
+    @SuppressWarnings("unused")
+    final private static Logger logger = LoggerFactory.getLogger(CriteriaItemHelper.class);
 
     private Class<?> entityClass;
 
@@ -50,18 +58,43 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
 
 
     /**
+     * Load batch of items.
+     * @param startIndex Starting index of the item list.
+     * @param count Count of the items to be retrieved.
+     * @return List of items.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Item> loadItems(final int startIndex, final int count) {
+        getSelectQuery().setFirstResult(startIndex);
+        getSelectQuery().setMaxResults(count);
+
+        List<?> entities = getSelectQuery().getResultList();
+        List<Item> items = new ArrayList<Item>();
+        for (Object entity : entities) {
+            T curEntity = (T) ((Tuple) entity).get(0);
+            items.add(toItem(curEntity));
+        }
+        return items;
+    }
+    
+    
+    /**
      * Constructs new item based on QueryDefinition.
      * @return new item.
      */
     @Override
 	public Item constructItem() {
         try {
-            Object entity = entityClass.newInstance();
+            @SuppressWarnings("unchecked")
+            T entity = (T) entityClass.newInstance();
             BeanInfo info = Introspector.getBeanInfo(entityClass);
             for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
                 for (Object propertyId : queryDefinition.getPropertyIds()) {
                     if (pd.getName().equals(propertyId)) {
-                        pd.getWriteMethod().invoke(entity, queryDefinition.getPropertyDefaultValue(propertyId));
+                        Method writeMethod = pd.getWriteMethod();
+                        Object propertyDefaultValue = queryDefinition.getPropertyDefaultValue(propertyId);
+                        writeMethod.invoke(entity, propertyDefaultValue);
                     }
                 }
             }
@@ -100,38 +133,40 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
         }
     }
 
+    
     /**
      * Converts bean to Item. Implemented by encapsulating the Bean
      * first to BeanItem and then to CompositeItem.
      * @param entity bean to be converted.
      * @return item converted from bean.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	private Item toItem(final Object entity) {
-        BeanItem<?> beanItem = new BeanItem<Object>(entity);
 
-        CompositeItem compositeItem = new CompositeItem();
-        compositeItem.addItem("bean", beanItem);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    protected Item toItem(final T entity) {
+        BeanItem<T> beanItem = new BeanItem<T>(entity);
 
         for (Object propertyId : queryDefinition.getPropertyIds()) {
-            if (compositeItem.getItemProperty(propertyId) == null) {
-                compositeItem.addItemProperty(
+            if (beanItem.getItemProperty(propertyId) == null) {
+                beanItem.addItemProperty(
                         propertyId,
-                        new ObjectProperty(queryDefinition.getPropertyDefaultValue(propertyId), queryDefinition
-                                .getPropertyType(propertyId), queryDefinition.isPropertyReadOnly(propertyId)));
+                        new ObjectProperty(queryDefinition.getPropertyDefaultValue(propertyId), 
+                                queryDefinition.getPropertyType(propertyId),
+                                queryDefinition.isPropertyReadOnly(propertyId)));
             }
         }
 
-        return compositeItem;
+        return beanItem;
     }
+	
 
     /**
      * Converts item back to bean.
      * @param item Item to be converted to bean.
      * @return Resulting bean.
      */
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings("unchecked")
     private Object fromItem(final Item item) {
-        return (Object) ((BeanItem) (((CompositeItem) item).getItem("bean"))).getBean();
+        return (Object) ((BeanItem<T>) item).getBean();
     }
+
 }
