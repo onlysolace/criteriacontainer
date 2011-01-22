@@ -31,7 +31,7 @@ import javax.persistence.metamodel.Attribute;
  * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager.
  * This class creates JPA2.0 predicates based on a list of simple criteria.
  * 
- * This reduces the need to create subclasses of {@link CriteriaQueryDefinition}.
+ * This reduces the need to create subclasses of {@link AbstractCriteriaQueryDefinition}.
  * 
 
  * 

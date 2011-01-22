@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package criteriacontainer;
+package org.vaadin.addons.criteriacontainer;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
 
@@ -28,7 +31,7 @@ import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
  * 
  * @param <T> the Entity type returned by the query being defined
  */
-abstract public class CriteriaQueryDefinition<T> extends BeanTupleQueryDefinition {
+public class CriteriaQueryDefinition<T> extends BeanTupleQueryDefinition {
 
     /**
      * @param entityManager the EntityManager to reach the database that contains T objects
@@ -50,6 +53,24 @@ abstract public class CriteriaQueryDefinition<T> extends BeanTupleQueryDefinitio
     @Override
     public Class<T> getEntityClass() {
         return (Class<T>) entityClass;
+    }
+
+
+    /** 
+     * Define the default query that fetches all items of type <T>
+     * {@link #getSelectQuery()} and {@link #getCountQuery()} will take into account
+     * the filters and sorting orders defined by the query definition by enriching/amending
+     * the criteriaQuery
+     * 
+     * @see org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
+     */
+    @Override
+    protected Root<?> defineQuery (
+            CriteriaBuilder criteriaBuilder,
+            CriteriaQuery<?> criteriaQuery) {
+        Root<T> t = criteriaQuery.from(getEntityClass());
+        criteriaQuery.multiselect(t);
+        return t;
     }
 
 }
