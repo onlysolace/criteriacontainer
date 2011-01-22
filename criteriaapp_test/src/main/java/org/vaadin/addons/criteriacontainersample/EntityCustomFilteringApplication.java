@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -24,11 +23,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.vaadin.addons.criteriacontainer.CritQueryDefinition;
-import org.vaadin.addons.criteriacontainer.CritRestriction;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
+import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
+import org.vaadin.addons.criteriacore.CriteriaRestriction;
 
 /**
  * Example application demonstrating how to implement
@@ -40,7 +39,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
 @SuppressWarnings("serial")
 public class EntityCustomFilteringApplication extends AbstractEntityApplication {
 	
-	public class CustomFilteringQueryDefinition extends CritQueryDefinition<Task> {
+	public class CustomFilteringQueryDefinition extends CriteriaQueryDefinition<Task> {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;
@@ -53,28 +52,31 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 		 * @param batchSize how many tuples to retrieve at once.
 		 */
 		public CustomFilteringQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
-			super(entityManager, applicationManagedTransactions, Task.class, batchSize);
+			super(entityManager, applicationManagedTransactions, batchSize);
 		}
 		
 
 		/**
-		 * Define filtering conditions for the query.
-		 * 
-		 * A list of predicates is created. The container will add these predicates to those created by the
-		 * {@link CriteriaContainer#filter(java.util.LinkedList)} mechanism.
+		 * Define  the query.
 		 */
-		@Override
-		protected List<Predicate> addPredicates(
-				List<Predicate> filterExpressions, 
-				CriteriaBuilder cb, CriteriaQuery<?> cq, Root<Task> t) {
-			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+        @Override
+		protected Root<?> defineQuery (
+				CriteriaBuilder criteriaBuilder,
+				CriteriaQuery<?> cq) {
+           
+            
+		    Root<Task> t = cq.from(Task.class);
+		    cq.multiselect(t);
+		    
+			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
+
 				// WHERE t.name LIKE ...
-				Predicate condition = cb.like(
+				Predicate condition = criteriaBuilder.like(
 						t.get(Task_.name), // t.name
 						nameFilterValue);  // pattern to be matched
-				filterExpressions.add(condition);
+				cq.where(condition);
 			}
-			return filterExpressions;
+			return t;
 		}
 		
 		/* getters and setters */
@@ -117,7 +119,7 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			criteriaContainer.filter((LinkedList<CritRestriction>)null);    
+			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);    
 		}
 	}
 	

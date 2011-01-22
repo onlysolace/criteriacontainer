@@ -52,6 +52,7 @@ public final class Task implements Serializable {
 	@ManyToOne
 	private Person assignedTo;
 	
+	
     /**
      * @return the taskId
      */

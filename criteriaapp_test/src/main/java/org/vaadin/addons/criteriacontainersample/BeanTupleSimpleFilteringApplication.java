@@ -25,6 +25,7 @@ import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
+import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication.CustomFilteringQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -43,12 +44,12 @@ import com.vaadin.ui.Button.ClickListener;
  * @author Modified by Jean-François Lamy
  */
 
-public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
+public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
-	private CustomFilteringBeanTupleQueryDefinition cd;
+	private SimpleFilteringBeanTupleQueryDefinition cd;
 
-	class CustomFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
+	class SimpleFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue = null;
@@ -61,9 +62,8 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
 		 * @param batchSize how many tuples to retrieve at once.
 		 */
-		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		public SimpleFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
-			logger.warn("new querydefinition: nameFilterValue={}",nameFilterValue);
 		}
 		
 
@@ -147,14 +147,12 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 	
 	
 	
-	
 	/**
 	 * @return
 	 */
 	@Override
 	protected BeanTupleContainer createTupleContainer() {
-		logger.warn("createTupleContainer");
-		cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
+		cd = new SimpleFilteringBeanTupleQueryDefinition(entityManager,true,100);
 		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
 
 		return tupleContainer;
@@ -162,24 +160,31 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 
 	
 
-	@Override
-	protected void doFiltering() {
-		final String nameFilterValue = (String) nameFilterField.getValue();
-		if (nameFilterValue != null && nameFilterValue.length() != 0) {
-			// filtering style #1: query definition includes type safe filters.
-			// the query has its own specific mechanism for setting the filters up.
-			cd.setNameFilterValue(nameFilterValue);
-			cd.refresh(); // recompute the query
-
-			// do not refresh if calling "filter()" later.
-			criteriaContainer.refresh();
-		} else {
-			cd.setNameFilterValue(null);
-			cd.refresh(); // recompute the query
-
-			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);          
-		}
-	}
+    /**
+     * Get a query definition with filtering activated
+     * 
+     * In this version, we use the generic filtering mechanism provided
+     * by CriteriaContainer.
+     * 
+     * @see {@link EntityCustomFilteringApplication} and {@link CustomFilteringQueryDefinition} for
+     * an alternate approach where arbitrary complex filtering can be done through methods.
+     */
+    @Override
+    protected void doFiltering() {
+        // get filtering string from the user interface
+        final String nameFilterValue = (String) nameFilterField.getValue();
+        
+        // if value define add the filtering conditions, else remove them.
+        if (nameFilterValue != null && nameFilterValue.length() != 0) {
+            // filtering style #2
+            // simple conditions are added to a list and passed to the filter mechanism.
+            final LinkedList<CriteriaRestriction> restrictions = new LinkedList<CriteriaRestriction>();
+            restrictions.add(new CriteriaRestriction(Task_.name.getName(), CriteriaRestriction.Operation.LIKE, nameFilterValue));
+            criteriaContainer.filter(restrictions);
+        } else {
+            criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);          
+        }
+    }
 
 
 
