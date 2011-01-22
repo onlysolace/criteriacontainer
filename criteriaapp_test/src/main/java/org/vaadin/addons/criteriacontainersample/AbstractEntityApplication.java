@@ -207,20 +207,10 @@ public abstract class AbstractEntityApplication extends Application implements C
 	 * @param taskContainer
 	 */
 	protected void addContainerProperties(CriteriaContainer<Task> taskContainer) {
-		taskContainer.addContainerProperty(LazyQueryView.PROPERTY_ID_ITEM_STATUS, QueryItemStatus.class,
-				QueryItemStatus.None, true, false);
-		taskContainer.addContainerProperty(Task_.taskId.getName(), Long.class, new Long(0), true, true);
-		taskContainer.addContainerProperty(Task_.name.getName(), String.class, "", true, true);
-		taskContainer.addContainerProperty(Task_.reporter.getName(), String.class, "", true, true);
-		taskContainer.addContainerProperty(Task_.assignee.getName(), String.class, "", true, true);
-		taskContainer.addContainerProperty(Task_.alpha.getName(), String.class, "", false, true);
-		taskContainer.addContainerProperty(Task_.beta.getName(), String.class, "", false, true);
-		taskContainer.addContainerProperty(Task_.gamma.getName(), String.class, "", false, true);
-		taskContainer.addContainerProperty(Task_.delta.getName(), String.class, "", false, true);
+		taskContainer.addContainerProperty(LazyQueryView.PROPERTY_ID_ITEM_STATUS, QueryItemStatus.class,QueryItemStatus.None, true, false);
 		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX, Integer.class, 0, true, false);
 		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX, Integer.class, 0, true, false);
-		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME, Integer.class, 0, true,
-				false);
+		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME, Integer.class, 0, true,false);
 	}
 
 	protected void setEditMode(boolean editMode) {
@@ -303,12 +293,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 		table.setContainerDataSource(container);
 		defineTableColumns();
 		
-		table.setColumnWidth("name", 135);
-		table.setColumnWidth("reporter", 135);
-		table.setColumnWidth("assignee", 135);
-	
-		table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
-		table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
+
 	
 		table.setImmediate(true);
 		table.setEditable(false);
@@ -319,37 +304,43 @@ public abstract class AbstractEntityApplication extends Application implements C
 	}
 
 	/**
-	 * 
+	 * Obsolete. Kept for reference (for future testing of the LazyQueryView property access)
 	 */
-	private void defineTableColumns() {
-		visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
-		visibleColumnIds.add(Task_.taskId.getName());
-		visibleColumnIds.add(Task_.name.getName());
-		visibleColumnIds.add(Task_.reporter.getName());
-		visibleColumnIds.add(Task_.assignee.getName());
-		visibleColumnIds.add(Task_.alpha.getName());
-		visibleColumnIds.add(Task_.beta.getName());
-		visibleColumnIds.add(Task_.gamma.getName());
-		visibleColumnIds.add(Task_.delta.getName());
-		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
-		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
-		visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
-	
-		visibleColumnLabels.add("");
-		visibleColumnLabels.add("Task ID");
-		visibleColumnLabels.add("Name");
-		visibleColumnLabels.add("Reporter");
-		visibleColumnLabels.add("Assignee");
-		visibleColumnLabels.add("Alpha");
-		visibleColumnLabels.add("Beta");
-		visibleColumnLabels.add("Gamma");
-		visibleColumnLabels.add("Delta");
-		visibleColumnLabels.add("Query");
-		visibleColumnLabels.add("Batch");
-		visibleColumnLabels.add("Time [ms]");
-		
-		table.setVisibleColumns(visibleColumnIds.toArray());
-		table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+	protected void defineTableColumns() {
+	    visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
+	    visibleColumnIds.add(Task_.taskId.getName());
+	    visibleColumnIds.add(Task_.name.getName());
+	    visibleColumnIds.add(Task_.reporter.getName());
+	    visibleColumnIds.add(Task_.assignee.getName());
+	    visibleColumnIds.add(Task_.alpha.getName());
+	    visibleColumnIds.add(Task_.beta.getName());
+	    visibleColumnIds.add(Task_.gamma.getName());
+	    visibleColumnIds.add(Task_.delta.getName());
+	    visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
+	    visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
+	    visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
+
+	    visibleColumnLabels.add("");
+	    visibleColumnLabels.add("Task ID");
+	    visibleColumnLabels.add("Name");
+	    visibleColumnLabels.add("Reporter");
+	    visibleColumnLabels.add("Assignee");
+	    visibleColumnLabels.add("Alpha");
+	    visibleColumnLabels.add("Beta");
+	    visibleColumnLabels.add("Gamma");
+	    visibleColumnLabels.add("Delta");
+	    visibleColumnLabels.add("Query");
+	    visibleColumnLabels.add("Batch");
+	    visibleColumnLabels.add("Time [ms]");
+
+	    table.setColumnWidth("name", 135);
+	    table.setColumnWidth("reporter", 135);
+	    table.setColumnWidth("assignee", 135);  
+	    table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
+	    table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
+
+	    table.setVisibleColumns(visibleColumnIds.toArray());
+	    table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
 	}
 
 }

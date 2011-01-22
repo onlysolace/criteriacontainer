@@ -113,18 +113,6 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 		public void setNameFilterValue(String nameFilterValue) {
 			this.nameFilterValue = nameFilterValue;
 		}
-
-
-		/* (non-Javadoc)
-		 * @see org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition#refresh()
-		 */
-		@Override
-		public void refresh() {
-			logger.warn("before refresh nameFilterValue='{}'",nameFilterValue);
-			super.refresh();
-		}
-		
-		
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 		 * @param batchSize how many tuples to retrieve at once.
 		 */
 		public CustomFilteringQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
-			super(entityManager, applicationManagedTransactions, batchSize);
+			super(entityManager, applicationManagedTransactions, batchSize, Task.class);
 		}
 		
 
@@ -123,5 +123,23 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 		}
 	}
 	
+	/* Define visible columns, in accordance with the properties defined by the query definition.
+     * 
+     * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#defineTableColumns()
+     */
+    @Override
+    protected void defineTableColumns() {
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
+        visibleColumnLabels.add("Task ID");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
+        visibleColumnLabels.add("Name");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.alpha));
+        visibleColumnLabels.add("Name");
+        
+        table.setVisibleColumns(visibleColumnIds.toArray());
+        table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+    }
 
 }
