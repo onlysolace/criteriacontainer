@@ -27,7 +27,7 @@ import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.CriteriaRestriction;
+import org.vaadin.addons.criteriacore.FilterRestriction;
 
 /**
  * Example application demonstrating how to implement
@@ -119,7 +119,7 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			criteriaContainer.filter((LinkedList<CriteriaRestriction>)null);    
+			criteriaContainer.filter((LinkedList<FilterRestriction>)null);    
 		}
 	}
 	
