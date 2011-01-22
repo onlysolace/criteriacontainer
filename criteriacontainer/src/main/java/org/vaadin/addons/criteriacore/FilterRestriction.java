@@ -38,7 +38,7 @@ import javax.persistence.metamodel.Attribute;
  * @author jflamy
  *
  */
-public class CriteriaRestriction {
+public class FilterRestriction {
 	
 	private String propertyId;
 	private Operation operator;
@@ -80,7 +80,7 @@ public class CriteriaRestriction {
 	 * @param operator the constant that corresponds to the desired comparison
 	 * @param comparisonValue  for binary operators, the value being compared to, else null.
 	 */
-	public CriteriaRestriction(String propertyId, Operation operator, Object comparisonValue) {
+	public FilterRestriction(String propertyId, Operation operator, Object comparisonValue) {
 		this.propertyId = propertyId;
 		this.operator = operator;
 		this.value = comparisonValue;
@@ -184,10 +184,10 @@ public class CriteriaRestriction {
 	 * @param r
 	 * @return
 	 */
-	static Predicate getPredicate(Collection<CriteriaRestriction> restrictions, CriteriaBuilder cb, Path<?> r) {
+	static Predicate getPredicate(Collection<FilterRestriction> restrictions, CriteriaBuilder cb, Path<?> r) {
 		Predicate[] workList = new Predicate[restrictions.size()];
 		int i = 0;
-		for (CriteriaRestriction curRestr : restrictions) {
+		for (FilterRestriction curRestr : restrictions) {
 			workList[i] = curRestr.getPredicate(cb, r);
 			i++;
 		}

@@ -93,7 +93,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	/** Flags reflecting whether the properties are read only. */
     private Map<Object, Boolean> readOnlyStates = new HashMap<Object, Boolean>();
 	
-	private Collection<CriteriaRestriction> restrictions;
+	private Collection<FilterRestriction> restrictions;
 
 	/** The sort states of the properties. */
     private Map<Object, Boolean> sortableStates = new HashMap<Object, Boolean>();
@@ -174,7 +174,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 			CriteriaQuery<?> cq, 
 			Root<?> t) {
 		if (restrictions != null) {
-			filterExpressions.add(CriteriaRestriction.getPredicate(restrictions, cb, t));
+			filterExpressions.add(FilterRestriction.getPredicate(restrictions, cb, t));
 		}
 		return filterExpressions;
 	}
@@ -472,7 +472,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * 
 	 * @param restrictions a list of objects that each define a condition to be added
 	 */
-	public void setRestrictions(Collection<CriteriaRestriction> restrictions) {
+	public void setRestrictions(Collection<FilterRestriction> restrictions) {
 		this.restrictions = restrictions;
 	}
 	
