@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vaadin.addons.criteriacore;
-
-import java.util.LinkedList;
+package criteriacontainer;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
+import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.lazyquerycontainer.CompositeItem;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 import com.vaadin.data.util.BeanItem;
 
@@ -31,14 +32,14 @@ import com.vaadin.data.util.BeanItem;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public final class CriteriaContainer<T extends Object> extends LazyQueryContainer {
+public final class CriteriaContainer<T extends Object> extends BeanTupleContainer {
     
     /**
      * Standard constructor for type-safe queries.
      * @param cd the definition of the query
      */
-    public CriteriaContainer(CritQueryDefinition<T> cd){
-    	super(new CritQueryView<T>(cd,new CritQueryFactory<T>()));
+    public CriteriaContainer(CriteriaQueryDefinition<T> cd){
+    	super(cd);
     }
     
     /**
@@ -47,10 +48,10 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
      * @param cf the factory that will generate a context in which the query will run.
      */
     public CriteriaContainer(
-    		CritQueryDefinition<T> cd,
-    		CritQueryFactory<T> cf
+    		CriteriaQueryDefinition<T> cd,
+    		CriteriaQueryFactory<T> cf
             ){
-    	super(new CritQueryView<T>(cd,cf));
+    	super(new CriteriaQueryView<T>(cd,cf));
     }
 
     /**
@@ -72,27 +73,20 @@ public final class CriteriaContainer<T extends Object> extends LazyQueryContaine
             )
             {
     	super(
-    			new CritQueryDefinition<T>(
-    					entityManager,
-    					applicationManagedTransactions,
-    					entityClass,
-    					batchSize,
-    					nativeSortPropertyIds,
-    					nativeSortPropertyAscendingStates),
-    			new CritQueryFactory<T>());
+    	        new CriteriaQueryView<T>(
+    	                new CriteriaQueryDefinition<T>(entityManager, applicationManagedTransactions, batchSize){
+
+                            @Override
+                            protected Root<?> defineQuery(CriteriaBuilder criteriaBuilder,
+                                    CriteriaQuery<?> tupleQuery) {
+                                // TODO mettre la requête de défaut SELECT sans restriction
+                                return null;
+                            }},
+    	                new CriteriaQueryFactory<T>())
+    	                );
     }
     
     
-	/**
-	 * Filters the container content by setting "where" criteria in the JPA Criteria.
-	 * @param restrictions  restrictions to set to JPA query or null to clear.
-	 */
-	@SuppressWarnings("unchecked")
-	public void filter(LinkedList<CritRestriction> restrictions) {
-        ((CritQueryDefinition<T>) getQueryView().getQueryDefinition()).setRestrictions(restrictions);
-        refresh();
-	}
-
 
     /**
      * Adds entity to the container as first item i.e. at index 0.

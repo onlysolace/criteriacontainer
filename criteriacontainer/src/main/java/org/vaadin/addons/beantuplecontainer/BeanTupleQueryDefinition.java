@@ -40,7 +40,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.criteriacore.CritQueryDefinition;
+import org.vaadin.addons.criteriacore.CriteriaQueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**
@@ -57,7 +57,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * @author jflamy
  */
 
-public abstract class BeanTupleQueryDefinition extends CritQueryDefinition<Tuple> implements QueryDefinition  {
+public abstract class BeanTupleQueryDefinition extends CriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 	
 	final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 

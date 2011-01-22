@@ -22,7 +22,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.criteriacore.CritRestriction;
+import org.vaadin.addons.criteriacore.CriteriaRestriction;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 import com.vaadin.data.Buffered;
@@ -112,7 +112,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * Filters the container content by setting "where" criteria in the JPA Criteria.
 	 * @param restrictions  restrictions to set to JPA query or null to clear.
 	 */
-	public void filter(LinkedList<CritRestriction> restrictions) {
+	public void filter(LinkedList<CriteriaRestriction> restrictions) {
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
         critQueryDefinition.setRestrictions(restrictions);
         critQueryDefinition.refresh();
