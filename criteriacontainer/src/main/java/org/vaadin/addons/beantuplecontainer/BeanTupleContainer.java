@@ -83,6 +83,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
         critQueryDefinition.setRestrictions(restrictions);
         queryView.refresh(); // also refreshes critQueryDefinition.
+        refresh(); // refresh the container.
 	}
 	
 
