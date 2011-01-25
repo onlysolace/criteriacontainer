@@ -45,6 +45,12 @@
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleCustomFilteringApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
+		</init-param>
 	</servlet>
 
 
