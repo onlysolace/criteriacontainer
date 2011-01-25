@@ -59,7 +59,8 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 	
-	final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
+	@SuppressWarnings("unused")
+    final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 
 	/**
 	 * Map from a property name to the expression that is used to set the property.
@@ -74,11 +75,18 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	protected Set<Selection<?>> selections = new HashSet<Selection<?>>();
 
 	private Metamodel metamodel;	
-	private CriteriaBuilder criteriaBuilder;
-	private CriteriaQuery<Tuple> tupleQuery;
-	private CriteriaQuery<Long> countingQuery;
+	
+	/** the criteria builder used to build the JPA query data structure */
+	protected CriteriaBuilder criteriaBuilder;
+	
+	/** the executable query */
+	protected CriteriaQuery<Tuple> tupleQuery;
+	
+	/** all columns and expressions returned by the where */
+	protected CriteriaQuery<Long> countingQuery;
 
-	private Root<?> root;
+	/** the root for the query */
+	protected Root<?> root;
 
 	private boolean propertiesDefined;
 
@@ -94,9 +102,6 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		super(entityManager, applicationManagedTransactions, Tuple.class, batchSize);
 		metamodel = getEntityManager().getMetamodel();
 		criteriaBuilder = getEntityManager().getCriteriaBuilder();
-		
-		refresh();
-		propertiesDefined = true;
 	}
 
 
@@ -106,13 +111,13 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	public void refresh() {
     	countingQuery = criteriaBuilder.createQuery(Long.class);
     	root = defineQuery(criteriaBuilder, countingQuery);
-    	countingQuery.orderBy();
     	
 		tupleQuery = criteriaBuilder.createTupleQuery();
     	defineQuery(criteriaBuilder, tupleQuery);
 
     	// define the type and sortable status of the properties
     	defineProperties();
+        propertiesDefined = true;
 	}
 
 
@@ -121,7 +126,10 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
 	public TypedQuery<Tuple> getSelectQuery() {
-
+	    if (tupleQuery == null) {
+	        refresh();
+	    }
+	    
 		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering();
 		if (ordering != null && ordering.size() > 0) {
@@ -143,7 +151,9 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
 	public TypedQuery<Long> getCountQuery() {
-    	
+        if (countingQuery == null) {
+            refresh();
+        }    	
     	// cancel sorting defined by the query
     	countingQuery.orderBy();
     	
@@ -178,11 +188,11 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
     // SELECT task as Task, person as Person, ... 
     cq.multiselect(task,person);
 
-    // WHERE t.name LIKE nameFilterValue    
+    // WHERE t.name LIKE "..."    
     cq.where(
         cb.like(
             task.get(Task_.name), // t.name
-            "test%")  // sql "like" pattern to be matched
+            "some string%")  // sql "like" pattern to be matched
         );
     }
 
@@ -394,7 +404,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * Create property definitions for the container.
 	 * The wrapped container actually calls this method to get its properties.
 	 */
-	private void defineProperties() {
+	protected void defineProperties() {
 		Object propertyId ;
 		for ( Entry<Object, Expression<?>>  entry : sortExpressions.entrySet()){
 			propertyId = entry.getKey();
@@ -412,7 +422,6 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 				addComputedProperty(selection);
 			}
 		}
-		logger.warn("after defineProperties: {}", getPropertyIds());
 	}
 
 

@@ -49,7 +49,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinition {
 
 	@SuppressWarnings("unused")
-	final static private Logger logger = LoggerFactory.getLogger(AbstractCriteriaQueryDefinition.class);
+    final static private Logger logger = LoggerFactory.getLogger(AbstractCriteriaQueryDefinition.class);
 	
 	/** 
 	 * false if the container manages the transactions, true otherwise.

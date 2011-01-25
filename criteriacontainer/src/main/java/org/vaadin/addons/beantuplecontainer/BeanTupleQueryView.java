@@ -155,8 +155,8 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public int size() {
-	    return queryDefinition.getCountQuery().getSingleResult().intValue();
-		//return lazyQueryView.size();
+	    //return queryDefinition.getCountQuery().getSingleResult().intValue();
+		return lazyQueryView.size();
 	}
 
 
