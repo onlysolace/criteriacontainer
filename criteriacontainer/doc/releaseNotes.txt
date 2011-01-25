@@ -1,8 +1,15 @@
 #summary Release Notes
 
 == Release 0.4.0 ==
-  * Refactored CriteriaContainer to work on top of BeanTupleContainer, meaning that
-    the properties of the CriteriaContainer are inferred from the query.
+  * The main container is now BeanTupleContainer.  An arbitrary criteria query can be used to retrieve
+    a JPA Tuple; for normal usage, the JPA Tuple will contain one or more entities, and computed
+    values.  The entities retrieved in the tuple can be edited.
+  * For retrieving a single kind of entity, use CriteriaContainer
+    * CriteriaContainer has been rebuilt on top of BeanTupleContainer
+    * CriteriaContainer infers automatically the properties of the container
+    * CriteriaContainer supports adding items.
+  * Demos have been fixed.
+  * TupleContainer has been subsumed by BeanTupleContainer and removed.
     
 == Release 0.3.0 ==
   * Added BeanTupleContainer which allows retrieval of a tuple made up of editable Beans.  All
