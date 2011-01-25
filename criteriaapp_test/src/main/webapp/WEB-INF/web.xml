@@ -36,15 +36,6 @@
 		</init-param>
 	</servlet>
 
-	<!-- testing tuple-based JPA2.0 retrieval -->
-	<servlet>
-		<servlet-name>TupleCustomFilteringApplication</servlet-name>
-		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-		<init-param>
-			<param-name>application</param-name>
-			<param-value>org.vaadin.addons.criteriacontainersample.TupleCustomFilteringApplication</param-value>
-		</init-param>
-	</servlet>
 
 	<!-- testing "entity tuple"-based JPA2.0 retrieval -->
 	<servlet>
@@ -59,11 +50,15 @@
 
 	<servlet-mapping>
 		<servlet-name>EntityCustomFilteringApplication</servlet-name>
-		<url-pattern>/e/*</url-pattern>
+		<url-pattern>/c/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>TupleCustomFilteringApplication</servlet-name>
-		<url-pattern>/t/*</url-pattern>
+		<servlet-name>EntitySimpleFilteringApplication</servlet-name>
+		<url-pattern>/s/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>EntityParameterizedFilteringApplication</servlet-name>
+		<url-pattern>/p/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>

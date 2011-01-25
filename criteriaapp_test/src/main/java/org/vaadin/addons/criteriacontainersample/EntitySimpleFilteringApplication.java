@@ -23,6 +23,8 @@ import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplicatio
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
 import org.vaadin.addons.criteriacore.FilterRestriction;
+import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
+import org.vaadin.addons.lazyquerycontainer.QueryItemStatusColumnGenerator;
 
 /**
  * Example application demonstrating how to use the generic
@@ -52,6 +54,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 		return taskContainer;
 	}
 	
+	
 	/**
 	 * Get a query definition with filtering activated
 	 * 
@@ -78,4 +81,46 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 		}
 	}
 
+	/**
+     * define the columns visible and the order in which they appear.
+     */
+    @Override
+    protected void defineTableColumns() {
+        visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
+        
+        visibleColumnIds.add(Task_.taskId.getName());
+        visibleColumnIds.add(Task_.name.getName());
+        visibleColumnIds.add(Task_.reporter.getName());
+        visibleColumnIds.add(Task_.assignee.getName());
+        visibleColumnIds.add(Task_.alpha.getName());
+        visibleColumnIds.add(Task_.beta.getName());
+        visibleColumnIds.add(Task_.gamma.getName());
+        visibleColumnIds.add(Task_.delta.getName());
+        
+        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
+        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
+        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
+
+        visibleColumnLabels.add("");
+        visibleColumnLabels.add("Task ID");
+        visibleColumnLabels.add("Name");
+        visibleColumnLabels.add("Reporter");
+        visibleColumnLabels.add("Assignee");
+        visibleColumnLabels.add("Alpha");
+        visibleColumnLabels.add("Beta");
+        visibleColumnLabels.add("Gamma");
+        visibleColumnLabels.add("Delta");
+        visibleColumnLabels.add("Query");
+        visibleColumnLabels.add("Batch");
+        visibleColumnLabels.add("Time [ms]");
+
+        table.setColumnWidth("name", 135);
+        table.setColumnWidth("reporter", 135);
+        table.setColumnWidth("assignee", 135);  
+        table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
+        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
+
+        table.setVisibleColumns(visibleColumnIds.toArray());
+        table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+    }
 }

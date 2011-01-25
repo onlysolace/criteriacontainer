@@ -16,7 +16,7 @@
 			<property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect" />
 			<property name="hibernate.connection.username" value="user" />
 			<property name="hibernate.connection.password" value="password" />
-			<property name="hibernate.connection.autocommit" value="false" />
+			<!-- property name="hibernate.connection.autocommit" value="false" /  -->
 		</properties>
 	</persistence-unit>
 </persistence>

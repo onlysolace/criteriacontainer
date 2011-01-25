@@ -15,14 +15,11 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.LinkedList;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
@@ -31,7 +28,6 @@ import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.FilterRestriction;
 
 /**
  * Example application demonstrating how to implement
@@ -42,17 +38,15 @@ import org.vaadin.addons.criteriacore.FilterRestriction;
  */
 @SuppressWarnings("serial")
 public class EntityParameterizedFilteringApplication extends AbstractEntityApplication {
+    
+    @SuppressWarnings("unused")
+    final private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 	
 	public class ParameterizedTaskQueryDefinition extends CriteriaQueryDefinition<Task> {
-
-		/** parameter to be set at query time */
-		private ParameterExpression<String> nameFilter;
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;
 
-		@SuppressWarnings("unused")
-		final private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 
 		/**
 		 * Constructor.
@@ -69,43 +63,44 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 		 * Define SELECT, FROM and WHERE clauses
 		 * 
 		 * In this example, a {@link CriteriaBuilder#parameter(Class)} is used to define a parameter
-		 * place holder.  This requires that the {@link #setParameters(TypedQuery)} be overridden to
-		 * define the parameters.
+		 * place holder.  The method {@link #setParameters(TypedQuery)} is overridden to provide
+		 * the values.
 		 */
 		@Override
 		protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
-		    
             Root<Task> t = cq.from(Task.class);
             
             cq.multiselect(t);
             
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-				// This example shows how to create a parameterized query.
+				// add a filtering condition to the query. In this example,
+			    // we use a parameter.
 				Expression<String> nameField = t.get(Task_.name);
-				nameFilter = cb.parameter(String.class);
 				cq.where(
-				        (cb.like(nameField,nameFilter)));
+				        (cb.like(nameField,
+				                cb.parameter(String.class,"nameFilterParameter"))));
 			}
 			return t;
-
 		}
-		
+
+
+	    
 		/**
 		 * Set values for the parameters used in the predicates.
 		 * 
 		 * Should provide a value for all the parameter objects.
-		 * Is expected to also call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
-		 * It should also define all Parameter objects defined in {@link #defineQuery(CriteriaBuilder, CriteriaQuery)}
-         * (in the current application, the field "nameFilter" is such a parameter.)
+		 * Is expected to call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
+         * Parameters not set via that method should be set explicitly.
+         * {@link #setNamedParameterValues(java.util.Map)}
 		 */
 		@Override
 		public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
-		    // set named parameters
+		    // set named parameters from the {@link #setNamedParameterValues(java.util.Map)} method
 			super.setParameters(tq);
 			
-			// set parameters defined as JPA 2.0 Parameter objects
+			// set parameters from values defined in this class
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {
-				tq.setParameter(nameFilter, nameFilterValue);
+				tq.setParameter("nameFilterParameter", nameFilterValue);
 			}
 			return tq;
 		}
@@ -135,24 +130,42 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 		addContainerProperties(taskContainer);
 		return taskContainer;
 	}
+	
 
 	/**
-	 * Call the query definition to activate the filter.
+	 * React to the "Refresh" button.
 	 * The resulting query definition includes conditions to the WHERE clause.
 	 */
 	@Override
 	protected void doFiltering() {
 		final String nameFilterValue = (String) nameFilterField.getValue();
 		if (nameFilterValue != null && nameFilterValue.length() != 0) {
-			// filtering style #1: query definition includes type safe filters.
-			// the query has its own specific mechanism for setting the filters up.
+		    // explicit filter.
 			cd.setNameFilterValue(nameFilterValue);
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			criteriaContainer.filter((LinkedList<FilterRestriction>)null);    
+			criteriaContainer.refresh();
 		}
 	}
 	
+	
+	/* Define visible columns, in accordance with the properties defined by the query definition.
+     * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#defineTableColumns()
+     */
+    @Override
+    protected void defineTableColumns() {
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
+        visibleColumnLabels.add("Task ID");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
+        visibleColumnLabels.add("Name");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.alpha));
+        visibleColumnLabels.add("Name");
+        
+        table.setVisibleColumns(visibleColumnIds.toArray());
+        table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+    }
 
 }
