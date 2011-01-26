@@ -255,7 +255,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 			setEditMode(false);
 		}
 		if (event.getButton() == addItemButton) {
-			criteriaContainer.addItem();
+			criteriaContainer.addEntity(); // addItem() is sufficient; this is used for testing
 		}
 		if (event.getButton() == removeItemButton) {
 			Object selection = table.getValue();
