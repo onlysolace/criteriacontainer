@@ -18,7 +18,6 @@ package org.vaadin.addons.criteriacontainer;
 import javax.persistence.EntityManager;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
-import org.vaadin.addons.lazyquerycontainer.CompositeItem;
 
 import com.vaadin.data.util.BeanItem;
 
@@ -113,9 +112,9 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
      */
     @SuppressWarnings("unchecked")
     public T getEntity(final int index) {
-        final CompositeItem compositeItem = (CompositeItem) getItem(new Integer(index));
-        final BeanItem<T> beanItem = (BeanItem<T>) compositeItem.getItem("bean");
-        return beanItem.getBean();
+        @SuppressWarnings("rawtypes")
+        final BeanItem item = (BeanItem) getItem(new Integer(index));
+        return (T) item.getBean();
     }
 
 

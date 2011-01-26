@@ -471,12 +471,16 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 			}
 		}
 		// add the other items in the selection that are not meant to be sortable
-		List<Selection<?>> compoundSelectionItems = query.getSelection().getCompoundSelectionItems();
-		for (Selection<?> selection: compoundSelectionItems){
-			if (selection.getJavaType().isAnnotationPresent(Entity.class)) {
-				addEntityProperties(expressionMap,(Path<?>) selection, defineProperties);
+		Selection<?> selection = query.getSelection();
+		if (selection == null) {
+		    throw new PersistenceException("No selection defined on query.");
+		}
+        List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
+		for (Selection<?> compoundSelection: compoundSelectionItems){
+			if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
+				addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
 			} else {
-				addComputedProperty(expressionMap, selection, defineProperties);
+				addComputedProperty(expressionMap, compoundSelection, defineProperties);
 			}
 		}
 	}

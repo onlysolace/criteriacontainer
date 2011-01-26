@@ -120,7 +120,7 @@ public final class BeanTupleItem extends PropertysetItem {
 	/**
 	 * @return get the backing tuple
 	 */
-	public Object getTuple() {
+	public Tuple getTuple() {
 		return tuple;
 	}
 
