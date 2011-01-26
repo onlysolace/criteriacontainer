@@ -16,6 +16,7 @@
 package org.vaadin.addons.beantuplecontainer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -32,6 +34,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Metamodel;
@@ -41,6 +44,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition;
+import org.vaadin.addons.criteriacore.FilterRestriction;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**
@@ -59,7 +63,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 	
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 
 	/**
@@ -69,7 +73,12 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * we must memorize the correspondence between propertyIds and the expression that fetch
 	 * item properties for that id.
 	 */
-	protected Map<Object,Expression<?>> sortExpressions = new HashMap<Object, Expression<?>>();
+	protected Map<Object,Expression<?>> countingExpressionMap = new HashMap<Object, Expression<?>>();
+	/**
+     * The maps cannot be shared between the two queries.
+     * @see #countingExpressionMap
+     */
+	protected Map<Object,Expression<?>> selectExpressionMap = new HashMap<Object, Expression<?>>();
 	
 	/** all columns and expressions returned by the where */
 	protected Set<Selection<?>> selections = new HashSet<Selection<?>>();
@@ -88,7 +97,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/** the root for the query */
 	protected Root<?> root;
 
-	private boolean propertiesDefined;
+    private Collection<FilterRestriction> filters;
 
 
 
@@ -111,13 +120,13 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	public void refresh() {
     	countingQuery = criteriaBuilder.createQuery(Long.class);
     	root = defineQuery(criteriaBuilder, countingQuery);
-    	
-		tupleQuery = criteriaBuilder.createTupleQuery();
-    	defineQuery(criteriaBuilder, tupleQuery);
-
-    	// define the type and sortable status of the properties
-    	defineProperties();
-        propertiesDefined = true;
+    	mapProperties(countingQuery, countingExpressionMap, false);
+        addFilteringConditions(criteriaBuilder, countingQuery, countingExpressionMap);
+        
+        tupleQuery = criteriaBuilder.createTupleQuery();
+        defineQuery(criteriaBuilder, tupleQuery);
+        mapProperties(tupleQuery, selectExpressionMap, true);
+        addFilteringConditions(criteriaBuilder, tupleQuery, selectExpressionMap);
 	}
 
 
@@ -131,7 +140,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	    }
 	    
 		// apply the ordering defined by the container on the returned entity.
-		final List<Order> ordering = getOrdering();
+		final List<Order> ordering = getOrdering(selectExpressionMap);
 		if (ordering != null && ordering.size() > 0) {
 			tupleQuery.orderBy(ordering);
 		} else {
@@ -153,7 +162,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	public TypedQuery<Long> getCountQuery() {
         if (countingQuery == null) {
             refresh();
-        }    	
+        }
+        
     	// cancel sorting defined by the query
     	countingQuery.orderBy();
     	
@@ -257,10 +267,10 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/**
 	 * Applies the sort state.
 	 * A JPA ordering is created based on the saved sort orders.
-	 * 
+	 * @param expressionMap where to lookup expressions by id 
 	 * @return a list of Order objects to be added to the query.
 	 */
-	protected List<Order> getOrdering() {
+	protected List<Order> getOrdering(Map<Object, Expression<?>> expressionMap) {
         if (sortPropertyIds == null || sortPropertyIds.length == 0) {
             sortPropertyIds = nativeSortPropertyIds;
             sortPropertyAscendingStates = nativeSortPropertyAscendingStates;
@@ -271,7 +281,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 		for (int curItem = 0; curItem < sortPropertyIds.length; curItem++ ) {
 	    	final String id = (String)sortPropertyIds[curItem];
-			final Expression<?> sortExpression = sortExpressions.get(id);
+			final Expression<?> sortExpression = getExpressionById(id, expressionMap);
 			if (sortExpression != null && sortPropertyAscendingStates[curItem]) {
 				ordering.add(criteriaBuilder.asc(sortExpression));
 			} else {
@@ -280,6 +290,21 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}
 		return ordering;
 	}
+
+
+    /**
+     * Return the expression used to access a given property
+     * @param id the property id
+     * @param expressionMap where to lookup expressions by id.
+     * @return the expression
+     */
+    public Expression<?> getExpressionById(final String id, Map<Object, Expression<?>> expressionMap) {
+        final Expression<?> sortExpression = expressionMap.get(id);
+        if (sortExpression == null) {
+            throw new PersistenceException("Property "+id+" cannot be mapped to a selection from the query.");
+        }
+        return sortExpression;
+    }
 	
 
 	
@@ -289,15 +314,19 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * we must memorize the query expression used to retrieve each field. An alias
 	 * is defined on the expression.
 	 * 
+	 * @param expressionMap where to remember the mapping
 	 * @param propertyId the desired property id. An alias will be defined.
 	 * @param selection the root or join from which the desired column will be fetched
+	 * @param defineProperties define properties for the container
 	 * @return an expression that can be used in JPA order()
 	 */
 	protected Expression<?> addPropertyForComputedValue(
+	        Map<Object, Expression<?>> expressionMap,
 			final String propertyId,
-			final Selection<?> selection) {
+			final Selection<?> selection,
+			boolean defineProperties) {
 		final Expression<?> expression = (Expression<?>) selection;
-		addPropertyForExpression(propertyId,expression);
+		addPropertyForExpression(expressionMap,propertyId,expression, defineProperties);
 		return expression;
 	}
 	
@@ -310,38 +339,47 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * This version is used when the propertyId must differ from the field name in the Entity
 	 * (for example, when two fields have the same name, and aliases must be used, this method
 	 * ensures that the aliases are defined consistently with the propertyId).
-	 * 
+     * @param expressionMap where to remember the mapping
 	 * @param propertyId the property identifier in the items that will be constructed
 	 * @param path the root or join from which the desired column will be fetched
 	 * @param column the expression used to get the desired column in the query results
+	 * @param defineProperties define the property for the container
 	 * @return an expression that can be used in JPA order()
 	 */
 	protected Expression<?> addPropertyForAttribute(
+	        Map<Object, Expression<?>> expressionMap,
 			final String propertyId,
 			final Path<?> path,
-			final SingularAttribute<?, ?> column) {
+			final SingularAttribute<?, ?> column, 
+			boolean defineProperties) {
 		final Expression<?> expression = path.get(column.getName());
 		expression.alias(propertyId);
-		addPropertyForExpression(propertyId,expression);
+		addPropertyForExpression(expressionMap,propertyId,expression,defineProperties);
 		return expression;
 	}
 	
 	
 	/**
 	 * Helper routine to add a property.
+	 * @param expressionMap where to remember the mapping
 	 * @param propertyId the property Id
 	 * @param expression the expression that fetches the value for propertyId
+	 * @param defineProperties define the property for the container
 	 */
-	protected void addPropertyForExpression(Object propertyId,
-			Expression<?> expression) {
+	protected void addPropertyForExpression(
+	        Map<Object, Expression<?>> expressionMap,
+	        Object propertyId,
+			Expression<?> expression, boolean defineProperties) {
 		Class<?> propertyType = instantatiableType(expression.getJavaType());
 		
 		boolean isEntity = propertyType.getClass().isAnnotationPresent(Entity.class);
 		boolean sortable = Comparable.class.isAssignableFrom(propertyType);
 		boolean readOnly = !isEntity; // entities are read-only, attributes and expressions readable
-		if (!propertiesDefined) addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
+		if (defineProperties) {
+		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
+		}
 		if (sortable){
-			sortExpressions.put(propertyId, expression);
+		    expressionMap.put(propertyId, expression);
 		}
 	}
 
@@ -360,23 +398,31 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * that sorting is possible on the attributes.  Ensure that an alias is
 	 * present on the selection, if not, use the type as alias
 	 * 
+	 * @param expressionMap where to remember the mappings
 	 * @param entityPath path (Root or Join) that designates an entity
+	 * @param defineProperties define properties for the container
 	 */
-	protected void addEntityProperties(Path<?> entityPath) {
+	protected void addEntityProperties(
+	        Map<Object, Expression<?>> expressionMap,
+	        Path<?> entityPath, boolean defineProperties) {
 		Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
 		
 		// make sure there is an alias
 		ensureAlias(entityPath);
 		
 		// define a property for the entity
-		addPropertyForExpression(entityPath.getAlias(), entityPath);
+		addPropertyForExpression(expressionMap,entityPath.getAlias(), entityPath, defineProperties);
 
 		// add properties for all the attributes to the sortable items the container knows about
 		// (the BeanTupleItem is smart about this and does not actually duplicate info)
 		Set<?> attributes = getMetamodel().entity(instantatiableType).getSingularAttributes();
 		for (Object attributeObject : attributes) {
 			SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
-			addPropertyForAttribute(entityPath.getAlias()+"."+column.getName(), entityPath, column);
+			addPropertyForAttribute(expressionMap,
+			        entityPath.getAlias()+"."+column.getName(), 
+			        entityPath, 
+			        column, 
+			        defineProperties);
 		}
 	}
 
@@ -386,9 +432,14 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * Remember the Expression so that sorting is possible on the attributes.
 	 * Ensure that an alias is present on the selection.
 	 * 
+	 * @param expressionMap where to remember the mapping
 	 * @param selection alias for an Expression for a computed value
+	 * @param defineProperties where to remember the mapping
 	 */
-	protected void addComputedProperty(Selection<?> selection) {
+	protected void addComputedProperty(
+	        Map<Object, Expression<?>> expressionMap,
+	        Selection<?> selection,
+	        boolean defineProperties) {
 		// make sure there is an alias
 		String alias = selection.getAlias();
 		if (alias == null) {
@@ -396,30 +447,36 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}
 		
 		// remember the expression so we can sort on the computed value
-		addPropertyForComputedValue(selection.getAlias(), selection);
+		addPropertyForComputedValue(expressionMap, selection.getAlias(), selection, defineProperties);
 	}
 
 
 	/**
 	 * Create property definitions for the container.
 	 * The wrapped container actually calls this method to get its properties.
+	 * @param query the query for which the mapping is being performed
+	 * @param expressionMap where to remember the mappings
+	 * @param defineProperties define properties for the container
 	 */
-	protected void defineProperties() {
+	protected void mapProperties(
+	        CriteriaQuery<?> query,
+	        Map<Object, Expression<?>> expressionMap,
+	        boolean defineProperties) {
 		Object propertyId ;
-		for ( Entry<Object, Expression<?>>  entry : sortExpressions.entrySet()){
+		for ( Entry<Object, Expression<?>>  entry : expressionMap.entrySet()){
 			propertyId = entry.getKey();
 			Expression<?> expression = entry.getValue();
 			if (propertyId != null){
-				addPropertyForExpression(propertyId, expression);
+				addPropertyForExpression(expressionMap, propertyId, expression, defineProperties);
 			}
 		}
 		// add the other items in the selection that are not meant to be sortable
-		List<Selection<?>> compoundSelectionItems = tupleQuery.getSelection().getCompoundSelectionItems();
+		List<Selection<?>> compoundSelectionItems = query.getSelection().getCompoundSelectionItems();
 		for (Selection<?> selection: compoundSelectionItems){
 			if (selection.getJavaType().isAnnotationPresent(Entity.class)) {
-				addEntityProperties((Path<?>) selection);
+				addEntityProperties(expressionMap,(Path<?>) selection, defineProperties);
 			} else {
-				addComputedProperty(selection);
+				addComputedProperty(expressionMap, selection, defineProperties);
 			}
 		}
 	}
@@ -438,6 +495,85 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		return selection.getAlias();
 	}
 
+	
+    /**
+     * Store a list of filters.
+     * Each restriction will be transformed into a predicate added to the WHERE clause.
+     * 
+     * @param restrictions a list of objects that each define a condition to be added
+     */
+    public void setFilters(Collection<FilterRestriction> restrictions) {
+        this.filters = restrictions;
+    }
+	
+    
+    /**
+     * @return the filters
+     */
+    public Collection<FilterRestriction> getFilters() {
+        return filters;
+    }
+    
+    
+    /**
+     * @param cb the criteria builder
+     * @param cq the query constructed so far
+     * @param expressionMap where to locate the expressions
+     */
+    protected void addFilteringConditions(
+            CriteriaBuilder cb,
+            CriteriaQuery<?> cq,
+            Map<Object, Expression<?>> expressionMap) {
+        List<Predicate> filterExpressions = new ArrayList<Predicate>();
+        
+        // get the conditions already in the query
+        Predicate currentRestriction = cq.getRestriction();
+        if (currentRestriction != null){
+           filterExpressions.add(currentRestriction);
+        }
+        
+        // predicates created from CriteriaContainer.filter()
+        if (filters != null && filters.size() > 0) {
+            Predicate predicate = FilterRestriction.getConjoinedPredicate(filters, cb, this, expressionMap);
+            filterExpressions.add(predicate);
+        }
+        
+        // build array, casting all the elements to Predicate
+        final Predicate[] array = filterExpressions.toArray(new Predicate[0]);
+        
+        // overwrite the conditions that were in the query
+        if (filterExpressions.size() > 0){
+            cq.where(array);
+        } else {   
+            cq.where();
+        }
+    }
+    
+   
+    
+    /**
+     * Prepare the query so that the container filter() works.
+     * 
+     * For each field named in the whereParameters map, create a parameter place holder
+     * in the query.  There is no setFilterParameters method, the container does the
+     * processing in the filter() method.
+     * 
+     * @param filterExpressions the predicates created by filtering mechanisms so far.
+     * @param cb the current query builder
+     * @param cq the query as built so far
+     * @param expressionMap where to lookup expressions by id
+     * @return a list of predicates to be added to the query 
+     */
+    protected List<Predicate> addToFilterRestrictions(
+            List<Predicate> filterExpressions,
+            CriteriaBuilder cb,
+            CriteriaQuery<?> cq,
+            Map<Object, Expression<?>> expressionMap) {
+        if (filters != null) {
+            filterExpressions.add(FilterRestriction.getConjoinedPredicate(filters,cb,this,expressionMap));
+        }
+        return filterExpressions;
+    }
 
 	/**
 	 * Compute the property id from information available in the static metamodel.
@@ -470,5 +606,6 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 			return null;
 		}
 	}
+
 }
 

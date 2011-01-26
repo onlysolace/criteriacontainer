@@ -16,13 +16,17 @@
 package org.vaadin.addons.criteriacore;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
 
 
 /**
@@ -39,6 +43,9 @@ import javax.persistence.metamodel.Attribute;
  *
  */
 public class FilterRestriction {
+    
+    @SuppressWarnings("unused")
+    private static Logger logger = LoggerFactory.getLogger(FilterRestriction.class);
 	
 	private String propertyId;
 	private Operation operator;
@@ -86,112 +93,125 @@ public class FilterRestriction {
 		this.value = comparisonValue;
 	}
 
-	/**
-	 * Return a predicate for a given restriction.
-	 *  
-	 * @param cb the criteria builder for the CriteriaQuery in which the predicate will be used
-	 * @param r	typically, the root of the Query, or a join.
-	 * @return a JPA 2.0 Predicate for the restriction
-	 */
-	Predicate getPredicate(CriteriaBuilder cb, Path<?> r) {
-		try {
-			Predicate pred = null;
-			switch (operator) {
-			case EQ: {
-				final Expression<?> expr = r.get(propertyId);
-				pred = cb.equal(expr,value);
-			}
-			break;
-			case GE: {
-				if (value instanceof Number) {
-					final Expression<Number> expr = r.get(propertyId);
-					pred = cb.ge(expr,(Number)value);
-				} else if (value instanceof String) {
-					Expression<String> expr2 = r.get(propertyId).as(String.class);
-					pred = cb.greaterThanOrEqualTo(expr2,(String)value);
-				}
-			}
-			break;
-			case GT: {
-				if (value instanceof Number) {
-					final Expression<Number> expr = r.get(propertyId);
-					pred = cb.gt(expr,(Number)value);
-				} else if (value instanceof String) {
-					Expression<String> expr2 = r.get(propertyId).as(String.class);
-					pred = cb.greaterThan(expr2,(String)value);
-				}
-			}
-			break;
-			case LE: {
-				if (value instanceof Number) {
-					final Expression<Number> expr = r.get(propertyId);
-					pred = cb.le(expr,(Number)value);
-				} else if (value instanceof String) {
-					Expression<String> expr2 = r.get(propertyId).as(String.class);
-					pred = cb.lessThanOrEqualTo(expr2,(String)value);
-				}
-			}
-			break;
-			case LT: {
-				if (value instanceof Number) {
-					final Expression<Number> expr = r.get(propertyId);
-					pred = cb.lt(expr,(Number)value);
-				} else if (value instanceof String) {
-					Expression<String> expr2 = r.get(propertyId).as(String.class);
-					pred = cb.lessThan(expr2,(String)value);
-				}
-			}
-			break;
-			case LIKE: {
-				final Expression<String> expr = r.get(propertyId);
-				final String val = (String)value;
-				pred = cb.like(expr,val);
-			}
-			break;
-			case IS_NULL: {
-				final Expression<?> expr = r.get(propertyId);
-				pred = cb.isNull(expr);
-			}
-			break;
-			case IS_NOT_NULL: {
-				final Expression<?> expr = r.get(propertyId);
-				pred = cb.isNotNull(expr);
-			}
-			break;
-			case IS_TRUE: {
-				final Expression<Boolean> expr = r.get(propertyId);
-				pred = cb.isTrue(expr);
-			}
-			break;
-			case IS_FALSE: {
-				final Expression<Boolean> expr = r.get(propertyId);
-				pred = cb.isFalse(expr);
-			}
-			break;
-			}
-			return pred;
-		} catch (Exception e) {
-			throw new PersistenceException("Unknown property: "+propertyId,e);
-		}
-	}
+	
 	
 	/**
-	 * Create a condition that can be added to the where clause of a query.
-	 * The condition is the conjunction of all the restrictions in the list (AND).
-	 * 
-	 * @param restrictions
-	 * @param cb
-	 * @param r
-	 * @return
-	 */
-	static Predicate getPredicate(Collection<FilterRestriction> restrictions, CriteriaBuilder cb, Path<?> r) {
-		Predicate[] workList = new Predicate[restrictions.size()];
-		int i = 0;
-		for (FilterRestriction curRestr : restrictions) {
-			workList[i] = curRestr.getPredicate(cb, r);
-			i++;
-		}
-		return cb.and(workList);
-	}
+     * Return a predicate for a given restriction.
+     *  
+     * @param cb the criteria builder for the CriteriaQuery in which the predicate will be used
+	 * @param expressionMap where to lookup expressions by id.
+     * @return a JPA 2.0 Predicate for the restriction
+     */
+    @SuppressWarnings("unchecked")
+    Predicate getPredicate(CriteriaBuilder cb, BeanTupleQueryDefinition qd, Map<Object, Expression<?>> expressionMap) {
+        try {
+            Predicate pred = null;
+            switch (operator) {
+            case EQ: {
+                final Expression<?> expr = qd.getExpressionById(propertyId, expressionMap);
+                pred = cb.equal(expr,value);
+            }
+            break;
+            case GE: {
+                if (value instanceof Number) {
+                    final Expression<Number> expr = (Expression<Number>) qd.getExpressionById(propertyId, expressionMap);
+                    pred = cb.ge(expr,(Number)value);
+                } else if (value instanceof String) {
+                    Expression<String> expr2 = qd.getExpressionById(propertyId, expressionMap).as(String.class);
+                    pred = cb.greaterThanOrEqualTo(expr2,(String)value);
+                }
+            }
+            break;
+            case GT: {
+                if (value instanceof Number) {
+                    final Expression<Number> expr = (Expression<Number>) qd.getExpressionById(propertyId, expressionMap);
+                    pred = cb.gt(expr,(Number)value);
+                } else if (value instanceof String) {
+                    Expression<String> expr2 = qd.getExpressionById(propertyId, expressionMap).as(String.class);
+                    pred = cb.greaterThan(expr2,(String)value);
+                }
+            }
+            break;
+            case LE: {
+                if (value instanceof Number) {
+                    final Expression<Number> expr = (Expression<Number>) qd.getExpressionById(propertyId, expressionMap);
+                    pred = cb.le(expr,(Number)value);
+                } else if (value instanceof String) {
+                    Expression<String> expr2 = qd.getExpressionById(propertyId, expressionMap).as(String.class);
+                    pred = cb.lessThanOrEqualTo(expr2,(String)value);
+                }
+            }
+            break;
+            case LT: {
+                if (value instanceof Number) {
+                    final Expression<Number> expr = (Expression<Number>) qd.getExpressionById(propertyId, expressionMap);
+                    pred = cb.lt(expr,(Number)value);
+                } else if (value instanceof String) {
+                    Expression<String> expr2 = qd.getExpressionById(propertyId, expressionMap).as(String.class);
+                    pred = cb.lessThan(expr2,(String)value);
+                }
+            }
+            break;
+            case LIKE: {
+                final Expression<String> expr = (Expression<String>) qd.getExpressionById(propertyId, expressionMap);              
+                final String val = (String)value;
+                pred = cb.like(expr,val);
+            }
+            break;
+            case IS_NULL: {
+                final Expression<?> expr = qd.getExpressionById(propertyId, expressionMap);
+                pred = cb.isNull(expr);
+            }
+            break;
+            case IS_NOT_NULL: {
+                final Expression<?> expr = qd.getExpressionById(propertyId, expressionMap);
+                pred = cb.isNotNull(expr);
+            }
+            break;
+            case IS_TRUE: {
+                final Expression<Boolean> expr = (Expression<Boolean>) qd.getExpressionById(propertyId, expressionMap);
+                pred = cb.isTrue(expr);
+            }
+            break;
+            case IS_FALSE: {
+                final Expression<Boolean> expr = (Expression<Boolean>) qd.getExpressionById(propertyId, expressionMap);
+                pred = cb.isFalse(expr);
+            }
+            break;
+            }
+            return pred;
+        } catch (Exception e) {
+            throw new PersistenceException("Unknown property: "+propertyId,e);
+        }
+    }
+	
+	
+	
+	/**
+     * Create a condition that can be added to the where clause of a query.
+     * The condition is the conjunction of all the restrictions in the list (AND).
+     * 
+     * @param restrictions a list of FilterRestriction objects that denotes conditions to be added
+     * @param cb the current CriteriaBuilder
+     * @param qd the QueryDefinition on which we are acting
+	 * @param expressionMap where to locate the expressions
+     * @return the predicate to be applied
+     */
+    public static Predicate getConjoinedPredicate(
+            Collection<FilterRestriction> restrictions,
+            CriteriaBuilder cb,
+            BeanTupleQueryDefinition qd,
+            Map<Object, Expression<?>> expressionMap) {
+        if (restrictions == null) return null;
+        
+        Predicate[] workList = new Predicate[restrictions.size()];
+        int i = 0;
+        for (FilterRestriction curRestr : restrictions) {
+            workList[i] = curRestr.getPredicate(cb, qd, expressionMap);
+            i++;
+        }
+        Predicate andPredicate = cb.and(workList);
+        return andPredicate;
+    }
 
 }
