@@ -15,11 +15,13 @@
  */
 package org.vaadin.addons.criteriacontainer;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
@@ -95,16 +97,19 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
      * {@link #getPropertyId(String, SingularAttribute)}
      * 
      * @param entityPath path (Root or Join) that designates an entity
+     * @param defineProperties define properties for the container
      */
     @Override
-    protected void addEntityProperties(Path<?> entityPath) {
+    protected void addEntityProperties(
+            Map<Object, Expression<?>> expressionMap,
+            Path<?> entityPath, boolean defineProperties) {
         Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
         
         // make sure there is an alias
         ensureAlias(entityPath);
         
         // define a property for the entity
-        addPropertyForExpression(entityPath.getAlias(), entityPath);
+        addPropertyForExpression(expressionMap,entityPath.getAlias(), entityPath, defineProperties);
 
         // add properties for all the attributes to the sortable items the container knows about
         // (the BeanTupleItem is smart about this and does not actually duplicate info)
@@ -112,7 +117,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
         for (Object attributeObject : attributes) {
             SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
             // do NOT include the alias.
-            addPropertyForAttribute(column.getName(), entityPath, column);
+            addPropertyForAttribute(expressionMap,column.getName(), entityPath, column, defineProperties);
         }
     }
 

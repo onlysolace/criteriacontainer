@@ -81,7 +81,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	public void filter(LinkedList<FilterRestriction> restrictions) {
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
-        critQueryDefinition.setRestrictions(restrictions);
+        critQueryDefinition.setFilters(restrictions);
         queryView.refresh(); // also refreshes critQueryDefinition.
         refresh(); // refresh the container.
 	}

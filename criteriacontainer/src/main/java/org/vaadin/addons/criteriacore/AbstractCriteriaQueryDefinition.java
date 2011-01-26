@@ -30,7 +30,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
@@ -72,7 +71,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * A list of sorting criteria
 	 */
 
-	protected List<Predicate> filterExpressions;
 	/**
 	 * a list of named parameters. Key is the name of the parameter, value is the value to be substituted.
 	 */
@@ -92,8 +90,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 
 	/** Flags reflecting whether the properties are read only. */
     private Map<Object, Boolean> readOnlyStates = new HashMap<Object, Boolean>();
-	
-	private Collection<FilterRestriction> restrictions;
 
 	/** The sort states of the properties. */
     private Map<Object, Boolean> sortableStates = new HashMap<Object, Boolean>();
@@ -154,30 +150,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
         this.nativeSortPropertyAscendingStates = nativeSortPropertyAscendingStates;
 	}
 
-	
-	/**
-	 * Prepare the query so that the container filter() works.
-	 * 
-	 * For each field named in the whereParameters map, create a parameter place holder
-	 * in the query.  There is no setFilterParameters method, the container does the
-	 * processing in the filter() method.
-	 * 
-	 * @param filterExpressions the predicates created by filtering mechanisms so far.
-	 * @param cb the current query builder
-	 * @param cq the query as built so far
-	 * @param t the root of the query.
-	 * @return a list of predicates to be added to the query 
-	 */
-	protected List<Predicate> addFilterRestrictions(
-	        List<Predicate> filterExpressions,
-	        CriteriaBuilder cb,
-			CriteriaQuery<?> cq, 
-			Root<?> t) {
-		if (restrictions != null) {
-			filterExpressions.add(FilterRestriction.getPredicate(restrictions, cb, t));
-		}
-		return filterExpressions;
-	}
+
 	
 
     /* (non-Javadoc)
@@ -213,40 +186,8 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * @param cq the query as built so far
 	 * @return the root for the query
 	 */
-	protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq) {
-		return addFilteringConditions(cb, cq);
-	}
-
-
-    /**
-     * @param cb the criteria builder
-     * @param cq the query constructed so far
-     * @return a root used for counting.
-     */
-    @SuppressWarnings("unchecked")
-    protected Root<?> addFilteringConditions(CriteriaBuilder cb,
-            CriteriaQuery<?> cq) {
-        Root<T> t = (Root<T>) cq.from(getEntityClass());
-		filterExpressions = new ArrayList<Predicate>();
-		
-		// get the conditions already in the query
-		Predicate currentRestriction = cq.getRestriction();
-		if (currentRestriction != null){
-		   filterExpressions.add(currentRestriction);
-		}
-		
-		// predicates created from CriteriaContainer.filter()
-		filterExpressions = addFilterRestrictions(filterExpressions, cb, cq, t);
-		
-		// build array, casting all the elements to Predicate
-		final Predicate[] array = getFilterExpressions().toArray(new Predicate[0]);
-		
-		// overwrite the conditions that were in the query
-		cq.where(array);
-		
-		return t;
-    }
-	
+	abstract protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq);
+ 
 
     /* (non-Javadoc)
      * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#getBatchSize()
@@ -279,14 +220,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 		return entityManager;
 	}
 
-	/**
-	 * Create the Predicates that match the filters requested through {@link #setFilterExpressions(ArrayList)}
-	 * 
-	 * @return a list of Predicates that corresponds to the declared filters.
-	 */
-	public List<Predicate> getFilterExpressions() {
-		return filterExpressions;
-	}
 	
 	/** methods defined by interfaces, delegated to the wrapped LazyQueryD =============================*/
 
@@ -425,15 +358,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
         this.batchSize = batchSize;
     }
 
-    
-    /**
-	 * Define a list of conditions to be added to the query's WHERE clause
-	 * 
-	 * @param filterExpressions a list of Predicate objects to be added
-	 */
-	public void setFilterExpressions(ArrayList<Predicate> filterExpressions) {
-		this.filterExpressions = filterExpressions;
-	}
 
 	
     /**
@@ -466,16 +390,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 		return tq;
 	}
 	
-
-    /**
-	 * Store a list of restrictions.
-	 * Each restriction will be transformed into a predicate added to the WHERE clause.
-	 * 
-	 * @param restrictions a list of objects that each define a condition to be added
-	 */
-	public void setRestrictions(Collection<FilterRestriction> restrictions) {
-		this.restrictions = restrictions;
-	}
 	
 
     /**
