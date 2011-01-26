@@ -1,5 +1,8 @@
 #summary Release Notes
 
+== Release 0.4.2 ==
+  * addEntity() for a CriteriaContainer no longer throws an exception when casting a BeanItem.
+    
 == Release 0.4.1 ==
   * Improvement in the API for FilterRestriction to make it possible to filter on any selection in the returned
     tuple.
