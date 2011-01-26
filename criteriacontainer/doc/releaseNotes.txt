@@ -1,5 +1,10 @@
 #summary Release Notes
 
+== Release 0.4.1 ==
+  * Improvement in the API for FilterRestriction to make it possible to filter on any selection in the returned
+    tuple.
+  * Updated Javadoc
+
 == Release 0.4.0 ==
   * The main container is now BeanTupleContainer.  An arbitrary criteria query can be used to retrieve
     a JPA Tuple; for normal usage, the JPA Tuple will contain one or more entities, and computed

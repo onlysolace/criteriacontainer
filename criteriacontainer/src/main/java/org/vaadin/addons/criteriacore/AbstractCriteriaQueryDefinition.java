@@ -376,7 +376,8 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * Set parameters values.
 	 * 
 	 * Provide values for the named parameters defined via{@link #setNamedParameterValues(java.util.Map)}.
-	 * This method is overridden by subclasses that define additional parameters.
+	 * This method is overridden by subclasses that define additional parameters.  Subclasses should
+	 * call super.setParameters to ensure that setNamedParameterValues work.
 	 * 
 	 * @param tq the runnable query that needs to have its parameter set
 	 * @return the query after its parameters have been set.

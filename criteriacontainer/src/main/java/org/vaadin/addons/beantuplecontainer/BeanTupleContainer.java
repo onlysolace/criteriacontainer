@@ -33,8 +33,25 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
 /**
- * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
- * and buffered writes.
+ * BeanTupleContainer enables using JPA 2.0 Tuple type-safe queries with lazy batch loading, filter, sort
+ * and buffered writes, and supports joins where more than one entity is returned (as is the case with joins).
+ * 
+ * A BeanTupleContainer contains BeanTupleItems, which wraps the entities returned for each line of the join.
+ * Nested properties are supported. For example, if the Person entity is joined to the Task entity via the
+ * assignedTo relationship, it will be possible to retrieve all the Person,Task pairs for which this relationship
+ * is true, and the item will allow retrieval of Person.name and Task.dueDate as item properties if these fields
+ * are present in the entities.  Also, each of the entities returned is editable. When an entity appears in several tuples,
+ * it is the same entity -- changing the entity will be reflected everywhere when the item is written and the container
+ * refreshed.
+ * 
+ * BeanTupleContainer relies on JPA 2.0 Criteria queries: these queries are described as Java objects. The container
+ * will ask the BeanTupleQueryDefinition for the properties it returns. This is done automatically, by inspecting
+ * the JPA 2.0 query.
+ * 
+ * Note that BeanTupleContainer cannot add items (each item is a tuple from a join). It is of course possible to
+ * add entities using JPA, and refresh the container.  Another way to add items is to use the specialized version
+ * of BeanTupleContainer called CriteriaContainer, which only allows one entity and is therefore able to support addition.
+ * 
  * 
  * @author Jean-François Lamy
  */

@@ -42,8 +42,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Runo;
 
 /**
- * Shared core for applications demonstrating the BeaunTupleContainer features.
- * (Lazy Query Container extended to work with JPA 2.0 Tuple queries, in such
+ * Shared core for applications demonstrating the BeanTupleContainer features.
+ * (LazyQueryContainer extended to work with JPA 2.0 Tuple queries, in such
  * a way that it remains possible to edit the entities shown on each line).
  * 
  * @author Tommi S.E. Laukkanen
@@ -63,10 +63,6 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 	protected Button editButton;
 	protected Button saveButton;
 	protected Button cancelButton;
-// with tuple queries there is no general way to add a row to the table.
-//	protected Button addItemButton;
-//	protected Button removeItemButton;
-
 	protected Table table;
 	protected BeanTupleContainer criteriaContainer;
 
@@ -161,18 +157,6 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		cancelButton.addListener(this);
 		cancelButton.setEnabled(false);
 		buttonPanel2.addComponent(cancelButton);
-
-// are tricky to implement in a table when dealing with a join
-
-//		addItemButton = new Button("Add Row");
-//		addItemButton.addListener(this);
-//		addItemButton.setEnabled(false);
-//		buttonPanel2.addComponent(addItemButton);
-//
-//		removeItemButton = new Button("Remove Row");
-//		removeItemButton.addListener(this);
-//		removeItemButton.setEnabled(false);
-//		buttonPanel2.addComponent(removeItemButton);
 	}
 
 
@@ -221,8 +205,6 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			editButton.setEnabled(false);
 			saveButton.setEnabled(true);
 			cancelButton.setEnabled(true);
-//			addItemButton.setEnabled(true);
-//			removeItemButton.setEnabled(true);
 			nameFilterField.setEnabled(false);
 		} else {
 			table.setEditable(false);
@@ -231,8 +213,6 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			editButton.setEnabled(true);
 			saveButton.setEnabled(false);
 			cancelButton.setEnabled(false);
-//			addItemButton.setEnabled(false);
-//			removeItemButton.setEnabled(false);
 			nameFilterField.setEnabled(true);
 		}
 	}
@@ -257,16 +237,12 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		}
 
 	}
-	
-
-
 
 
 	/**
 	 * 
 	 */
 	private void createTable(BeanTupleContainer criteriaContainer2) {
-		criteriaContainer2.refresh();
 		table = new Table();
 
 		table.setCaption("JPA 2.0 Tuple Query");

@@ -4,14 +4,14 @@
 	<parent>
 		<artifactId>criteriaparent</artifactId>
 		<groupId>org.vaadin.addons</groupId>
-		<version>0.4.0</version>
+		<version>0.4.1</version>
 		<relativePath>../criteriaparent</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaapp_test</artifactId>
 	<packaging>war</packaging>
-	<version>0.2.0</version>
+	<version>0.4.1</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>

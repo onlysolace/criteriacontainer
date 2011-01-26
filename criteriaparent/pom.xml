@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaparent</artifactId>
-	<version>0.4.0</version>
+	<version>0.4.1</version>
 	<packaging>pom</packaging>
 	<name>Criteria Container Add-on and Demo</name>
 	<modules>

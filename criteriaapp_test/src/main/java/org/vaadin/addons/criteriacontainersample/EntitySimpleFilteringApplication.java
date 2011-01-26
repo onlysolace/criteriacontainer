@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Tommi S.E. Laukkanen
+ * Copyright 2011 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,10 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	
 	
 	/**
-	 * Get a query definition with filtering activated
+	 * Manipulate the query definition to add/remove filtering.
 	 * 
 	 * In this version, we use the generic filtering mechanism provided
-	 * by CriteriaContainer.
+	 * by FilterRestriction
 	 * 
 	 * @see {@link EntityCustomFilteringApplication} and {@link CustomFilteringQueryDefinition} for
 	 * an alternate approach where arbitrary complex filtering can be done through methods.
