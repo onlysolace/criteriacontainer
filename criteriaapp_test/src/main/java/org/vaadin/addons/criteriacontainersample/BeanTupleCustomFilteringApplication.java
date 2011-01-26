@@ -138,19 +138,19 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 	}
 	
 	
-	
-	
-	/**
-	 * @return
-	 */
-	@Override
-	protected BeanTupleContainer createTupleContainer() {
-		logger.warn("createTupleContainer");
-		cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
-		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
-
-		return tupleContainer;
-	}
+    /**
+     * Define a new container based on a query definition.
+     * Properties are automatically defined for all fields of the entities
+     * returned by the query
+     *
+     * @return a new container
+     */
+    @Override
+    protected BeanTupleContainer createTupleContainer() {
+        cd = new CustomFilteringBeanTupleQueryDefinition(entityManager,true,100);
+        BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
+        return tupleContainer;
+    }
 
 	
 
