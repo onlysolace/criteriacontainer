@@ -118,7 +118,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         table.setColumnWidth("reporter", 135);
         table.setColumnWidth("assignee", 135);  
         table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
-        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator(this));
+        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator());
 
         table.setVisibleColumns(visibleColumnIds.toArray());
         table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
