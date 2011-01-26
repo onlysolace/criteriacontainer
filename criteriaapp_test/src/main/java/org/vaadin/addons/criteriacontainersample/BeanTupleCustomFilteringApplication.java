@@ -108,14 +108,14 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 
 		/**
 		 * Set the filtering string for restricting task names
-		 * @param nameFilterValue
+		 * @param nameFilterValue the LIKE string used for filtering
 		 */
 		public void setNameFilterValue(String nameFilterValue) {
 			this.nameFilterValue = nameFilterValue;
 		}
 	}
 
-	/* Define visible columns, in accordance with the properties defined by the query definition.
+	/* Define visible columns amongst the properties defined by the query definition.
 	 * 
 	 * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#defineTableColumns()
 	 */

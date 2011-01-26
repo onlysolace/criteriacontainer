@@ -85,15 +85,6 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 			
 			// SELECT task as Task, person as Person, ... 
 			cq.multiselect(task,person);
-			
-			// WHERE t.name LIKE nameFilterValue
-			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
-				cq.where(
-						cb.like(
-								task.get(Task_.name), // t.name
-								nameFilterValue)  // pattern to be matched?
-				);
-			}
 
 			return person;
 		}
@@ -167,7 +158,9 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
             // filtering style #2
             // simple conditions are added to a list and passed to the filter mechanism.
             final LinkedList<FilterRestriction> restrictions = new LinkedList<FilterRestriction>();
-            restrictions.add(new FilterRestriction(Task_.name.getName(), FilterRestriction.Operation.LIKE, nameFilterValue));
+            restrictions.add(new FilterRestriction(
+                    Task.class.getSimpleName()+"."+Task_.name.getName(),
+                    FilterRestriction.Operation.LIKE, nameFilterValue));
             criteriaContainer.filter(restrictions);
         } else {
             criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
