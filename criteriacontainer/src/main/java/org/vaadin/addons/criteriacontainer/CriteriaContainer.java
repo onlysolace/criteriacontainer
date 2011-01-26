@@ -23,8 +23,16 @@ import org.vaadin.addons.lazyquerycontainer.CompositeItem;
 import com.vaadin.data.util.BeanItem;
 
 /**
- * CriteriaContainer enables using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
+ * CriteriaContainer manages a single Entity using JPA 2.0 Criteria type-safe queries with lazy batch loading, filter, sort
  * and buffered writes.
+ * 
+ * CriteriaContainer manages a single entity (like other Vaadin containers like HbnContainer, EntityContainer,
+ * JPAContainer).  CriteriaContainer supports adding new instances of the entity class.
+ * 
+ * CriteriaContainer relies on BeanTupleContainer.  Like its parent, it is not necessary to define the properties
+ * for the container, they are inferred automatically from the Query. Note that CriteriaContainer does not use
+ * nested names. For a container {@code CriteriaContainer<Person>}, the property will be lastName, and NOT Person.lastName.
+ * 
  * @param <T> Entity class.
  * @author Jean-François Lamy
  */

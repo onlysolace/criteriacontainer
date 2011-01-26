@@ -32,6 +32,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
 /**
  * Example application demonstrating how to implement
  * queries and filtering by extending a query definition.
+ * 
  * The filtering is managed in type-safe fashion by the query definition. 
  * 
  * @author Jean-François Lamy
@@ -86,12 +87,11 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 
 	    
 		/**
-		 * Set values for the parameters used in the predicates.
+		 * Set values for all parameters used in the predicates.
 		 * 
-		 * Should provide a value for all the parameter objects.
 		 * Is expected to call super() to handle named parameters defined through {@link #setNamedParameterValues(java.util.Map)}.
-         * Parameters not set via that method should be set explicitly.
-         * {@link #setNamedParameterValues(java.util.Map)}
+         * 
+         * In this example, there is only one parameter used in defineQuery and we set it directly.
 		 */
 		@Override
 		public TypedQuery<?> setParameters(final TypedQuery<?> tq) {
