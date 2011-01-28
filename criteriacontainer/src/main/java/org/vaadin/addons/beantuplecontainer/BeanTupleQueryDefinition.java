@@ -211,6 +211,9 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/**
 	 * Define a query that fetches a tuple of one or more entities.
 	 * 
+	 * <p>Note that defineQuery must always use {@link CriteriaQuery#multiselect(Selection...)}
+	 * because a tuple is expected.
+	 * 
 	 * @param criteriaBuilder the CriteriaBuilder used to define the from, where and select
 	 * @param tupleQuery the CriteriaQuery to build the tuples,
 	 * @return a root of the query (used for counting the lines returned)
