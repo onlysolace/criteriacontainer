@@ -92,6 +92,31 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         visibleColumnIds.add(Task_.name.getName());
         visibleColumnIds.add(Task_.reporter.getName());
         visibleColumnIds.add(Task_.assignee.getName());
+
+
+        visibleColumnLabels.add("");
+        visibleColumnLabels.add("Task ID");
+        visibleColumnLabels.add("Name");
+        visibleColumnLabels.add("Reporter");
+        visibleColumnLabels.add("Assignee");
+        
+        //computedColumns();
+
+        table.setColumnWidth("name", 135);
+        table.setColumnWidth("reporter", 135);
+        table.setColumnWidth("assignee", 135);  
+
+
+        table.setVisibleColumns(visibleColumnIds.toArray());
+        table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+    }
+
+
+    /**
+     * additional tests
+     */
+    @SuppressWarnings("unused")
+    private void computedColumns() {
         visibleColumnIds.add(Task_.alpha.getName());
         visibleColumnIds.add(Task_.beta.getName());
         visibleColumnIds.add(Task_.gamma.getName());
@@ -100,27 +125,20 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
         visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
         visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
-
-        visibleColumnLabels.add("");
-        visibleColumnLabels.add("Task ID");
-        visibleColumnLabels.add("Name");
-        visibleColumnLabels.add("Reporter");
-        visibleColumnLabels.add("Assignee");
+        
         visibleColumnLabels.add("Alpha");
         visibleColumnLabels.add("Beta");
         visibleColumnLabels.add("Gamma");
         visibleColumnLabels.add("Delta");
+        
         visibleColumnLabels.add("Query");
         visibleColumnLabels.add("Batch");
         visibleColumnLabels.add("Time [ms]");
-
-        table.setColumnWidth("name", 135);
-        table.setColumnWidth("reporter", 135);
-        table.setColumnWidth("assignee", 135);  
+        
         table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
         table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator());
-
-        table.setVisibleColumns(visibleColumnIds.toArray());
-        table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
     }
+
+
+
 }

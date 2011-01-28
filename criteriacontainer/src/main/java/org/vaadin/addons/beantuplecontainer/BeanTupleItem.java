@@ -45,6 +45,7 @@ import com.vaadin.data.util.PropertysetItem;
  * 
  * <pre>
  * BeanTupleItem queryResult = ...
+ * queryResult.getTuple(); // returns a Tuple object containing the entities returned for each line
  * queryResult.getTuple().get("person"); // returns an entity of type Person
  * queryResult.getTuple().get("total"); // returns a number
  * 
@@ -214,35 +215,6 @@ public final class BeanTupleItem extends PropertysetItem {
 		}
 		return retVal;
 	}
-
-	
-	/**
-	 * Retrieve property ids.
-	 * For properties that correspond to entities, nested property ids are added as well.
-	 * 
-	 * @see com.vaadin.data.util.PropertysetItem#getItemPropertyIds()
-	 */
-//	@Override
-//	public Collection<?> getItemPropertyIds() {
-//		ArrayList<Object> propertyIds = new ArrayList<Object>();
-//		Collection<?> basicPropertyIds = super.getItemPropertyIds();
-//		for (Object basicPropertyId : basicPropertyIds){
-//			propertyIds.add(basicPropertyId);
-//			Class<?> type = super.getItemProperty(basicPropertyId).getType();
-//			if (type.isAnnotationPresent(Entity.class)) {
-//				// property is an entity
-//				Field[] fields = type.getDeclaredFields();
-//				for (Field field: fields){
-//					propertyIds.add(basicPropertyId.toString()+"."+field.getName());
-//				}
-//			}
-//		}
-//
-//		logger.warn("item getItemPropertyIds={}");
-//		return Collections.unmodifiableCollection(propertyIds);
-//	}
-//	
-	
 	
 
 	/* (non-Javadoc)
@@ -253,6 +225,7 @@ public final class BeanTupleItem extends PropertysetItem {
 		return dumpItem(this,"",new StringBuffer());
 	}
 
+	
 	/**
 	 * @return
 	 */

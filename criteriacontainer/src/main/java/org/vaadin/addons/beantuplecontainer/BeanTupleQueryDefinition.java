@@ -50,22 +50,22 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 /**
  * Type-safe implementation of JPA 2.0 Tuple-based query definition.
  * 
- * This class uses the JPA 2.0 Criteria API to automatically infer all the information necessary to
- * populate a container (the names of the properties, their sorting, etc.)
+ * <p>This class uses the JPA 2.0 Criteria API to automatically infer all the information necessary to
+ * populate a container (the names of the properties, their sorting, etc.)</p>
  * 
- * The query returns a Tuple of one or more entities and computed expressions. The query defines
+ * <p>The query returns a Tuple of one or more entities and computed expressions. The query defines
  * all the attributes of each of the entities as nested propertyIds, so a container using this query will
  * consider them present.  The {@link BeanTupleItem} used in the {@link BeanTupleContainer} maps
- * the nested properties to entity fields, and in this way allows properties to be edited.
+ * the nested properties to entity fields, and in this way allows properties to be edited.</p>
  * 
- * The following example shows a query that can be used to define a container:
+ * <p>The following example shows a query that can be used to define a container:
  * it returns a tuple of entities (through the multiselect() call), and defines
- * conditions through a where() call.
+ * conditions through a where() call.</p>
  * 
- * The other methods in this class will examine the resulting object structure to
+ * <p>The other methods in this class will examine the resulting object structure to
  * retrieve the information necessary to list the properties, define sorting, and
- * so on.
-     * <pre>
+ * so on.</p>
+ * <pre>
 {@code protected Root<?> defineQuery( }
         CriteriaBuilder cb,
         CriteriaQuery<?> cq) {
@@ -146,7 +146,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 
 	/**
-	 * reset the query definitions.
+	 * Reset the query definitions.
 	 */
 	public void refresh() {
     	countingQuery = criteriaBuilder.createQuery(Long.class);
@@ -162,7 +162,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 
 	/**
-	 * @return a query with the sorting options.
+	 * @return a query with the applicable sorting options applied
 	 */
 	@Override
 	public TypedQuery<Tuple> getSelectQuery() {
@@ -195,12 +195,13 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
             refresh();
         }
         
-    	// cancel sorting defined by the query
+    	// cancel sorting defined by the query to be more efficient
     	countingQuery.orderBy();
     	
-		// override the select added in the query definition, we want a count.
+		// we only want the count so we override the selection in the query
 		countingQuery.select(criteriaBuilder.count(root));
 		
+		// create the executable query
 		final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
 		setParameters(countQuery);
 		return countQuery;
