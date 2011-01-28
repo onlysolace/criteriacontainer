@@ -84,15 +84,14 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	
 	/* ----- method replacements 
 	 * 
-	 * All the methods below are defined in LazyQueryContainer, but not in a Vaadin interface.
-	 * They are specific to LazyQueryContainer.   All these methods need to delegate properly
-	 * to the wrapped container.
+	 * The methods below replace those of LazyQueryContainer.
 	 * 
 	 */
 
 	
 	/**
 	 * Filters the container content by setting "where" criteria in the JPA Criteria.
+	 * <p>The query view and query definition must be refreshed, and then the container.</p>
 	 * @param restrictions  restrictions to set to JPA query or null to clear.
 	 */
 	public void filter(LinkedList<FilterRestriction> restrictions) {
@@ -101,7 +100,12 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
         queryView.refresh(); // also refreshes critQueryDefinition.
         refresh(); // refresh the container.
 	}
-	
+
+	/* ----- LazyQueryContainer methods delegated to the wrapped LazyQueryContainer -----------------------
+     * 
+     * The methods below are defined in LazyQueryContainer, but not in a Vaadin interface.
+     * They are specific to LazyQueryContainer; they are delegated to the wrapped container.
+     */
 
 	/**
 	 * Add a property to the container.
@@ -133,11 +137,11 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	}
 	
 	
-	/* ----- method overrides that are delegated to the wrapped LazyQueryContainer -----------------------
-	 * 
-	 * All the methods below are defined in the declared Vaadin interfaces, and are delegated to the LazyQuery container.
-	 * 
-	 */
+    /* ----- interface methods are delegated to the wrapped LazyQueryContainer -----------------------
+     * 
+     * All the methods below are defined in the declared Vaadin interfaces, and are delegated to the LazyQuery container.
+     * 
+     */
 
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
