@@ -93,6 +93,7 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
         final Object itemId = addItem();
         return getEntity((Integer) itemId);
     }
+    
 
     /**
      * Removes given entity at given index and returns it.
