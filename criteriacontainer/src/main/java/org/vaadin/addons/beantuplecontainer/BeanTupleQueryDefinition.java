@@ -58,6 +58,37 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * consider them present.  The {@link BeanTupleItem} used in the {@link BeanTupleContainer} maps
  * the nested properties to entity fields, and in this way allows properties to be edited.
  * 
+ * The following example shows a query that can be used to define a container:
+ * it returns a tuple of entities (through the multiselect() call), and defines
+ * conditions through a where() call.
+ * 
+ * The other methods in this class will examine the resulting object structure to
+ * retrieve the information necessary to list the properties, define sorting, and
+ * so on.
+     * <pre>
+{@code protected Root<?> defineQuery( }
+        CriteriaBuilder cb,
+        CriteriaQuery<?> cq) {
+
+    // FROM task JOIN PERSON 
+    {@code Root<Person> person = (Root<Person>) cq.from(Person.class);}
+    task = person.join(Person_.tasks); 
+
+    // SELECT task as Task, person as Person, ... 
+    cq.multiselect(task,person);
+
+    // WHERE t.name LIKE "..."    
+    cq.where(
+        cb.like(
+            task.get(Task_.name), // t.name
+            "some string%")  // sql "like" pattern to be matched
+        );
+    }
+
+    return person;
+}
+}</pre>
+ * 
  * @author jflamy
  */
 
@@ -179,36 +210,6 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/**
 	 * Define a query that fetches a tuple of one or more entities.
 	 * 
-     * The following example shows a query that can be used to define a container:
-     * it returns a tuple of entities (through the multiselect() call), and defines
-     * conditions through a where() call.
-	 * 
-	 * The other methods in this class will examine the resulting object structure to
-	 * retrieve the information necessary to list the properties, define sorting, and
-	 * so on.
-	 * <pre>
-{@code protected Root<?> defineQuery( }
-        CriteriaBuilder cb,
-        CriteriaQuery<?> cq) {
-
-    // FROM task JOIN PERSON 
-    {@code Root<Person> person = (Root<Person>) cq.from(Person.class);}
-    task = person.join(Person_.tasks); 
-
-    // SELECT task as Task, person as Person, ... 
-    cq.multiselect(task,person);
-
-    // WHERE t.name LIKE "..."    
-    cq.where(
-        cb.like(
-            task.get(Task_.name), // t.name
-            "some string%")  // sql "like" pattern to be matched
-        );
-    }
-
-    return person;
-}
-}</pre>
 	 * @param criteriaBuilder the CriteriaBuilder used to define the from, where and select
 	 * @param tupleQuery the CriteriaQuery to build the tuples,
 	 * @return a root of the query (used for counting the lines returned)
