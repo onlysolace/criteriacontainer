@@ -8,7 +8,7 @@
 	<name>Criteria Container Add-on and Demo</name>
 	<modules>
 		<module>../criteriacontainer</module>
-		<module>../criteriaapp</module>
+		<module>../criteriaapp_test</module>
 	</modules>
 
 	<properties>
