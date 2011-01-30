@@ -53,16 +53,16 @@ import com.vaadin.ui.themes.Runo;
 public abstract class AbstractBeanTupleApplication extends Application implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
-	public static final String PERSISTENCE_UNIT = "vaadin-lazyquerycontainer-example";
+	protected static final String PERSISTENCE_UNIT = "vaadin-lazyquerycontainer-example";
 	protected static final EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
 	protected EntityManager entityManager;
 
 	protected TextField nameFilterField;
-
 	protected Button refreshButton;
 	protected Button editButton;
 	protected Button saveButton;
 	protected Button cancelButton;
+	
 	protected Table table;
 	protected BeanTupleContainer criteriaContainer;
 
@@ -98,20 +98,21 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 
 
 	/**
-	 * @return
+	 * @return the container that will feed the table
 	 */
 	protected abstract BeanTupleContainer createTupleContainer();
+
 	
 	/**
-	 * 
+	 * React to the "refresh" button to perform filtering.
 	 */
 	protected abstract void doFiltering();
 
 
 	
 	/**
-	 * @param mainWindow
-	 * @param filterPanel
+	 * @param mainWindow the window in which the panel should appear
+	 * @param filterPanel the panel with an input field and a button.
 	 */
 	private void createTopPanel(Window mainWindow, Panel filterPanel) {
 		filterPanel.addStyleName(Runo.PANEL_LIGHT);

@@ -19,7 +19,6 @@ import java.util.LinkedList;
 
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
-import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication.CustomFilteringQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
 import org.vaadin.addons.criteriacore.FilterRestriction;
@@ -59,9 +58,9 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	 * Manipulate the query definition to add/remove filtering.
 	 * 
 	 * In this version, we use the generic filtering mechanism provided
-	 * by FilterRestriction
+	 * by {@link FilterRestriction}
 	 * 
-	 * @see {@link EntityCustomFilteringApplication} and {@link CustomFilteringQueryDefinition} for
+	 * See {@link EntityCustomFilteringApplication} and {@link EntityCustomFilteringApplication.CustomFilteringQueryDefinition} for
 	 * an alternate approach where arbitrary complex filtering can be done through methods.
 	 */
 	@Override
