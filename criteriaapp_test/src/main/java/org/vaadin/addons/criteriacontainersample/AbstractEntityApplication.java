@@ -108,17 +108,19 @@ public abstract class AbstractEntityApplication extends Application implements C
 	
 
 	/**
-	 * @return
+	 * @return the container used to fill the table
 	 */
 	abstract CriteriaContainer<Task> createTaskContainer();
 
 	/**
-	 * 
+	 * React to the user pressing the "Refresh" button by adding the requested filtering
+	 * to the query.
 	 */
 	abstract void doFiltering() ;
+	
 
 	/**
-	 * 
+	 * Populate the database with test data.
 	 */
 	private void createEntities() {
 		EntityTransaction transaction = entityManager.getTransaction();
@@ -141,6 +143,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 	}
 
 	/**
+	 * Create the top panel where the user can add filtering restrictions.
 	 * @param mainWindow
 	 * @return
 	 */

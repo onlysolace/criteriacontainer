@@ -43,7 +43,7 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
     @SuppressWarnings("unused")
     final private Logger logger = LoggerFactory.getLogger(ParameterizedTaskQueryDefinition.class);
 	
-	public class ParameterizedTaskQueryDefinition extends CriteriaQueryDefinition<Task> {
+	class ParameterizedTaskQueryDefinition extends CriteriaQueryDefinition<Task> {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;

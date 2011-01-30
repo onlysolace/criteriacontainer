@@ -39,7 +39,7 @@ import org.vaadin.addons.criteriacore.FilterRestriction;
 @SuppressWarnings("serial")
 public class EntityCustomFilteringApplication extends AbstractEntityApplication {
 	
-	public class CustomFilteringQueryDefinition extends CriteriaQueryDefinition<Task> {
+	class CustomFilteringQueryDefinition extends CriteriaQueryDefinition<Task> {
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue;

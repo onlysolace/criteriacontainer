@@ -25,7 +25,6 @@ import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
-import org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication.CustomFilteringQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -50,9 +49,6 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 	private SimpleFilteringBeanTupleQueryDefinition cd;
 
 	class SimpleFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
-		
-		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
-		private String nameFilterValue = null;
 		private SetJoin<Person, Task> task;
 
 
@@ -88,24 +84,9 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 
 			return person;
 		}
-
-
-		/**
-		 * @return the filtering string currently applied to the task name
-		 */
-		public String getNameFilterValue() {
-			return nameFilterValue;
-		}
-
-		/**
-		 * Set the filtering string for restricting task names
-		 * @param nameFilterValue
-		 */
-		public void setNameFilterValue(String nameFilterValue) {
-			this.nameFilterValue = nameFilterValue;
-		}
 	}
 
+	
 	@Override
 	protected void defineTableColumns() {
 		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
@@ -127,7 +108,9 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 	
 	
 	/**
-	 * @return
+	 * Create a container that does no filtering, only the desired join.
+	 * <p>Filtering is done by {@link #doFiltering()} below.</p>
+	 * @return the container used to feed the table
 	 */
 	@Override
 	protected BeanTupleContainer createTupleContainer() {
@@ -145,7 +128,7 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
      * In this version, we use the generic filtering mechanism provided
      * by CriteriaContainer.
      * 
-     * @see {@link EntityCustomFilteringApplication} and {@link CustomFilteringQueryDefinition} for
+     * see {@link BeanTupleCustomFilteringApplication} for
      * an alternate approach where arbitrary complex filtering can be done through methods.
      */
     @Override
@@ -166,9 +149,5 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
             criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
         }
     }
-
-
-
-	
 	
 }
