@@ -107,16 +107,13 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
         
         // make sure there is an alias
         ensureAlias(entityPath);
-        
-        // define a property for the entity
-        addPropertyForExpression(expressionMap,entityPath.getAlias(), entityPath, defineProperties);
 
-        // add properties for all the attributes to the sortable items the container knows about
-        // (the BeanTupleItem is smart about this and does not actually duplicate info)
+        // add properties for all the attributes
+        // do NOT include the table name, use only the column name.
         Set<?> attributes = getMetamodel().entity(instantatiableType).getSingularAttributes();
         for (Object attributeObject : attributes) {
             SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
-            // do NOT include the alias.
+
             addPropertyForAttribute(expressionMap,column.getName(), entityPath, column, defineProperties);
         }
     }
