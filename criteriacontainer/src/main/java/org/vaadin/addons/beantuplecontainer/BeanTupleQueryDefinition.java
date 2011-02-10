@@ -380,6 +380,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		boolean isEntity = propertyType.getClass().isAnnotationPresent(Entity.class);
 		boolean sortable = Comparable.class.isAssignableFrom(propertyType);
 		boolean readOnly = !isEntity; // entities are read-only, attributes and expressions readable
+		
+		//logger.warn("adding property {} {}",propertyId,defineProperties);
 		if (defineProperties) {
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
@@ -615,6 +617,18 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 			return null;
 		}
 	}
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#getPropertyIds()
+     */
+    @Override
+    public Collection<?> getPropertyIds() {
+        if (propertyIds.isEmpty()) {
+            refresh();
+        }
+        return super.getPropertyIds();
+    }
 
 }
 
