@@ -159,6 +159,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
     @Override
 	public void addProperty(final Object propertyId, Class<?> type, Object defaultValue,
             boolean readOnly, boolean sortable) {
+        //logger.warn("adding property {}",propertyId);
         propertyIds.add(propertyId);
         propertyTypes.put(propertyId, type);
         defaultValues.put(propertyId, defaultValue);
