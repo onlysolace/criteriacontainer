@@ -498,9 +498,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Collection<?> getContainerPropertyIds() {
-		Collection<?> containerPropertyIds = lazyQueryContainer.getContainerPropertyIds();
-		logger.warn("containerPropertyIds {}",containerPropertyIds);
-        return containerPropertyIds;
+		return lazyQueryContainer.getContainerPropertyIds();
 	}
 
 
