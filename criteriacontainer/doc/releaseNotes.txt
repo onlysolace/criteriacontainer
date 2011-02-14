@@ -1,5 +1,9 @@
 #summary Release Notes
 
+== Release 0.4.3 ==
+  * properties inferred from query were not always automatically added to container
+  * a call to container.refresh() was sometimes needed to trigger display in a table. 
+
 == Release 0.4.2 ==
   * addEntity() for a CriteriaContainer no longer throws an exception when casting a BeanItem.
     
