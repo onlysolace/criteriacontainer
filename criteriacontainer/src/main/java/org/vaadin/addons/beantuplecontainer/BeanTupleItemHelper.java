@@ -37,7 +37,7 @@ import com.vaadin.data.util.ObjectProperty;
 
 public class BeanTupleItemHelper implements Query {
 	
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(BeanTupleItemHelper.class);
 	
     /** The JPA EntityManager. */
@@ -117,9 +117,9 @@ public class BeanTupleItemHelper implements Query {
         selectQuery.setFirstResult(startIndex);
         selectQuery.setMaxResults(count);
 
-        List<?> entities = selectQuery.getResultList();
+        List<?> tuples = selectQuery.getResultList();
         List<Item> items = new ArrayList<Item>();
-        for (Object entity : entities) {
+        for (Object entity : tuples) {
             items.add(toItem((Tuple) entity));
         }
         return items;

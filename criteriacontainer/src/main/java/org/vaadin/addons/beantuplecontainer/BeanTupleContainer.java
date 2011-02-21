@@ -62,6 +62,9 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 
 	private BeanTupleQueryView queryView;
 	
+	/** Attach data to the container, such as a name for debugging purposes.	 */
+	protected Object data;
+	
     /**
      * Standard constructor for type-safe queries.
      * @param cd the definition of the query
@@ -511,6 +514,20 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		return lazyQueryContainer.addContainerProperty(propertyId, type,
 				defaultValue);
 	}
+
+    /**
+     * @return the data
+     */
+    public Object getData() {
+        return data;
+    }
+
+    /**
+     * @param data the data to set
+     */
+    public void setData(Object data) {
+        this.data = data;
+    }
 
 
 }
