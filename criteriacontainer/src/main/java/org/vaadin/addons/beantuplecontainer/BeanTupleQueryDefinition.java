@@ -93,7 +93,8 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  */
 
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
-	
+
+
     @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 
@@ -191,20 +192,40 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
 	public TypedQuery<Long> getCountQuery() {
-        if (countingQuery == null) {
-            refresh();
-        }
-        
-    	// cancel sorting defined by the query to be more efficient
-    	countingQuery.orderBy();
-    	
-		// we only want the count so we override the selection in the query
-		countingQuery.select(criteriaBuilder.count(root));
-		
-		// create the executable query
-		final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
-		setParameters(countQuery);
-		return countQuery;
+	    if (countingQuery == null) {
+	        refresh();
+	    }
+
+	    // we only want the count so we override the selection in the query
+	    countingQuery.orderBy();
+	    Selection<Long> selection = countingQuery.getSelection();
+	    if (selection.isCompoundSelection()) {
+	        List<Selection<?>> items = selection.getCompoundSelectionItems();
+	        if (items.size() == 1) {
+	            if (countingQuery.isDistinct()) {
+	                // distinct query, use countDistinct
+	                countingQuery.distinct(false);
+	                countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) items.get(0)));
+	            } else {
+	                countingQuery.select(criteriaBuilder.count((Expression<?>) items.get(0)));
+	            }
+	        } else {
+	            countingQuery.select(criteriaBuilder.count(root));
+	        }
+	    } else {
+	        if (countingQuery.isDistinct()) {
+	            countingQuery.distinct(false);
+	            countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) countingQuery.getSelection()));
+	        } else {
+	            countingQuery.select(criteriaBuilder.count((Expression<?>) countingQuery.getSelection()));
+	        }
+	    }
+
+
+	    // create the executable query
+	    final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
+	    setParameters(countQuery);
+	    return countQuery;
 	}
 
 
@@ -628,6 +649,24 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
             refresh();
         }
         return super.getPropertyIds();
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#isCompositeItems()
+     */
+    @Override
+    public boolean isCompositeItems() {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#setCompositeItems(boolean)
+     */
+    @Override
+    public void setCompositeItems(boolean arg0) {
+        throw new UnsupportedOperationException();
     }
 
 }
