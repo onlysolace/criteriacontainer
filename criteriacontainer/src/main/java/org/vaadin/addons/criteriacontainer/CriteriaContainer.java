@@ -26,13 +26,14 @@ import com.vaadin.data.util.BeanItem;
  * and buffered writes.
  * 
  * CriteriaContainer manages a single entity (like other Vaadin containers like HbnContainer, EntityContainer,
- * JPAContainer).  CriteriaContainer supports adding new instances of the entity class.
+ * JPAContainer).  CriteriaContainer supports adding new instances of the entity class. Note that the entity
+ * class will be wrapped as a BeanItem, and therefore must have getters and setters.
  * 
  * CriteriaContainer relies on BeanTupleContainer.  Like its parent, it is not necessary to define the properties
  * for the container, they are inferred automatically from the Query. Note that CriteriaContainer does not use
  * nested names. For a container {@code CriteriaContainer<Person>}, the property will be lastName, and NOT Person.lastName.
  * 
- * @param <T> Entity class.
+ * @param <T> Entity class, should also be a bean with getters (and setters if editable)
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
