@@ -1,5 +1,10 @@
 #summary Release Notes
 
+== Release 0.4.4 ==
+  * If a BeanTupleContainer returned a single column with distinct values
+    the size() returned was incorrect. 
+
+
 == Release 0.4.3 ==
   * properties inferred from query were not always automatically added to container
   * a call to container.refresh() was sometimes needed to trigger display in a table. 
