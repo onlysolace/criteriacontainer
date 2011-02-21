@@ -85,24 +85,28 @@ public abstract class AbstractEntityApplication extends Application implements C
 		Window mainWindow = new Window("Lazycontainer Application");
 	
 		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.setSizeFull();
 		mainLayout.setMargin(true);
 		mainLayout.setSpacing(true);
-		mainWindow.setContent(mainLayout);
-		createFilterPanel(mainWindow);
 
-	
+		createFilterPanel(mainLayout);
+
 		entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
 		criteriaContainer =  createTaskContainer();
 		
 		int size = criteriaContainer.size();
-	
 		if (size == 0 && TESTING) {
 			createEntities();
 		}
 	
 		createTable(criteriaContainer);
-	
-		mainWindow.addComponent(table);
+		table.setPageLength(0);
+		table.setSizeUndefined();
+		table.setHeight("100%");
+		mainLayout.addComponent(table);
+		mainLayout.setExpandRatio(table, 100.0F);
+		
+	    mainWindow.setContent(mainLayout);
 		setMainWindow(mainWindow);
 	}
 	
@@ -147,14 +151,14 @@ public abstract class AbstractEntityApplication extends Application implements C
 	 * @param mainWindow
 	 * @return
 	 */
-	private Panel createFilterPanel(Window mainWindow) {
+	private Panel createFilterPanel(VerticalLayout mainLayout) {
 		Panel filterPanel = new Panel();
 		filterPanel.addStyleName(Runo.PANEL_LIGHT);
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setMargin(false);
 		filterLayout.setSpacing(true);
 		filterPanel.setContent(filterLayout);
-		mainWindow.addComponent(filterPanel);
+		mainLayout.addComponent(filterPanel);
 	
 		Panel buttonPanel = new Panel();
 		buttonPanel.addStyleName(Runo.PANEL_LIGHT);
@@ -162,7 +166,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 		buttonLayout.setMargin(false);
 		buttonLayout.setSpacing(true);
 		buttonPanel.setContent(buttonLayout);
-		mainWindow.addComponent(buttonPanel);
+		mainLayout.addComponent(buttonPanel);
 	
 		Panel buttonPanel2 = new Panel();
 		buttonPanel2.addStyleName(Runo.PANEL_LIGHT);
@@ -170,7 +174,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 		buttonLayout2.setMargin(false);
 		buttonLayout2.setSpacing(true);
 		buttonPanel2.setContent(buttonLayout2);
-		mainWindow.addComponent(buttonPanel2);
+		mainLayout.addComponent(buttonPanel2);
 	
 		nameFilterField = new TextField("Name");
 		filterPanel.addComponent(nameFilterField);
