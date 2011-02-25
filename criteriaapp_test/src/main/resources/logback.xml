@@ -15,7 +15,8 @@
 	<logger name="net" level="INFO" />
 	<logger name="net.sf.ehcache.config.ConfigurationFactory" level="ERROR" />
 	<logger name="org" level="INFO" />
-	<logger name="org.hibernate" level="WARN" />
+	<logger name="org.hibernate" level="WARN" /> 
+	<logger name="org.hibernate.ejb.criteria.CriteriaQueryCompiler" level="DEBUG" />
 	<logger name="org.hibernate.cache.EhCacheProvider" level="ERROR" />
 	<logger name="net.sf.ehcache.hibernate" level="ERROR" />	
 	    
