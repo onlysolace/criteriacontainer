@@ -102,6 +102,7 @@ public class BeanTupleItemHelper implements Query {
 	public int size() {
         if (querySize == -1) {
             querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
+            //logger.warn("computed size = {}",querySize);
         }
         return querySize;
     }
@@ -152,6 +153,8 @@ public class BeanTupleItemHelper implements Query {
         if (applicationTransactionManagement) {
             entityManager.getTransaction().commit();
         }
+        // invalidate the query size
+        querySize = -1;
     }
 
     /**

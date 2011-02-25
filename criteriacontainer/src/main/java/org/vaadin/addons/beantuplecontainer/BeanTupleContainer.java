@@ -127,7 +127,6 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public final boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue, boolean readOnly, boolean sortable) {
 		return lazyQueryContainer.addContainerProperty(propertyId, type, defaultValue, readOnly, sortable);
-
 	}
 
 
@@ -169,7 +168,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Collection<?> getItemIds() {
-		return lazyQueryContainer.getItemIds();
+		return queryView.getItemIds();
 	}
 
 
@@ -178,7 +177,8 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Item getItem(Object itemId) {
-		return lazyQueryContainer.getItem(itemId);
+	    // we jump over lazyQueryContainer to avoid the cast to Integer
+		return queryView.getItem(itemId);
 	}
 
 
@@ -335,7 +335,15 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	}
 
 
-	/* (non-Javadoc)
+	/**
+	 * Compute number of items in the container.
+	 * <p>
+	 * The size is adjusted if you add items via the container itself (removed items
+	 * are considered to be in the container, but marked as invisible until the changes
+	 * are actually saved, at which time the container is refreshed and values recomputed.
+	 * Important: If you add or delete entities through JPA, you need to refresh the container for
+	 * the size to be recomputed.</p>
+	 * @return the number of items in the container
 	 * @see com.vaadin.data.Container#size()
 	 */
 	@Override
@@ -501,7 +509,8 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Collection<?> getContainerPropertyIds() {
-		return lazyQueryContainer.getContainerPropertyIds();
+		Collection<?> containerPropertyIds = lazyQueryContainer.getContainerPropertyIds();
+        return containerPropertyIds;
 	}
 
 
@@ -529,5 +538,17 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
         this.data = data;
     }
 
-
+    /**
+     * @param keyId the property to use as object identifier, null if the default int is desired.
+     */
+    public void setKeyPropertyId(Object keyId) {
+        queryView.setKeyPropertyId(keyId);
+    }
+    
+    /**
+     * @return the property currently 
+     */
+    public Object getKeyPropertyId() {
+        return queryView.getKeyPropertyId();
+    }
 }

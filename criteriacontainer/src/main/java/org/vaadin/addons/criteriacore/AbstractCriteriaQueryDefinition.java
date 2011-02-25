@@ -83,7 +83,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	protected Object[] nativeSortPropertyIds;
 
 	/** Lust of property IDs included in this QueryDefinition. */
-    protected List<Object> propertyIds = new ArrayList<Object>();
+    protected List<Object> propertyIds = null;
 	
 	/** Map of types of the properties. */
     private Map<Object, Object> propertyTypes = new TreeMap<Object, Object>();
@@ -101,6 +101,9 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	
 	/** the actual list of property ids to be sorted (normally, Strings) */
 	protected Object[] sortPropertyIds;
+
+    /** property ids have been found via query definition */
+    protected boolean initialized;
 
     /**
 	 * Simple constructor, used when extending the class.
@@ -159,7 +162,10 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
     @Override
 	public void addProperty(final Object propertyId, Class<?> type, Object defaultValue,
             boolean readOnly, boolean sortable) {
-        //logger.warn("adding property {}",propertyId);
+        if (propertyIds == null) {
+            propertyIds = new ArrayList<Object>();
+        }
+        logger.warn("adding property {}",propertyId);
         propertyIds.add(propertyId);
         propertyTypes.put(propertyId, type);
         defaultValues.put(propertyId, defaultValue);
@@ -204,6 +210,11 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * @return number of entities.
 	 */
 	abstract public TypedQuery<Long> getCountQuery() ;
+	
+	/**
+	 * refresh the query.
+	 */
+	abstract public void refresh();
 
 	/**
 	 * Get the class of the entity being managed.
@@ -273,6 +284,9 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
      */
     @Override
 	public Collection<?> getPropertyIds() {
+        if (! initialized) {
+            refresh();
+        }
         return Collections.unmodifiableCollection(propertyIds);
     }
 
