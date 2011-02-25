@@ -15,9 +15,16 @@
  */
 
 package org.vaadin.addons.beantuplecontainer;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
+import org.vaadin.addons.lazyquerycontainer.NaturalNumbersList;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
 
 import com.vaadin.data.Item;
@@ -35,11 +42,18 @@ import com.vaadin.data.Property.ValueChangeListener;
  */
 @SuppressWarnings("serial")
 public class BeanTupleQueryView implements QueryView, ValueChangeListener {
+    
+    final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryView.class);
 
 	private BeanTupleQueryFactory queryFactory;
 	private BeanTupleQueryDefinition queryDefinition;
 	private LazyQueryView lazyQueryView;
-	
+    private Object keyPropertyId;
+
+    private Map<Object,Integer> keyToId = new HashMap<Object,Integer>();
+    private int size;
+
+    private boolean initialized;
 	
 
     /**
@@ -66,6 +80,23 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	public BeanTupleQueryFactory getQueryFactory() {
 		return queryFactory;
 	}
+	
+    /** Property Id used as item identifier 
+     * @return the keyPropertyId, or null if the default int index is used.
+     */
+    public Object getKeyPropertyId() {
+        return keyPropertyId;
+    }
+
+
+    /**
+     * If not null, use the property from the container as itemId
+     * If null, use the integer index from the underlying LazyQueryContainer
+     * @param keyPropertyId the keyPropertyId to set
+     */
+    public void setKeyPropertyId(Object keyPropertyId) {
+        this.keyPropertyId = keyPropertyId;
+    }
 
 	
 	/* ----------------------------------------------------------------------------------------
@@ -79,6 +110,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public void discard() {
+	    keyToId.clear();
 		lazyQueryView.discard();
 	}
 
@@ -99,10 +131,53 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 		return lazyQueryView.getBatchSize();
 	}
 
-	@Override
-	public Item getItem(int index) {
-		return lazyQueryView.getItem(index);
+	/**
+	 * Retrieve an item from the container.
+	 * <p>
+	 * If retrieving by key (setKeyPropertyId() has been called, the item must have been previously loaded.
+	 * </p><p>
+     * If an int is used as key, then we fallback to the LazyQueryContainer behavior for filling up
+     * the cache.
+     * </p>.
+	 * @param index which item to retrieve
+	 * @return the item, if found, or null if not.
+	 */
+	public Item getItem(Object index) {
+        if (!initialized) {
+            refresh();
+        }
+	    if (index.getClass() == int.class) {
+	        return getItem(index);
+	    } else if (keyPropertyId != null) {
+	        // find the id for the property and fetch.
+	        Integer intId = keyToId.get(index);
+	        if (intId != null) {
+	            Item item = lazyQueryView.getItem(intId);
+	            return item;
+	        } else {
+	            return null;
+	        }
+	    } else {
+	        // passed a non-integer but no key property is set.
+	        return null;
+	    }
+	    
 	}
+
+    /**
+     * @param index which item to retrieve
+     * @return the item, if found, or null if not.
+     */
+    @Override
+    public Item getItem(int index) {
+        if (!initialized) {
+            refresh();
+        }
+        // standard behavior of getItem.
+        Item item = lazyQueryView.getItem((Integer)index);
+        keyToId.put(item.getItemProperty(keyPropertyId),(Integer)index);
+        return item;
+    }
 
 	@Override
 	public int hashCode() {
@@ -119,6 +194,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	public void refresh() {
 	    queryDefinition.refresh();
 		lazyQueryView.refresh();
+		initialized = true;
 	}
 
 
@@ -155,8 +231,12 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public int size() {
-	    //return queryDefinition.getCountQuery().getSingleResult().intValue();
-		return lazyQueryView.size();
+	    if (! initialized) {
+	        refresh();
+	        size = lazyQueryView.size();
+	    }
+	    //logger.warn("size = {}",size);
+	    return size;
 	}
 
 
@@ -199,6 +279,28 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
     @Override
     public List<Item> getRemovedItems() {
         return lazyQueryView.getRemovedItems();
+    }
+
+
+    /**
+     * @return the ids for the items in the list.
+     */
+    public Collection<?> getItemIds() {
+        if (!initialized) {
+            refresh();
+        }
+        if (keyPropertyId != null) {
+            // we cannot operate in true lazy mode, we need to fetch all the keys from the query.
+            // next loop fills the cache and maps; fetching however is done by batches.
+            for (int i = 0; i < size();) {
+                getItem(i);
+                i++;
+            }
+            return Collections.unmodifiableCollection(keyToId.keySet());
+        } else {
+            return new NaturalNumbersList(size());
+        }
+        
     }
 	
 

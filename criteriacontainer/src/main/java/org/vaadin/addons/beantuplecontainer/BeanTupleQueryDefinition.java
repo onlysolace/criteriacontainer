@@ -149,7 +149,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/**
 	 * Reset the query definitions.
 	 */
-	public void refresh() {
+	@Override
+    public void refresh() {
     	countingQuery = criteriaBuilder.createQuery(Long.class);
     	root = defineQuery(criteriaBuilder, countingQuery);
     	mapProperties(countingQuery, countingExpressionMap, false);
@@ -159,6 +160,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
         defineQuery(criteriaBuilder, tupleQuery);
         mapProperties(tupleQuery, selectExpressionMap, true);
         addFilteringConditions(criteriaBuilder, tupleQuery, selectExpressionMap);
+        
+        initialized = true;
 	}
 
 
@@ -640,17 +643,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	}
 
 
-    /* (non-Javadoc)
-     * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#getPropertyIds()
-     */
-    @Override
-    public Collection<?> getPropertyIds() {
-        if (propertyIds.isEmpty()) {
-            refresh();
-        }
-        return super.getPropertyIds();
-    }
-    
+
     
     /* (non-Javadoc)
      * @see org.vaadin.addons.lazyquerycontainer.QueryDefinition#isCompositeItems()
