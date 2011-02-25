@@ -97,7 +97,10 @@ public abstract class AbstractEntityApplication extends Application implements C
 		int size = criteriaContainer.size();
 		if (size == 0 && TESTING) {
 			createEntities();
+			criteriaContainer.refresh();
+			size = criteriaContainer.size();
 		}
+		
 	
 		createTable(criteriaContainer);
 		table.setPageLength(0);

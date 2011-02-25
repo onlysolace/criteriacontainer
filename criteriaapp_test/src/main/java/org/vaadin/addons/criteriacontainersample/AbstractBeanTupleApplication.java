@@ -89,6 +89,9 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 		int size = criteriaContainer.size();
 		if (size == 0) {
 			createEntities();
+			// must refresh container to recompute size (table would be empty otherwise)
+			criteriaContainer.refresh();
+			size = criteriaContainer.size();
 		}
 
 		createTable(criteriaContainer);

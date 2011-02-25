@@ -132,7 +132,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.6</version>
+			<version>1.2.8</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
