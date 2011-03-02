@@ -16,10 +16,10 @@
 
 package org.vaadin.addons.beantuplecontainer;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,6 @@ import org.vaadin.addons.lazyquerycontainer.NaturalNumbersList;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 
@@ -67,7 +66,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
      * @param queryFactory The QueryFactory to be used.
      */
     public BeanTupleQueryView(final BeanTupleQueryDefinition queryDefinition, final BeanTupleQueryFactory queryFactory) {
-        logger.warn("creating BeanTupleQueryView {}",this);
     	this.queryFactory = queryFactory;
     	this.queryDefinition = queryDefinition;
         this.lazyQueryView = new LazyQueryView(queryDefinition, queryFactory);
@@ -190,7 +188,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
             // retrieve the value of the property that has been designated as key
             Object key = item.getItemProperty(getKeyPropertyId()).getValue();
             keyToId.put(key,(Integer)index);
-//            logger.warn("adding getKeyPropertyId={} key={}",getKeyPropertyId(),key);
         }
         return item;
     }
@@ -205,10 +202,8 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	@Override
 	public void refresh() {
 	    queryDefinition.refresh();
-//	    logger.warn("BeanTupleQueryView: {} refreshing {}", this, lazyQueryView);
 		lazyQueryView.refresh();
 		size = lazyQueryView.size();
-//		logger.warn("lazyQueryView.size() = {}",size());
 		initialized = true;
 	}
 
@@ -242,7 +237,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	@Override
 	public int size() {
 	    init();
-	    //logger.warn("size = {}",size);
 	    return size;
 	}
 
@@ -319,7 +313,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
         init();
         if (getKeyPropertyId() != null) {
             Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
-            logger.warn("getItemIds size={} itemIds={}",size,unmodifiableCollection);
             return unmodifiableCollection;
         } else {
             logger.warn("getItemIds size={}",size);
