@@ -28,6 +28,7 @@ import org.vaadin.addons.lazyquerycontainer.NaturalNumbersList;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 
@@ -43,6 +44,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 @SuppressWarnings("serial")
 public class BeanTupleQueryView implements QueryView, ValueChangeListener {
     
+    @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryView.class);
 
 	private BeanTupleQueryFactory queryFactory;
@@ -53,17 +55,19 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
     private Map<Object,Integer> keyToId = new HashMap<Object,Integer>();
     private int size;
 
-    private boolean initialized;
+    private boolean initialized = false;
 	
 
     /**
-     * Constructs LazyQueryView with given QueryDefinition and QueryFactory. The
-     * role of this constructor is to enable use of custom QueryDefinition
-     * implementations.
-     * @param queryDefinition The QueryDefinition to be used.
+     * Constructs LazyQueryView with given QueryDefinition and QueryFactory. 
+     * BeanTupleQueryView delegates as much as it can to a wrapped LazyQueryView, hence
+     * the need to conform to the constructor of the underlying implementation.
+     * 
+     * @param queryDefinition The QueryDefinition to be used (will be injected in queryFactory)
      * @param queryFactory The QueryFactory to be used.
      */
     public BeanTupleQueryView(final BeanTupleQueryDefinition queryDefinition, final BeanTupleQueryFactory queryFactory) {
+        logger.warn("creating BeanTupleQueryView {}",this);
     	this.queryFactory = queryFactory;
     	this.queryDefinition = queryDefinition;
         this.lazyQueryView = new LazyQueryView(queryDefinition, queryFactory);
@@ -95,7 +99,13 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
      * @param keyPropertyId the keyPropertyId to set
      */
     public void setKeyPropertyId(Object keyPropertyId) {
-        this.keyPropertyId = keyPropertyId;
+        queryDefinition.init();
+        if (queryDefinition.getPropertyIds().contains(keyPropertyId)) {
+            this.keyPropertyId = keyPropertyId;    
+        } else {
+            throw new javax.persistence.PersistenceException("Query does not define property "+keyPropertyId);
+        }
+        
     }
 
 	
@@ -143,16 +153,19 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	 * @return the item, if found, or null if not.
 	 */
 	public Item getItem(Object index) {
-        if (!initialized) {
-            refresh();
-        }
-	    if (index.getClass() == int.class) {
+	    init();
+	    
+	    Class<? extends Object> clasz = index.getClass();
+        if (clasz == int.class)  {
 	        return getItem(index);
-	    } else if (keyPropertyId != null) {
+	    } else if (clasz == Integer.class && getKeyPropertyId() == null) {
+	        return getItem(((Integer) index).intValue());
+	    } else if (getKeyPropertyId() != null) {
 	        // find the id for the property and fetch.
 	        Integer intId = keyToId.get(index);
 	        if (intId != null) {
-	            Item item = lazyQueryView.getItem(intId);
+	            // we must use the int value otherwise we create a loop.
+	            Item item = lazyQueryView.getItem(intId.intValue());
 	            return item;
 	        } else {
 	            return null;
@@ -170,19 +183,18 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
      */
     @Override
     public Item getItem(int index) {
-        if (!initialized) {
-            refresh();
-        }
+        init();
         // standard behavior of getItem.
         Item item = lazyQueryView.getItem((Integer)index);
-        keyToId.put(item.getItemProperty(keyPropertyId),(Integer)index);
+        if (getKeyPropertyId() != null) {
+            // retrieve the value of the property that has been designated as key
+            Object key = item.getItemProperty(getKeyPropertyId()).getValue();
+            keyToId.put(key,(Integer)index);
+//            logger.warn("adding getKeyPropertyId={} key={}",getKeyPropertyId(),key);
+        }
         return item;
     }
 
-	@Override
-	public int hashCode() {
-		return lazyQueryView.hashCode();
-	}
 
 	@Override
 	public void sort(Object[] sortPropertyIds, boolean[] ascendingStates) {
@@ -193,7 +205,10 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	@Override
 	public void refresh() {
 	    queryDefinition.refresh();
+//	    logger.warn("BeanTupleQueryView: {} refreshing {}", this, lazyQueryView);
 		lazyQueryView.refresh();
+		size = lazyQueryView.size();
+//		logger.warn("lazyQueryView.size() = {}",size());
 		initialized = true;
 	}
 
@@ -214,11 +229,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	}
 
 	@Override
-	public String toString() {
-		return lazyQueryView.toString();
-	}
-
-	@Override
 	public void valueChange(ValueChangeEvent event) {
 		lazyQueryView.valueChange(event);
 	}
@@ -231,13 +241,33 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 
 	@Override
 	public int size() {
-	    if (! initialized) {
-	        refresh();
-	        size = lazyQueryView.size();
-	    }
+	    init();
 	    //logger.warn("size = {}",size);
 	    return size;
 	}
+
+
+    /**
+     * Initialization.
+     */
+    private void init() {
+        if (! initialized) {
+	        queryDefinition.init();
+	        size = lazyQueryView.size();
+	        initialized = true;
+	           
+	        // initialized must be true at this point so we don't loop
+	        if (getKeyPropertyId() != null) {
+	            // naive version fetches all items to populate keyToId();
+	            for (int i = 0; i < size;) {
+	                getItem((int) i);
+	                i++;
+	            }
+	            getItemIds();
+	        }
+
+	    }
+    }
 
 
     @Override
@@ -286,23 +316,51 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
      * @return the ids for the items in the list.
      */
     public Collection<?> getItemIds() {
-        if (!initialized) {
-            refresh();
-        }
-        if (keyPropertyId != null) {
-            // we cannot operate in true lazy mode, we need to fetch all the keys from the query.
-            // next loop fills the cache and maps; fetching however is done by batches.
-            for (int i = 0; i < size();) {
-                getItem(i);
-                i++;
-            }
-            return Collections.unmodifiableCollection(keyToId.keySet());
+        init();
+        if (getKeyPropertyId() != null) {
+            Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
+            logger.warn("getItemIds size={} itemIds={}",size,unmodifiableCollection);
+            return unmodifiableCollection;
         } else {
-            return new NaturalNumbersList(size());
+            logger.warn("getItemIds size={}",size);
+            return new NaturalNumbersList(size);            
         }
         
     }
-	
 
+
+    /**
+     * @param index the index inside the container.
+     * @return the Id associated with container item index
+     */
+    public Object getIdByIndex(int index) {
+        init();
+        if (getKeyPropertyId() != null) {
+            Item item = getItem(index);
+            if (item != null) {
+                return item.getItemProperty(getKeyPropertyId());
+            } else {
+                return null;
+            }
+        } else {
+            return index;
+        }
+    }
+
+
+    /**
+     * @param itemId the item being sought
+     * @return true if present -- also true if removed and not yet committed.
+     */
+    public boolean containsId(Object itemId) {
+        init();
+        if (getKeyPropertyId() != null) {
+            return null != keyToId.get(itemId);
+        } else if (itemId.getClass() == Integer.class) {
+            return size() > (Integer) itemId && (Integer) itemId >= 0;
+        } else {
+            return false;
+        }
+    }
 
 }

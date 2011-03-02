@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5-SNAPSHOT</version>
+			<version>6.5.1</version>
 		</dependency>
 		<!-- we put this dependency first so it satisfies javax.persistance this 
 			version provides the javadoc -->
@@ -106,7 +106,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.8</version>
+			<version>1.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

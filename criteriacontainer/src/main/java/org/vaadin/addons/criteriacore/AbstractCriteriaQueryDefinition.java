@@ -47,7 +47,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  */
 public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinition {
 
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     final static private Logger logger = LoggerFactory.getLogger(AbstractCriteriaQueryDefinition.class);
 	
 	/** 
@@ -165,7 +165,6 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
         if (propertyIds == null) {
             propertyIds = new ArrayList<Object>();
         }
-        logger.warn("adding property {}",propertyId);
         propertyIds.add(propertyId);
         propertyTypes.put(propertyId, type);
         defaultValues.put(propertyId, defaultValue);
