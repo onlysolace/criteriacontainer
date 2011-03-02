@@ -249,17 +249,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	        queryDefinition.init();
 	        size = lazyQueryView.size();
 	        initialized = true;
-	           
-	        // initialized must be true at this point so we don't loop
-	        if (getKeyPropertyId() != null) {
-	            // naive version fetches all items to populate keyToId();
-	            for (int i = 0; i < size;) {
-	                getItem((int) i);
-	                i++;
-	            }
-	            getItemIds();
-	        }
-
 	    }
     }
 
@@ -311,11 +300,22 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
      */
     public Collection<?> getItemIds() {
         init();
+
+        if (getKeyPropertyId() != null) {
+            // getItem() can now use a key and not an int sequence number,
+            // so the query does what range of results to retrieve.
+            // first cut, naive version fetches all items to populate keyToId();
+            for (int i = 0; i < size;) {
+                getItem((int) i);
+                i++;
+            }
+        }
+
         if (getKeyPropertyId() != null) {
             Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
             return unmodifiableCollection;
         } else {
-            logger.warn("getItemIds size={}",size);
+//            logger.warn("getItemIds size={}",size);
             return new NaturalNumbersList(size);            
         }
         
