@@ -129,6 +129,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
      */
     @Override
     public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
+        init();
         String propertyId = attr.getName();
         if (propertyIds.contains(propertyId)) {
             return propertyId;
@@ -149,6 +150,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
      */
     @Override
     public String getPropertyId(String alias, SingularAttribute<?, ?> attr) {
+        init();
         String propertyId = attr.getName();
         if (propertyIds.contains(propertyId)) {
             return propertyId;

@@ -164,15 +164,22 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
         initialized = true;
 	}
 
+	/**
+	 * Initial setup, once only.
+	 */
+	public void init() {
+	    if (!initialized) {
+	        refresh();
+	        initialized = true;
+	    }
+	}
 
 	/**
 	 * @return a query with the applicable sorting options applied
 	 */
 	@Override
 	public TypedQuery<Tuple> getSelectQuery() {
-	    if (tupleQuery == null) {
-	        refresh();
-	    }
+	    init();
 	    
 		// apply the ordering defined by the container on the returned entity.
 		final List<Order> ordering = getOrdering(selectExpressionMap);
@@ -195,9 +202,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
 	public TypedQuery<Long> getCountQuery() {
-	    if (countingQuery == null) {
-	        refresh();
-	    }
+	    init();
 
 	    // we only want the count so we override the selection in the query
 	    countingQuery.orderBy();
@@ -617,6 +622,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return a propertyId if it has been found in the defined properties, null if not.
 	 */
 	public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
+	    init();
 		Class<?> entityType = metamodelType.getAnnotation(StaticMetamodel.class).value();
 		String propertyId = entityType.getSimpleName()+"."+attr.getName();
 		if (propertyIds.contains(propertyId)) {
@@ -634,6 +640,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return a propertyId if it has been found in the defined properties, null if not.
 	 */
 	public String getPropertyId(String alias, SingularAttribute<?, ?> attr) {
+	    init();
 		String propertyId = alias+"."+attr.getName();
 		if (propertyIds.contains(propertyId)) {
 			return propertyId;

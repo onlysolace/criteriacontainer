@@ -100,8 +100,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public void filter(LinkedList<FilterRestriction> restrictions) {
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
         critQueryDefinition.setFilters(restrictions);
-        queryView.refresh(); // also refreshes critQueryDefinition.
-        refresh(); // refresh the container.
+        refresh(); // refresh the queryView and the queryDefinition container.
 	}
 
 	/* ----- LazyQueryContainer methods delegated to the wrapped LazyQueryContainer -----------------------
@@ -187,7 +186,9 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Property getContainerProperty(Object itemId, Object propertyId) {
-		return lazyQueryContainer.getContainerProperty(itemId, propertyId);
+	    Item item = queryView.getItem(itemId);
+	    if (item == null) return null;
+        return item.getItemProperty(propertyId);
 	}
 
 
@@ -196,7 +197,11 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Object getIdByIndex(int index) {
-		return lazyQueryContainer.getIdByIndex(index);
+	    if (queryView.getKeyPropertyId() == null) {
+	        return lazyQueryContainer.getIdByIndex(index);
+	    } else {
+	        return queryView.getIdByIndex(index);
+	    }
 	}
 
 
@@ -205,7 +210,11 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final boolean containsId(Object itemId) {
-		return lazyQueryContainer.containsId(itemId);
+	    if (queryView.getKeyPropertyId() != null) {
+	        return queryView.containsId(itemId);
+	    } else {
+	        return lazyQueryContainer.containsId(itemId);
+	    }
 	}
 
 
@@ -509,6 +518,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Collection<?> getContainerPropertyIds() {
+	    queryView.getQueryDefinition().init();
 		Collection<?> containerPropertyIds = lazyQueryContainer.getContainerPropertyIds();
         return containerPropertyIds;
 	}
