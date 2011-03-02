@@ -102,7 +102,7 @@ public class BeanTupleItemHelper implements Query {
 	public int size() {
         if (querySize == -1) {
             querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
-            logger.warn("computed size = {}",querySize);
+//            logger.warn("computed size = {}",querySize);
         } else {
 //            logger.warn("stored size = {}",querySize);
         }
