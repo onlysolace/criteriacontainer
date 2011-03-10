@@ -28,15 +28,27 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 public class BeanTupleQueryFactory implements QueryFactory {
 	/** the query definition */
 	protected BeanTupleQueryDefinition queryDefinition;
+	/** beanTupleQueryView Holds cache id to key mappings. */
+    protected KeyToIdMapper beanTupleQueryView;
 	
+
+    @Override
+    public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
+        if (beanTupleQueryView == null) {
+            throw new RuntimeException("BeanTupleQueryFactory not initialized: setKeyToIdMapper() was not called.");
+        }
+        return new BeanTupleItemHelper(queryDefinition,beanTupleQueryView);
+    }
 
 	@Override
 	public void setQueryDefinition(QueryDefinition queryDefinition) {
 		this.queryDefinition = (BeanTupleQueryDefinition) queryDefinition;
 	}
 
-	@Override
-	public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-		return new BeanTupleItemHelper(queryDefinition);
-	}
+    /**
+     * @param keyToIdMapHolder where a map of keys to Ids can be kept.
+     */
+    public void setKeyToIdMapper(KeyToIdMapper keyToIdMapHolder) {
+        this.beanTupleQueryView = keyToIdMapHolder;       
+    }
 }

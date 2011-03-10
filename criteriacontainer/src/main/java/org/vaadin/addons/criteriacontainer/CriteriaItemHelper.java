@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.beantuplecontainer.BeanTupleItemHelper;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
+import org.vaadin.addons.beantuplecontainer.KeyToIdMapper;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
@@ -50,9 +51,10 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
 
     /**
      * @param criteriaQueryDefinition the definition for the query
+     * @param beanTupleQueryView Holds cache id to key mappings.
      */
-    public CriteriaItemHelper(BeanTupleQueryDefinition criteriaQueryDefinition) {
-        super(criteriaQueryDefinition);
+    public CriteriaItemHelper(BeanTupleQueryDefinition criteriaQueryDefinition, KeyToIdMapper beanTupleQueryView) {
+        super(criteriaQueryDefinition, beanTupleQueryView);
         entityClass = queryDefinition.getEntityClass();
     }
 
@@ -66,14 +68,21 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
     @SuppressWarnings("unchecked")
     @Override
     public List<Item> loadItems(final int startIndex, final int count) {
-        getSelectQuery().setFirstResult(startIndex);
-        getSelectQuery().setMaxResults(count);
-
+        if (startIndex > 0 && count > 0) {
+            getSelectQuery().setFirstResult(startIndex);
+            getSelectQuery().setMaxResults(count);
+        }
+        Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
+        
         List<?> entities = getSelectQuery().getResultList();
         List<Item> items = new ArrayList<Item>();
+        int curCount = 0;
         for (Object entity : entities) {
             T curEntity = (T) ((Tuple) entity).get(0);
-            items.add(toItem(curEntity));
+            Item item = toItem(curEntity);
+            items.add(item);
+            addToMapping(item, keyPropertyId, startIndex+curCount);
+            curCount++;
         }
         return items;
     }

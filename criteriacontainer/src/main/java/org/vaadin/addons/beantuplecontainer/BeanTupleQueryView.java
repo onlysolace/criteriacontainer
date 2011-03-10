@@ -41,7 +41,7 @@ import com.vaadin.data.Property.ValueChangeListener;
  * 
  */
 @SuppressWarnings("serial")
-public class BeanTupleQueryView implements QueryView, ValueChangeListener {
+public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyToIdMapper {
     
     @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryView.class);
@@ -49,9 +49,10 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	private BeanTupleQueryFactory queryFactory;
 	private BeanTupleQueryDefinition queryDefinition;
 	private LazyQueryView lazyQueryView;
+	
     private Object keyPropertyId;
-
     private Map<Object,Integer> keyToId = new HashMap<Object,Integer>();
+
     private int size;
 
     private boolean initialized = false;
@@ -86,6 +87,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
     /** Property Id used as item identifier 
      * @return the keyPropertyId, or null if the default int index is used.
      */
+    @Override
     public Object getKeyPropertyId() {
         return keyPropertyId;
     }
@@ -152,12 +154,16 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
 	 */
 	public Item getItem(Object index) {
 	    init();
+	    if (index == null) return null;
 	    
 	    Class<? extends Object> clasz = index.getClass();
+
         if (clasz == int.class)  {
-	        return getItem(index);
+            int intIndex = ((Integer) index).intValue();
+            return getItem(intIndex);
 	    } else if (clasz == Integer.class && getKeyPropertyId() == null) {
-	        return getItem(((Integer) index).intValue());
+	        int intIndex = ((Integer) index).intValue();
+	        return getItem(intIndex);
 	    } else if (getKeyPropertyId() != null) {
 	        // find the id for the property and fetch.
 	        Integer intId = keyToId.get(index);
@@ -183,12 +189,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
     public Item getItem(int index) {
         init();
         // standard behavior of getItem.
-        Item item = lazyQueryView.getItem((Integer)index);
-        if (getKeyPropertyId() != null) {
-            // retrieve the value of the property that has been designated as key
-            Object key = item.getItemProperty(getKeyPropertyId()).getValue();
-            keyToId.put(key,(Integer)index);
-        }
+        Item item = lazyQueryView.getItem(index);
         return item;
     }
 
@@ -302,8 +303,8 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
         init();
 
         if (getKeyPropertyId() != null) {
-            // getItem() can now use a key and not an int sequence number,
-            // so the query does what range of results to retrieve.
+            // getItem() now uses an arbitrary key and not an int sequence number,
+            // so the query does not know what range of results to retrieve.
             // first cut, naive version fetches all items to populate keyToId();
             for (int i = 0; i < size;) {
                 getItem((int) i);
@@ -315,7 +316,6 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
             Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
             return unmodifiableCollection;
         } else {
-//            logger.warn("getItemIds size={}",size);
             return new NaturalNumbersList(size);            
         }
         
@@ -331,7 +331,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
         if (getKeyPropertyId() != null) {
             Item item = getItem(index);
             if (item != null) {
-                return item.getItemProperty(getKeyPropertyId());
+                return item.getItemProperty(getKeyPropertyId()).getValue();
             } else {
                 return null;
             }
@@ -356,4 +356,11 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener {
         }
     }
 
+    /**
+     * @return the keyToId
+     */
+    @Override
+    public Map<Object, Integer> getKeyToId() {
+        return keyToId;
+    }
 }

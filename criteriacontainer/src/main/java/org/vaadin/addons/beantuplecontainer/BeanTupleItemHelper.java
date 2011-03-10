@@ -58,14 +58,18 @@ public class BeanTupleItemHelper implements Query {
     /** The size of the query. */
     private int querySize = -1;
 
+    /** Cache from keys to container index. */
+    protected KeyToIdMapper keyToIdMapper;
+
 
     /**
      * Constructor for configuring the query.
      * @param criteriaQueryDefinition The entity query definition..
+     * @param keyToIdMapper Holds cache id to key mappings.
      */
-    public BeanTupleItemHelper(final BeanTupleQueryDefinition criteriaQueryDefinition) {
+    public BeanTupleItemHelper(final BeanTupleQueryDefinition criteriaQueryDefinition, KeyToIdMapper keyToIdMapper) {
         this.queryDefinition = criteriaQueryDefinition;
-        
+        this.keyToIdMapper = keyToIdMapper;
         this.entityManager = queryDefinition.getEntityManager();
         this.selectQuery = criteriaQueryDefinition.getSelectQuery();
         this.selectCountQuery = criteriaQueryDefinition.getCountQuery();
@@ -96,21 +100,27 @@ public class BeanTupleItemHelper implements Query {
 
     /**
      * Number of beans returned by query.
+     * <p>
+     * This method is called extremely often.  We store the result to avoid 
+     * invoking the query.
+     * </p>
+     * 
      * @return number of beans.
      */
     @Override
 	public int size() {
         if (querySize == -1) {
             querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
-//            logger.warn("computed size = {}",querySize);
-        } else {
-//            logger.warn("stored size = {}",querySize);
         }
         return querySize;
     }
 
     /**
      * Load batch of items.
+     * <p>
+     * This is the only location where we actually retrieve items from
+     * the database.
+     * </p>
      * @param startIndex Starting index of the item list.
      * @param count Count of the items to be retrieved.
      * @return List of items.
@@ -119,13 +129,36 @@ public class BeanTupleItemHelper implements Query {
 	public List<Item> loadItems(final int startIndex, final int count) {
         selectQuery.setFirstResult(startIndex);
         selectQuery.setMaxResults(count);
-
+        Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
+        
         List<?> tuples = selectQuery.getResultList();
         List<Item> items = new ArrayList<Item>();
+        int curCount = 0;
         for (Object entity : tuples) {
-            items.add(toItem((Tuple) entity));
+            Item item = toItem((Tuple) entity);
+            items.add(item);
+            if (keyPropertyId != null) {
+                addToMapping(item, keyPropertyId, startIndex+curCount);
+            }
+            curCount++;
         }
         return items;
+    }
+
+
+    /**
+     * Call back to the cache(s).
+     * <p>The view can maintain a cache or mappings of what it has retrieved. In
+     * the current implementation, we map the keys to their corresponding index
+     * in the container</p>
+     * 
+     * @param item the item being added
+     * @param keyPropertyId the key being used (the real key from the database)
+     * @param index the index in the container 
+     */
+    protected void addToMapping(Item item, Object keyPropertyId, final int index) {
+            Object value = item.getItemProperty(keyPropertyId).getValue();
+            keyToIdMapper.getKeyToId().put(value, index);
     }
 
     
