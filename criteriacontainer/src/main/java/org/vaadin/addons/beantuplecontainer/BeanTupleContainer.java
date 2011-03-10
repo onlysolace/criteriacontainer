@@ -70,7 +70,10 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
      * @param cd the definition of the query
      */
     public BeanTupleContainer(BeanTupleQueryDefinition cd){
-    	queryView = new BeanTupleQueryView(cd,new BeanTupleQueryFactory());
+    	BeanTupleQueryFactory queryFactory = new BeanTupleQueryFactory();
+        queryView = new BeanTupleQueryView(cd,queryFactory);
+        // query factory must know its view
+        queryFactory.setKeyToIdMapper(queryView);
 		lazyQueryContainer = new LazyQueryContainer(queryView);
     }
 	
@@ -81,6 +84,8 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
     public BeanTupleContainer(BeanTupleQueryView qv){
         queryView = qv;
         lazyQueryContainer = new LazyQueryContainer(queryView);
+        // query factory must know its view
+        queryView.getQueryFactory().setKeyToIdMapper(queryView);
     }
 
 
@@ -180,6 +185,16 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		return queryView.getItem(itemId);
 	}
 
+
+    /**
+     * @param itemId the index inside the container
+     * @return the item found
+     */
+    public final Item getItem(int itemId) {
+        // we call directly the view method to avoid the cast to Integer
+        // that the lazy container does.
+        return queryView.getItem(itemId);
+    }
 
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container#getContainerProperty(java.lang.Object, java.lang.Object)
@@ -553,6 +568,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
      */
     public void setKeyPropertyId(Object keyId) {
         queryView.setKeyPropertyId(keyId);
+        queryView.refresh();
     }
     
     /**

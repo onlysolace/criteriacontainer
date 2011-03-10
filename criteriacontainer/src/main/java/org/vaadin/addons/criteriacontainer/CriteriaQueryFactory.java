@@ -27,9 +27,12 @@ import org.vaadin.addons.lazyquerycontainer.Query;
  * @param <T> the type of the entity that the query will return
  */
 public class CriteriaQueryFactory<T> extends BeanTupleQueryFactory {
-
+    
     @Override
     public Query constructQuery(Object[] sortPropertyIds, boolean[] sortStates) {
-        return new CriteriaItemHelper<T>(queryDefinition);
+        if (beanTupleQueryView == null) {
+            throw new RuntimeException("BeanTupleQueryFactory not initialized: setKeyToIdMapper() was not called.");
+        }
+        return new CriteriaItemHelper<T>(queryDefinition,beanTupleQueryView);
     }
 }
