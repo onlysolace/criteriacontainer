@@ -15,6 +15,7 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
+import java.text.MessageFormat;
 import java.util.LinkedList;
 
 import javax.persistence.EntityManager;
@@ -28,6 +29,9 @@ import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
 import org.vaadin.addons.criteriacore.FilterRestriction;
+
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 
 /**
  * Example application demonstrating how to implement
@@ -98,9 +102,13 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 	 */
 	@Override
 	protected CriteriaContainer<Task> createTaskContainer() {
-		cd = new CustomFilteringQueryDefinition(entityManager,true,100);
-		
+		cd = new CustomFilteringQueryDefinition(entityManager,true,10);
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
+		
+		// define the key so that getValue() returns the taskId column (a "Long")
+		// and not the index.  This allows using the selected value as a foreign key.
+        String keyName = Task_.taskId.getName();
+        taskContainer.setKeyPropertyId(keyName);
 		addContainerProperties(taskContainer);
 		return taskContainer;
 	}
@@ -129,6 +137,7 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
      */
     @Override
     protected void defineTableColumns() {
+        
         visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
         visibleColumnLabels.add("Task ID");
         
@@ -140,6 +149,22 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
         
         table.setVisibleColumns(visibleColumnIds.toArray());
         table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
+        
+        table.setMultiSelect(false);
+        table.addListener(new Property.ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                // the value of a table is the set of selected items.
+                // the container is set to return the taskId (Long) for each row
+                Property property = event.getProperty();
+                if (property != null){
+                    Object selectedId = property.getValue();
+                    getMainWindow().showNotification(MessageFormat.format("selected value {0} {1}",selectedId,selectedId.getClass()));
+                }
+
+            }
+        });
     }
 
 }

@@ -133,15 +133,17 @@ public abstract class AbstractEntityApplication extends Application implements C
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 		
-		for (int i=0; i<10000; i++) {
+		for (int i=0; i<120; i++) {
 			Task task = new Task();
-			task.setName("task-"+Integer.toString(i));
-			task.setAssignee("assignee-"+Integer.toString(i));
-			task.setReporter("reporter-"+Integer.toString(i));
-			task.setAlpha(Integer.toString(i));
-			task.setBeta(Integer.toString(i));
-			task.setGamma(Integer.toString(i));
-			task.setDelta(Integer.toString(i));
+			String suffix = (char)('a' + (i / 10)) + Integer.toString(i % 10);
+            String name = "task-"+suffix;
+            task.setName(name);
+			task.setAssignee("assignee-"+suffix);
+			task.setReporter("reporter-"+suffix);
+			task.setAlpha(suffix);
+			task.setBeta(suffix);
+			task.setGamma(suffix);
+			task.setDelta(suffix);
 			
 			entityManager.persist(task);
 		}
@@ -304,7 +306,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 	
 		table.setImmediate(true);
 		table.setEditable(false);
-		table.setMultiSelect(true);
+		table.setMultiSelect(false);
 		table.setMultiSelectMode(MultiSelectMode.DEFAULT);
 		table.setSelectable(true);
 		table.setWriteThrough(true);
