@@ -13,15 +13,7 @@
 	</properties>
 
 	<description>An extension to the Vaadin LazyQueryContainer add-on. Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.</description>
-	
-	<distributionManagement>
-		<repository>
-			<id>XWAVE-Artifactory</id>
-			<name>XWAVE-Artifactory-releases</name>
-			<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
-		</repository>
-	</distributionManagement>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -51,40 +43,93 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+	<profiles>
+		<profile>
+			<id>artifactory</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>DSQ</id>
+					<name>repo</name>
+					<url>http://172.206.0.80:8080/artifactory/repo/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>DSQ</id>
+					<name>repo</name>
+					<url>http://172.206.0.80:8080/artifactory/repo/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>XWAVE-Artifactory</id>
+					<name>XWAVE-Artifactory-releases</name>
+					<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
+				</repository>
+			</distributionManagement>
+		</profile>	
+		<profile>
+			<!-- Activate this profile if running without a local caching repository 
+				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<id>useExternalRepositories</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>jboss-public-repository-group</id>
+					<name>JBoss Public Maven Repository Group</name>
+					<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+					<layout>default</layout>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>vaadin-snapshots</id>
+					<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>vaadin-addons</id>
+					<url>http://maven.vaadin.com/vaadin-addons</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
@@ -93,7 +138,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5.1</version>
+			<version>6.5.3</version>
 		</dependency>
 		<!-- we put this dependency first so it satisfies javax.persistance this 
 			version provides the javadoc -->
@@ -121,9 +166,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.6.1</version>
-			<type>jar</type>
 		</dependency>
-
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
