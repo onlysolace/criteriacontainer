@@ -115,7 +115,7 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
     @SuppressWarnings("unchecked")
     public T getEntity(final int index) {
         @SuppressWarnings("rawtypes")
-        final BeanItem item = (BeanItem) getItem(new Integer(index));
+        final BeanItem item = (BeanItem) getItem(index);
         return (T) item.getBean();
     }
 
