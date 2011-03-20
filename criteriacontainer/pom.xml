@@ -56,11 +56,11 @@
 					<url>http://172.206.0.80:8080/artifactory/repo/</url>
 					<releases>
 						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
+						<updatePolicy>always</updatePolicy>
 					</releases>
 					<snapshots>
 						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
+						<updatePolicy>always</updatePolicy>
 					</snapshots>
 				</repository>
 			</repositories>
@@ -92,7 +92,7 @@
 				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
 			<id>useExternalRepositories</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<repositories>
 				<repository>
@@ -160,7 +160,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.7</version>
+			<version>1.2.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
