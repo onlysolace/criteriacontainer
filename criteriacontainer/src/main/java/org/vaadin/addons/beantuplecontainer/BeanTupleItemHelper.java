@@ -157,8 +157,13 @@ public class BeanTupleItemHelper implements Query {
      * @param index the index in the container 
      */
     protected void addToMapping(Item item, Object keyPropertyId, final int index) {
+        if (keyPropertyId != null) {
             Object value = item.getItemProperty(keyPropertyId).getValue();
             keyToIdMapper.getKeyToId().put(value, index);
+        } else {
+            // identity mapping, as precaution
+            keyToIdMapper.getKeyToId().put(index, index);
+        }
     }
 
     
