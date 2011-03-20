@@ -1,5 +1,5 @@
-#Fri Mar 18 13:36:51 EDT 2011
-activeProfiles=artifactory,\!useExternalRepositories
+#Sat Mar 19 15:25:05 EDT 2011
+activeProfiles=artifactory
 eclipse.preferences.version=1
 fullBuildGoals=process-test-resources
 resolveWorkspaceProjects=true
