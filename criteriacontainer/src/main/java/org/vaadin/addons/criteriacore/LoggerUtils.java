@@ -40,4 +40,14 @@ public class LoggerUtils {
         t.printStackTrace(new PrintWriter(sw));
         logger.info(sw.toString());
     }
+    
+    /**
+     * @param logger the logger to use
+     * @param t the exception to report
+     */
+    public static void logErrorException(Logger logger, Throwable t) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        logger.error(sw.toString());
+    }
 }
