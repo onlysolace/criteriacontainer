@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.8-a</version>
+			<version>1.2.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
