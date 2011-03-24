@@ -1,5 +1,14 @@
 #summary Release Notes
 
+== Release 0.4.6 ==
+  * CriteriaContainer now supports nested retrieval
+        container.addContainerProperty("assignee.class",...);
+        table.setVisibleColumn("assignee.class");
+    The items of the container will then include the value of assignee.getClass()
+    Any string that can be understood by Jakarta PropertyUtils.getProperty can be
+    used (e.g. person.address.zipcode or even person.children[0])
+    However, there must be an accessor (getX() or isX()) for this to work.
+
 == Release 0.4.5 ==
   * setKeyPropertyId() can be used to state that the container should return a key
     from the underlying data source instead of the index in the container. For example
