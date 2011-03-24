@@ -35,8 +35,7 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.ObjectProperty;
 
 /**
- * Entity query implementation which dynamically injects missing query
- * definition properties to CompositeItems.
+ * Load batches of entities and create corresponding items. 
  * 
  * @author Jean-François Lamy
  * 
@@ -145,15 +144,14 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
 
     
     /**
-     * Converts bean to Item. Implemented by encapsulating the Bean
-     * first to BeanItem and then to CompositeItem.
+     * Converts bean to Item.
      * @param entity bean to be converted.
      * @return item converted from bean.
      */
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
     protected Item toItem(final T entity) {
-        BeanItem<T> beanItem = new BeanItem<T>(entity);
+        BeanItem<T> beanItem = new NestedBeanItem<T>(entity);
 
         for (Object propertyId : queryDefinition.getPropertyIds()) {
             if (beanItem.getItemProperty(propertyId) == null) {
