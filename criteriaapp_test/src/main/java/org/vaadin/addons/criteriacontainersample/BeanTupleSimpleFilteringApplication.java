@@ -89,6 +89,8 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 	
 	@Override
 	protected void defineTableColumns() {
+	    // getPropertyId is used so we don't have to look at defineQuery() to figure
+	    // out if aliases were used; this also makes things type safe if we rename a field.
 		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
 		visibleColumnLabels.add("Task ID");
 		
