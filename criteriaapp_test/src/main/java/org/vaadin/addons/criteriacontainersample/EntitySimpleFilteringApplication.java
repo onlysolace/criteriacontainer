@@ -89,7 +89,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         taskContainer.addContainerProperty(
                 Task_.assignee.getName()+".class",
                 Class.class,
-                0,
+                null,
                 true,
                 false);
     }
