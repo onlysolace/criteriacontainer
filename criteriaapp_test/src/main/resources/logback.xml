@@ -9,6 +9,7 @@
 			</Pattern>
 			</layout>
 		</encoder>
+		<target>System.out</target>
 	</appender>
 
 	<logger name="com" level="INFO" />

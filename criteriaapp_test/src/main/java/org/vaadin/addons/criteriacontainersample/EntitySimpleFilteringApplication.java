@@ -85,7 +85,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
      */
     @Override
     protected void defineTableColumns() {
-        visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
+        //visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
         
         visibleColumnIds.add(Task_.taskId.getName());
         visibleColumnIds.add(Task_.name.getName());
