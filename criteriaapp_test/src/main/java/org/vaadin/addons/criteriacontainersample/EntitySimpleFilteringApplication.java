@@ -81,6 +81,19 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	}
 
 	/**
+     * @param taskContainer
+     */
+    @Override
+    protected void addContainerProperties(CriteriaContainer<Task> taskContainer) {
+        // we want assignee.hashcode to be a property (computed as a nested property)
+        taskContainer.addContainerProperty(
+                Task_.assignee.getName()+".hashCode",
+                Integer.class,
+                0,
+                true,
+                false);
+    }
+	/**
      * define the columns visible and the order in which they appear.
      */
     @Override
@@ -90,14 +103,17 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         visibleColumnIds.add(Task_.taskId.getName());
         visibleColumnIds.add(Task_.name.getName());
         visibleColumnIds.add(Task_.reporter.getName());
-        visibleColumnIds.add(Task_.assignee.getName());
+        String assigneeName = Task_.assignee.getName();
+        visibleColumnIds.add(assigneeName);
+        visibleColumnIds.add(assigneeName+".hashCode");
 
 
-        visibleColumnLabels.add("");
+        //visibleColumnLabels.add("");
         visibleColumnLabels.add("Task ID");
         visibleColumnLabels.add("Name");
         visibleColumnLabels.add("Reporter");
         visibleColumnLabels.add("Assignee");
+        visibleColumnLabels.add("Nested Access");
         
         //computedColumns();
 
