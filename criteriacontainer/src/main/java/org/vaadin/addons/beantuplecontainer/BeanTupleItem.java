@@ -178,7 +178,7 @@ public final class BeanTupleItem extends PropertysetItem {
 				retVal = retrieveNestedProperty(propertyId, dotIndex);
 			}
 		}
-		//logger.warn("sought id={} property={} value={}",new Object[]{id,retVal,(retVal != null ? retVal.getValue() : "n/a")});
+		//logger.debug("sought id={} property={} value={}",new Object[]{id,retVal,(retVal != null ? retVal.getValue() : "n/a")});
 		return retVal;
 	}
 

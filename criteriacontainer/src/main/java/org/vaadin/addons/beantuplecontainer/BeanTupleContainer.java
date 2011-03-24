@@ -201,6 +201,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Property getContainerProperty(Object itemId, Object propertyId) {
+	    //logger.debug("itemId={} size={}",itemId,size());
 	    Item item = queryView.getItem(itemId);
 	    if (item == null) return null;
         return item.getItemProperty(propertyId);
