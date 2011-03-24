@@ -144,42 +144,70 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
 	/**
 	 * Retrieve an item from the container.
 	 * <p>
-	 * If retrieving by key (setKeyPropertyId() has been called, the item must have been previously loaded.
+	 * If retrieving by key (i.e. setKeyPropertyId() has been called), the item must have been previously loaded.
 	 * </p><p>
      * If an int is used as key, then we fallback to the LazyQueryContainer behavior for filling up
      * the cache.
      * </p>.
-	 * @param index which item to retrieve
+	 * @param id which item to retrieve
 	 * @return the item, if found, or null if not.
 	 */
-	public Item getItem(Object index) {
+	public Item getItem(Object id) {
 	    init();
-	    if (index == null) return null;
-	    
-	    Class<? extends Object> clasz = index.getClass();
+	    if (id == null) return null;
 
+	    if (getKeyPropertyId() != null) {
+	        return keyedAccess(id);
+        } else {
+            return indexedAccess(id);
+        }
+	}
+
+
+    /**
+     * @param index
+     * @return
+     */
+    private Item indexedAccess(Object index) {
+        // key property not set, expecting an integer
+        Class<?> clasz = index.getClass();
         if (clasz == int.class)  {
             int intIndex = ((Integer) index).intValue();
             return getItem(intIndex);
-	    } else if (clasz == Integer.class && getKeyPropertyId() == null) {
-	        int intIndex = ((Integer) index).intValue();
-	        return getItem(intIndex);
-	    } else if (getKeyPropertyId() != null) {
-	        // find the id for the property and fetch.
-	        Integer intId = keyToId.get(index);
-	        if (intId != null) {
-	            // we must use the int value otherwise we create a loop.
-	            Item item = lazyQueryView.getItem(intId.intValue());
-	            return item;
-	        } else {
-	            return null;
-	        }
-	    } else {
-	        // passed a non-integer but no key property is set.
-	        return null;
-	    }
-	    
-	}
+        } else if (clasz == Integer.class && getKeyPropertyId() == null) {
+            int intIndex = ((Integer) index).intValue();
+            return getItem(intIndex);
+        } else {
+            // passed a non-integer but no key property is set.
+            return null;
+        }
+    }
+
+
+    /**
+     * @param keyOrIndex int index or Object key being sought.
+     * @return
+     */
+    private Item keyedAccess(Object keyOrIndex) {
+        // key property is set, expecting an int for indexed access
+        // or a non-int for access according to key.
+        Class<?> clasz = keyOrIndex.getClass();
+        if (clasz == int.class)  {
+            // fetch directly by index
+            int intIndex = ((Integer) keyOrIndex).intValue();
+            return getItem(intIndex);
+        } else {
+            // consider that id is a key -- typical case for auto-increment database key
+            Integer intId = keyToId.get(keyOrIndex);
+            if (intId != null) {
+                // we must use the int value otherwise we create a loop.
+                Item item = lazyQueryView.getItem(intId.intValue());
+                return item;
+            } else {
+                return null;
+            }
+        }
+    }
 
     /**
      * @param index which item to retrieve

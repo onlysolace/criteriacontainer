@@ -410,7 +410,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		boolean sortable = Comparable.class.isAssignableFrom(propertyType);
 		boolean readOnly = !isEntity; // entities are read-only, attributes and expressions readable
 		
-		//logger.warn("adding property {} {}",propertyId,defineProperties);
+		//logger.debug("adding property {} {}",propertyId,defineProperties);
 		if (defineProperties) {
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}

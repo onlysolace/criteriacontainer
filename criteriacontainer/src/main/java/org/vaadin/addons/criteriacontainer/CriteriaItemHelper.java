@@ -68,10 +68,10 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
     @SuppressWarnings("unchecked")
     @Override
     public List<Item> loadItems(final int startIndex, final int count) {
-        if (startIndex > 0 && count > 0) {
-            getSelectQuery().setFirstResult(startIndex);
-            getSelectQuery().setMaxResults(count);
-        }
+        //logger.debug("start={}, count={}",startIndex,count);
+        
+        getSelectQuery().setFirstResult(startIndex);
+        getSelectQuery().setMaxResults(count);
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         
         List<?> entities = getSelectQuery().getResultList();
@@ -82,6 +82,7 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
             Item item = toItem(curEntity);
             items.add(item);
             addToMapping(item, keyPropertyId, startIndex+curCount);
+            //logger.debug("adding {} at index {}",item, startIndex+curCount);
             curCount++;
         }
         return items;
