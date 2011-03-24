@@ -1,9 +1,21 @@
 #summary Release Notes
 
+== Release 0.4.5 ==
+  * setKeyPropertyId() can be used to state that the container should return a key
+    from the underlying data source instead of the index in the container. For example
+    taskContainer.setKeyPropertyId("taskId") would return the taskId column.  This is 
+    normally used when using the container with a Select, where it is useful to store
+    a foreign key.  NOTE: the Vaadin 6.5 implementation of Select performs a getItemIds()
+    call, and is NOT lazy.  This means that Select cannot be used for large data sets.
+    If selecting from a large dataset, you probably need to use a Table, which does NOT
+    attempt to get all the itemIds at once.
+  * Fixed a bug regarding the computation of the "startingAt" index for retrieval; under
+    certain circumstances that index was not being reset to 0 as it should be (e.g. after
+    scrolling to the very end of the container and then sorting).
+  
 == Release 0.4.4 ==
   * If a BeanTupleContainer returned a single column with distinct values
     the size() returned was incorrect. 
-
 
 == Release 0.4.3 ==
   * properties inferred from query were not always automatically added to container
