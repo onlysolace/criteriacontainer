@@ -13,7 +13,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<description>An extension to the Vaadin LazyQueryContainer add-on. Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.</description>
+	<description>
+	An extension to the Vaadin LazyQueryContainer add-on. 
+	Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.
+	</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -56,8 +59,6 @@
 	<profiles>
 		<profile>
 			<id>useExternalRepositories</id>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -101,52 +102,6 @@
 				</repository>
 			</repositories>
 		</profile>
-		<profile>
-			<id>useDevelopmentRepository</id>
-			<!-- Activate this profile if using a local caching repository (update
-				values for your local repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<repositories>
-				<repository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</snapshots>
-				</pluginRepository>
-			</pluginRepositories>
-			<distributionManagement>
-				<repository>
-					<id>XWAVE-Artifactory</id>
-					<name>XWAVE-Artifactory-releases</name>
-					<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
-				</repository>
-			</distributionManagement>
-		</profile>
 	</profiles>
 
 	<dependencies>
@@ -154,12 +109,6 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
 			<version>6.5.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
-			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
