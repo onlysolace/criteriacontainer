@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.4.5</version>
+	<version>0.4.6</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>
@@ -176,6 +176,11 @@
 			<version>0.9.27</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.8.3</version>
 		</dependency>
 	</dependencies>
 </project>
