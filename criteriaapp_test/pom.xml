@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5.3</version>
+			<version>6.5.4</version>
 		</dependency>
 		<!-- we put this dependency first so it satisfies javax.persistance, since 
 			this version provides the javadoc -->
