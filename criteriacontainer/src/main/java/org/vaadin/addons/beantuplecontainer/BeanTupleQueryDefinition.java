@@ -413,7 +413,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
 		if (sortable){
-		    logger.debug("adding to property map: {}",propertyId);
+		    logger.trace("adding to property map: {}",propertyId);
 		    expressionMap.put(propertyId, expression);
 		}
 	}
