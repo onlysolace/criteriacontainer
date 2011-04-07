@@ -68,13 +68,17 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
     @Override
     public List<Item> loadItems(final int startIndex, final int count) {
         //logger.debug("start={}, count={}",startIndex,count);
+        List<Item> items = new ArrayList<Item>();
+        if (count <= 0) {
+            return items;
+        }
         
         getSelectQuery().setFirstResult(startIndex);
         getSelectQuery().setMaxResults(count);
-        Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         
+        Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         List<?> entities = getSelectQuery().getResultList();
-        List<Item> items = new ArrayList<Item>();
+
         int curCount = 0;
         for (Object entity : entities) {
             T curEntity = (T) ((Tuple) entity).get(0);
