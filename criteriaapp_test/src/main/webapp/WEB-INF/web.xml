@@ -54,6 +54,14 @@
 			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleSimpleFilteringApplication</param-value>
 		</init-param>
 	</servlet>
+		<servlet>
+		<servlet-name>BeanTupleCrossProductFilteringApplication</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleCrossProductFilteringApplication</param-value>
+		</init-param>
+	</servlet>
 
 
 	<servlet-mapping>
@@ -71,6 +79,10 @@
 	<servlet-mapping>
 		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>
 		<url-pattern>/b/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>BeanTupleCrossProductFilteringApplication</servlet-name>
+		<url-pattern>/x/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>BeanTupleSimpleFilteringApplication</servlet-name>
