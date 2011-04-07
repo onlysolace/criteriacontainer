@@ -21,7 +21,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
@@ -56,7 +55,6 @@ public class BeanTupleCrossProductFilteringApplication extends AbstractBeanTuple
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue = null;
-		private SetJoin<Person, Task> task;
 
 
 		/**
