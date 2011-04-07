@@ -23,6 +23,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
+import org.vaadin.addons.criteriacontainer.CriteriaQueryView;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.NaturalNumbersList;
 import org.vaadin.addons.lazyquerycontainer.QueryView;
@@ -67,6 +69,9 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
      * @param queryFactory The QueryFactory to be used.
      */
     public BeanTupleQueryView(final BeanTupleQueryDefinition queryDefinition, final BeanTupleQueryFactory queryFactory) {
+        if (queryDefinition instanceof CriteriaQueryDefinition && !(this instanceof CriteriaQueryView)) {
+            throw new javax.persistence.PersistenceException("Using "+CriteriaQueryDefinition.class.getSimpleName()+" to initialize a "+this.getClass().getSimpleName());
+        }
     	this.queryFactory = queryFactory;
     	this.queryDefinition = queryDefinition;
         this.lazyQueryView = new LazyQueryView(queryDefinition, queryFactory);
