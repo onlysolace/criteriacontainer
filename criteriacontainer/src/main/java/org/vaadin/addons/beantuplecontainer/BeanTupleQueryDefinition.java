@@ -94,8 +94,6 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 
-
-    @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
 
 	/**
@@ -415,6 +413,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
 		if (sortable){
+		    logger.debug("adding to property map: {}",propertyId);
 		    expressionMap.put(propertyId, expression);
 		}
 	}
@@ -501,6 +500,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		Object propertyId ;
 		for ( Entry<Object, Expression<?>>  entry : expressionMap.entrySet()){
 			propertyId = entry.getKey();
+			if (logger.isDebugEnabled() && defineProperties) {logger.debug("expression: {}",propertyId);}
 			Expression<?> expression = entry.getValue();
 			if (propertyId != null){
 				addPropertyForExpression(expressionMap, propertyId, expression, defineProperties);
@@ -513,9 +513,12 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}
         List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
 		for (Selection<?> compoundSelection: compoundSelectionItems){
+		    
 			if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
+			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
 				addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
 			} else {
+			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
 				addComputedProperty(expressionMap, compoundSelection, defineProperties);
 			}
 		}
