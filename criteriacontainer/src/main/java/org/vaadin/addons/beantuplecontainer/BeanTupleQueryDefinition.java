@@ -478,7 +478,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		// make sure there is an alias
 		String alias = selection.getAlias();
 		if (alias == null) {
-			throw new IllegalArgumentException("All computed values must have an alias defined : missing alias on "+selection);
+			throw new IllegalArgumentException("All non-entity selections in multiselect() must have an alias defined : missing alias on "+selection);
 		}
 		
 		// remember the expression so we can sort on the computed value
