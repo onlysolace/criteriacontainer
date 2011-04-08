@@ -372,6 +372,46 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
             return index;
         }
     }
+    
+
+    /**
+     * @param itemId the key for the item sought
+     * @return the index for the sought item, or -1 if not found.
+     */
+    public int getIndex(Object itemId) {
+        init();
+        if (itemId == null) return -1;
+        
+        if (getKeyPropertyId() != null) {
+            Integer value = keyToId.get(itemId);
+            if (value == null) {
+                return -1;
+            } else {
+                return value;
+            }
+        } else if (itemId.getClass() == Integer.class) {
+            return ((Integer) itemId).intValue();
+        } if (itemId.getClass() == int.class) {
+            // probably can't happen (due to signature, we
+            // will get an Integer instead)
+            return ((Integer) itemId).intValue();
+        } else {
+            return -1;
+        }
+    }
+    
+    /**
+     * @param itemId the int index for the item sought
+     * @return the index for the sought item, or -1 if not found.
+     */
+    public int getIndex(int itemId) {
+        init();
+        if (itemId < 0 || itemId >= size()) {
+            return -1;
+        } else {
+            return itemId;
+        }
+    }
 
 
     /**

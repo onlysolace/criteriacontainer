@@ -382,7 +382,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final int indexOfId(Object itemId) {
-		return lazyQueryContainer.indexOfId(itemId);
+	    return queryView.getIndex(itemId);
 	}
 
 
@@ -391,7 +391,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final boolean isFirstId(Object itemId) {
-		return lazyQueryContainer.isFirstId(itemId);
+		return lazyQueryContainer.isFirstId(queryView.getIndex(itemId));
 	}
 
 
@@ -400,7 +400,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final boolean isLastId(Object itemId) {
-		return lazyQueryContainer.isLastId(itemId);
+		return lazyQueryContainer.isLastId(queryView.getIndex(itemId));
 	}
 
 
@@ -409,7 +409,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Object lastItemId() {
-		return lazyQueryContainer.lastItemId();
+		return queryView.getIdByIndex((Integer)lazyQueryContainer.lastItemId());
 	}
 
 
@@ -418,7 +418,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Object nextItemId(Object itemId) {
-		return lazyQueryContainer.nextItemId(itemId);
+		return queryView.getIdByIndex((Integer)lazyQueryContainer.nextItemId(queryView.getIndex(itemId)));
 	}
 
 
@@ -427,7 +427,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Object prevItemId(Object itemId) {
-		return lazyQueryContainer.prevItemId(itemId);
+		return queryView.getIdByIndex((Integer)lazyQueryContainer.prevItemId(queryView.getIndex(itemId)));
 	}
 
 
@@ -436,7 +436,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final boolean removeItem(Object itemId) {
-		return lazyQueryContainer.removeItem(itemId);
+		return lazyQueryContainer.removeItem(queryView.getIndex(itemId));
 	}
 
 
