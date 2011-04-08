@@ -1,5 +1,16 @@
 #summary Release Notes
 
+== Release 0.5.0 ==
+  * Added support for isDetachedEntities() as in LazyQueryContainer 1.2.8. If this parameter
+    is set, the entities loaded are immediately detached, and a merge() is performed on
+    update and remove.  Added corresponding constructors to BeanTupleQueryDefinition,
+    CriteriaQueryDefinition and CriteriaContainer.
+  * Improved caching of query size to avoid unnecessary calls to select count()
+  * Improved defensive programming if asking to load empty or negative count of items.
+  * Improved runtime error message if a CriteriaQueryDefinition is used on a BeanTupleContainer,
+    since the conventions for property names are different and this can lead to hard to diagnose
+    problems.
+
 == Release 0.4.6 == 
   * CriteriaContainer now supports nested retrieval
         container.addContainerProperty("assignee.class",...);

@@ -84,6 +84,33 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
         );
     }
     
+    /**
+     * Constructor for typical case where an entity is queried and sorted.
+     * @param entityManager The JPA EntityManager.
+     * @param detachedEntities if true, entities will be detached from the persistence context and merged as needed.
+     * @param applicationManagedTransactions True if application manages transactions instead of container.
+     * @param entityClass The entity class.
+     * @param batchSize The batch size.
+     * @param nativeSortPropertyIds Properties participating in the native sort.
+     * @param nativeSortPropertyAscendingStates List of property sort directions for the native sort.
+     */
+    public CriteriaContainer(
+            final EntityManager entityManager,
+            final boolean detachedEntities,
+            final boolean applicationManagedTransactions,
+            final Class<T> entityClass,
+            final int batchSize,
+            final Object[] nativeSortPropertyIds,
+            final boolean[] nativeSortPropertyAscendingStates
+            )
+            {
+        super(
+                new CriteriaQueryView<T>(
+                        new CriteriaQueryDefinition<T>(entityManager, detachedEntities, applicationManagedTransactions, batchSize, entityClass),
+                        new CriteriaQueryFactory<T>())
+        );
+    }
+    
     
 
     /**

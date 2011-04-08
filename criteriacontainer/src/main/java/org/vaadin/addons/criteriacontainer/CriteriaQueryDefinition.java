@@ -58,6 +58,24 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
         this.itemEntityClass = itemEntityClass;
     }
     
+    /**
+     * @param entityManager the EntityManager to reach the database that contains T objects
+     * @param detachedEntities if true, entities will be detached from the persistence context and merged as needed.
+     * @param applicationManagedTransactions true unless using J2EE container-managed transactions
+     * @param batchSize how many items are retrieved at once
+     * @param itemEntityClass class for the entities that underlie the items (T)
+     */
+    public CriteriaQueryDefinition(
+            EntityManager entityManager,
+            boolean detachedEntities,
+            boolean applicationManagedTransactions,
+            int batchSize,
+            Class<ItemEntity> itemEntityClass) {
+        super(entityManager, applicationManagedTransactions, batchSize);
+        this.itemEntityClass = itemEntityClass;
+        setDetachedEntities(detachedEntities);
+    }
+    
     
     /**
      * Get the class of the entity being managed.

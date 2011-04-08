@@ -129,7 +129,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
     private Collection<FilterRestriction> filters;
 
-    private boolean detachedEntities;
+    private boolean detachedEntities = false;
 
 
 
@@ -145,6 +145,23 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		criteriaBuilder = getEntityManager().getCriteriaBuilder();
 	}
 
+    /**
+     * Constructor.
+     * @param entityManager the entityManager that gives us access to the database and cache
+     * @param detachedEntities if true, entities will be detached from the persistence context and merged as needed.
+     * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
+     * @param batchSize how many tuples to retrieve at once.
+     */
+    public BeanTupleQueryDefinition(
+            EntityManager entityManager,
+            boolean detachedEntities,
+            boolean applicationManagedTransactions,
+            int batchSize) {
+        super(entityManager, applicationManagedTransactions, Tuple.class, batchSize);
+        metamodel = getEntityManager().getMetamodel();
+        criteriaBuilder = getEntityManager().getCriteriaBuilder();
+        setDetachedEntities(detachedEntities);
+    }
 
 	/**
 	 * Reset the query definitions.
