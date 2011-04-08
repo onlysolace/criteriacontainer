@@ -6,7 +6,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaapp</artifactId>
 	<packaging>war</packaging>
-	<version>0.4.5</version>
+	<version>0.5.0</version>
 	<name>JPA2.0 Criteria Container for Vaadin</name>
 
 	<properties>
