@@ -141,6 +141,9 @@ public class BeanTupleItemHelper implements Query {
         int curCount = 0;
         for (Object entity : tuples) {
             Item item = toItem((Tuple) entity);
+            if (queryDefinition.isDetachedEntities()) {
+                entityManager.detach(entity);
+            }
             items.add(item);
             if (keyPropertyId != null) {
                 addToMapping(item, keyPropertyId, startIndex+curCount);

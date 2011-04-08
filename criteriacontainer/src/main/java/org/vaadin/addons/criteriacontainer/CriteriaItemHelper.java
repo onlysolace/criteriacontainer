@@ -83,6 +83,9 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
         for (Object entity : entities) {
             T curEntity = (T) ((Tuple) entity).get(0);
             Item item = toItem(curEntity);
+            if (queryDefinition.isDetachedEntities()) {
+                entityManager.detach(curEntity);
+            }
             items.add(item);
             addToMapping(item, keyPropertyId, startIndex+curCount);
             //logger.debug("adding {} at index {}",item, startIndex+curCount);
