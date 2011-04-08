@@ -58,6 +58,7 @@ public class BeanTupleItemHelper implements Query {
     /** The size of the query. */
     private int querySize = -1;
 
+
     /** Cache from keys to container index. */
     protected KeyToIdMapper keyToIdMapper;
 
@@ -109,10 +110,10 @@ public class BeanTupleItemHelper implements Query {
      */
     @Override
 	public int size() {
-        if (querySize == -1) {
-            querySize = ((Number) selectCountQuery.getSingleResult()).intValue();
+        if (getQuerySize() == -1) {
+            setQuerySize(((Number) selectCountQuery.getSingleResult()).intValue());
         }
-        return querySize;
+        return getQuerySize();
     }
 
     /**
@@ -127,12 +128,16 @@ public class BeanTupleItemHelper implements Query {
      */
     @Override
 	public List<Item> loadItems(final int startIndex, final int count) {
+        List<Item> items = new ArrayList<Item>();
+        if (count <= 0) {
+            return items;
+        }
+        
         selectQuery.setFirstResult(startIndex);
         selectQuery.setMaxResults(count);
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         
         List<?> tuples = selectQuery.getResultList();
-        List<Item> items = new ArrayList<Item>();
         int curCount = 0;
         for (Object entity : tuples) {
             Item item = toItem((Tuple) entity);
@@ -181,20 +186,42 @@ public class BeanTupleItemHelper implements Query {
         if (applicationTransactionManagement) {
             entityManager.getTransaction().begin();
         }
-        for (Item item : addedItems) {
-        	((BeanTupleItem)item).persist(entityManager);
+        try {
+            for (Item item : addedItems) {
+                if (!removedItems.contains(item)) {
+                    ((BeanTupleItem)item).persist(entityManager);
+                }
+            }
+            for (Item item : modifiedItems) {
+                if (!removedItems.contains(item)) {
+                    if (queryDefinition.isDetachedEntities()) {
+                        ((BeanTupleItem)item).merge(entityManager);
+                    }
+                    ((BeanTupleItem)item).persist(entityManager);
+                }
+            }
+            for (Item item : removedItems) {
+                if (!addedItems.contains(item)) {
+                    if (queryDefinition.isDetachedEntities()) {
+                        ((BeanTupleItem)item).merge(entityManager);
+                    }
+                    ((BeanTupleItem)item).remove(entityManager);
+                }
+            }
+            if (applicationTransactionManagement) {
+                entityManager.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            if (applicationTransactionManagement) {
+                if (entityManager.getTransaction().isActive()) {
+                    entityManager.getTransaction().rollback();
+                }
+            }
+            throw new RuntimeException(e);            
         }
-        for (Item item : modifiedItems) {
-        	((BeanTupleItem)item).persist(entityManager);
-        }
-        for (Item item : removedItems) {
-        	((BeanTupleItem)item).remove(entityManager);
-        }
-        if (applicationTransactionManagement) {
-            entityManager.getTransaction().commit();
-        }
+        
         // invalidate the query size
-        querySize = -1;
+        setQuerySize(-1);
     }
 
     /**
@@ -251,5 +278,20 @@ public class BeanTupleItemHelper implements Query {
      */
     public TypedQuery<Tuple> getSelectQuery() {
         return selectQuery;
+    }
+    
+    /**
+     * @return the querySize
+     */
+    protected int getQuerySize() {
+        return querySize;
+    }
+
+
+    /**
+     * @param querySize the querySize to set
+     */
+    protected void setQuerySize(int querySize) {
+        this.querySize = querySize;
     }
 }

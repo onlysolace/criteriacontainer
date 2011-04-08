@@ -132,18 +132,44 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
         if (applicationTransactionManagement) {
             entityManager.getTransaction().begin();
         }
-        for (Item item : addedItems) {
-            entityManager.persist(fromItem(item));
+        try {
+            for (Item item : addedItems) {
+                if (!removedItems.contains(item)) {
+                    entityManager.persist(fromItem(item));
+                }
+            }
+            for (Item item : modifiedItems) {
+                if (!removedItems.contains(item)) {
+                    Object entity = fromItem(item);
+                    if (queryDefinition.isDetachedEntities()) {
+                        entity = entityManager.merge(entity);
+                    }
+                    entityManager.persist(entity);
+                }
+            }
+            for (Item item : removedItems) {
+                if (!addedItems.contains(item)) {
+                    Object entity = fromItem(item);
+                    if (queryDefinition.isDetachedEntities()) {
+                        entity = entityManager.merge(entity);
+                    }
+                    entityManager.remove(entity);
+                }
+            }
+            if (applicationTransactionManagement) {
+                entityManager.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            if (applicationTransactionManagement) {
+                if (entityManager.getTransaction().isActive()) {
+                    entityManager.getTransaction().rollback();
+                }
+            }
+            throw new RuntimeException(e);            
         }
-        for (Item item : modifiedItems) {
-            entityManager.persist(fromItem(item));
-        }
-        for (Item item : removedItems) {
-            entityManager.remove(fromItem(item));
-        }
-        if (applicationTransactionManagement) {
-            entityManager.getTransaction().commit();
-        }
+        
+        // invalidate the query size
+        setQuerySize(-1);
     }
 
     

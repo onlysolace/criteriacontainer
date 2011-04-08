@@ -129,9 +129,11 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
     private Collection<FilterRestriction> filters;
 
+    private boolean detachedEntities;
 
 
-	/**
+
+    /**
 	 * Constructor.
 	 * @param entityManager the entityManager that gives us access to the database and cache
 	 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
@@ -670,6 +672,22 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
     @Override
     public void setCompositeItems(boolean arg0) {
         throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * @return whether the query manages detached entities.
+     */
+    public boolean isDetachedEntities() {
+        return detachedEntities;
+    }
+    
+
+    /**
+     * @param detachedEntities the detachedEntities to set
+     */
+    public void setDetachedEntities(boolean detachedEntities) {
+        this.detachedEntities = detachedEntities;
     }
 
 }
