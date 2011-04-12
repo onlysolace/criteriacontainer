@@ -338,7 +338,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public final Object firstItemId() {
-		return lazyQueryContainer.firstItemId();
+		return queryView.getIdByIndex((Integer)lazyQueryContainer.firstItemId());
 	}
 
 
