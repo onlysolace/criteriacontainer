@@ -134,6 +134,18 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
         return entityToRemove;
     }
     
+
+    /**
+     * Removes given entity at given index and returns it.
+     * @param key Index of the entity to be removed.
+     * @return The removed entity.
+     */
+    public T removeEntity(Object key) {
+        final T entityToRemove = getEntity(key);
+        removeItem(key);
+        return entityToRemove;
+    }
+    
     /**
      * Gets entity at given index.
      * @param index The index of the entity.
@@ -143,6 +155,18 @@ public final class CriteriaContainer<T extends Object> extends BeanTupleContaine
     public T getEntity(final int index) {
         @SuppressWarnings("rawtypes")
         final BeanItem item = (BeanItem) getItem(index);
+        return (T) item.getBean();
+    }
+    
+    /**
+     * Gets entity at given index.
+     * @param key The index of the entity.
+     * @return the entity.
+     */
+    @SuppressWarnings("unchecked")
+    public T getEntity(Object key) {
+        @SuppressWarnings("rawtypes")
+        final BeanItem item = (BeanItem) getItem(key);
         return (T) item.getBean();
     }
 

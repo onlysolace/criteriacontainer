@@ -1,5 +1,9 @@
 #summary Release Notes
 
+== Release 0.5.1 ==
+  * Additional support for setKeyPropertyId so that the key can be used instead of the container index for
+    the "Id" methods (indexOfId, isFirstId, isLastId, lastItemId, nextItemId, firstItemId, lastItemId, removeItem).
+
 == Release 0.5.0 ==
   * Added support for isDetachedEntities() as in LazyQueryContainer 1.2.8. If this parameter
     is set, the entities loaded are immediately detached, and a merge() is performed on
