@@ -53,6 +53,8 @@ public class FilterRestriction implements Property {
     @SuppressWarnings("unused")
     private static Logger logger = LoggerFactory.getLogger(FilterRestriction.class);
 
+    
+    private boolean active;
     private String propertyId;
     private Operation operator;
     private Object value;
@@ -314,7 +316,7 @@ public class FilterRestriction implements Property {
      */
     @Override
     public String toString() {
-        return "FilterRestriction [propertyId=" + propertyId + ", operator=" + operator + ", value=" + value + "]";
+        return getName();
     }
     
     /**
@@ -338,7 +340,23 @@ public class FilterRestriction implements Property {
      */
     public String getCaption() {
         return caption;
-    } 
+    }
+
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+
+    /**
+     * @return the active
+     */
+    public boolean isActive() {
+        return active;
+    }
     
     
 
