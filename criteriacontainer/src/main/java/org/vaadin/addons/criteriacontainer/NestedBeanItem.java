@@ -54,7 +54,14 @@ public class NestedBeanItem<BT> extends BeanItem<BT> {
             if (idString.contains(".")) {
                 // treat a String property id with a . as a nested name
                 try {
-                    Object value = PropertyUtils.getProperty(getBean(), idString);
+                    Object value;
+                    try {
+                        value = PropertyUtils.getProperty(getBean(), idString);
+                    } catch (NullPointerException npe) {
+                        // one of the items in the list is null; if this was a database
+                        // the outer join would return null, so we do the same.
+                        value = null;
+                    }
                     Property property = new ObjectProperty<Object>(value);
                     addItemProperty(idString, property);
                     return property;
