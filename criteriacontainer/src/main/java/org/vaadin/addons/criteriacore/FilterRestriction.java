@@ -208,6 +208,7 @@ public class FilterRestriction implements Property {
                     final Expression<?> expr = qd.getExpressionById(propertyId, expressionMap);
                     pred = expr.in((Collection<?>)value);
                 }
+                break;
                 case NONE: {
                     pred = cb.equal(cb.literal(1),cb.literal(1));
                 }
