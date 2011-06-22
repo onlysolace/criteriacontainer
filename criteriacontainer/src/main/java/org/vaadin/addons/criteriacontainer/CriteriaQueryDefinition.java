@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
             CriteriaBuilder criteriaBuilder,
             CriteriaQuery<?> criteriaQuery) {
         Root<ItemEntity> t = criteriaQuery.from(getEntityClass());
-        criteriaQuery.multiselect(t);
+        // select all root objects by default.
         return t;
     }
     
