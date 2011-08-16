@@ -177,13 +177,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
         }
     }
     
-    /**
-     * @param filteredValue valeur du filtre.
-     * @return boolean
-     */
-    protected boolean filterIsActive(String filteredValue) {
-        return filteredValue != null && !filteredValue.isEmpty() && !filteredValue.equals("%") && !filteredValue.equals("%%");
-    }
+    
     
 
 }
