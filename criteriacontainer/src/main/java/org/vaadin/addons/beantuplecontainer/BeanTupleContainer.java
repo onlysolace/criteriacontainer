@@ -128,7 +128,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see org.vaadin.addons.lazyquerycontainer.LazyQueryContainer#addContainerProperty(java.lang.Object, java.lang.Class, java.lang.Object, boolean, boolean)
 	 */
 	
-	public final boolean addContainerProperty(Object propertyId, Class<?> type,
+	public boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue, boolean readOnly, boolean sortable) {
 		return lazyQueryContainer.addContainerProperty(propertyId, type, defaultValue, readOnly, sortable);
 	}
@@ -138,7 +138,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * 
 	 * @see org.vaadin.addons.lazyquerycontainer.LazyQueryContainer#refresh()
 	 */
-	public final void refresh() {
+	public void refresh() {
 		lazyQueryContainer.refresh();
 	}
 	
@@ -153,7 +153,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
 	 */
 	@Override
-	public final Collection<?> getSortableContainerPropertyIds() {
+	public Collection<?> getSortableContainerPropertyIds() {
 		return lazyQueryContainer.getSortableContainerPropertyIds();
 	}
 
@@ -162,7 +162,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#getType(java.lang.Object)
 	 */
 	@Override
-	public final Class<?> getType(Object propertyId) {
+	public Class<?> getType(Object propertyId) {
 		return lazyQueryContainer.getType(propertyId);
 	}
 
@@ -171,7 +171,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#getItemIds()
 	 */
 	@Override
-	public final Collection<?> getItemIds() {
+	public Collection<?> getItemIds() {
 		return queryView.getItemIds();
 	}
 
@@ -180,7 +180,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#getItem(java.lang.Object)
 	 */
 	@Override
-	public final Item getItem(Object itemId) {
+	public Item getItem(Object itemId) {
 	    // we jump over lazyQueryContainer to avoid the cast to Integer
 		return queryView.getItem(itemId);
 	}
@@ -190,7 +190,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
      * @param itemId the index inside the container
      * @return the item found
      */
-    public final Item getItem(int itemId) {
+    public Item getItem(int itemId) {
         // we call directly the view method to avoid the cast to Integer
         // that the lazy container does.
         return queryView.getItem(itemId);
@@ -200,7 +200,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#getContainerProperty(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public final Property getContainerProperty(Object itemId, Object propertyId) {
+	public Property getContainerProperty(Object itemId, Object propertyId) {
 	    //logger.debug("itemId={} size={}",itemId,size());
 	    Item item = queryView.getItem(itemId);
 	    if (item == null) return null;
@@ -212,7 +212,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Indexed#getIdByIndex(int)
 	 */
 	@Override
-	public final Object getIdByIndex(int index) {
+	public Object getIdByIndex(int index) {
 	    if (queryView.getKeyPropertyId() == null) {
 	        return lazyQueryContainer.getIdByIndex(index);
 	    } else {
@@ -225,7 +225,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#containsId(java.lang.Object)
 	 */
 	@Override
-	public final boolean containsId(Object itemId) {
+	public boolean containsId(Object itemId) {
 	    if (queryView.getKeyPropertyId() != null) {
 	        return queryView.containsId(itemId);
 	    } else {
@@ -238,7 +238,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Indexed#addItemAt(int)
 	 */
 	@Override
-	public final Object addItemAt(int index) {
+	public Object addItemAt(int index) {
 		return lazyQueryContainer.addItemAt(index);
 	}
 
@@ -247,7 +247,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#addItemAfter(java.lang.Object)
 	 */
 	@Override
-	public final Object addItemAfter(Object previousItemId) {
+	public Object addItemAfter(Object previousItemId) {
 		return lazyQueryContainer.addItemAfter(previousItemId);
 	}
 
@@ -256,7 +256,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Indexed#addItemAt(int, java.lang.Object)
 	 */
 	@Override
-	public final Item addItemAt(int index, Object newItemId) {
+	public Item addItemAt(int index, Object newItemId) {
 		return lazyQueryContainer.addItemAt(index, newItemId);
 	}
 
@@ -265,7 +265,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#addItemAfter(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public final Item addItemAfter(Object previousItemId, Object newItemId) {
+	public Item addItemAfter(Object previousItemId, Object newItemId) {
 		return lazyQueryContainer.addItemAfter(previousItemId, newItemId);
 	}
 
@@ -274,7 +274,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#addItem(java.lang.Object)
 	 */
 	@Override
-	public final Item addItem(Object itemId) {
+	public Item addItem(Object itemId) {
 		return lazyQueryContainer.addItem(itemId);
 	}
 
@@ -283,7 +283,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#addItem()
 	 */
 	@Override
-	public final Object addItem() {
+	public Object addItem() {
 		return lazyQueryContainer.addItem();
 	}
 
@@ -292,7 +292,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.ItemSetChangeNotifier#addListener(com.vaadin.data.Container.ItemSetChangeListener)
 	 */
 	@Override
-	public final void addListener(ItemSetChangeListener listener) {
+	public void addListener(ItemSetChangeListener listener) {
 		lazyQueryContainer.addListener(listener);
 	}
 
@@ -301,7 +301,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.PropertySetChangeNotifier#addListener(com.vaadin.data.Container.PropertySetChangeListener)
 	 */
 	@Override
-	public final void addListener(PropertySetChangeListener listener) {
+	public void addListener(PropertySetChangeListener listener) {
 		lazyQueryContainer.addListener(listener);
 	}
 
@@ -310,7 +310,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#commit()
 	 */
 	@Override
-	public final void commit() {
+	public void commit() {
 		lazyQueryContainer.commit();
 	}
 
@@ -319,7 +319,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#discard()
 	 */
 	@Override
-	public final void discard() {
+	public void discard() {
 		lazyQueryContainer.discard();
 	}
 
@@ -337,7 +337,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#firstItemId()
 	 */
 	@Override
-	public final Object firstItemId() {
+	public Object firstItemId() {
 		return queryView.getIdByIndex((Integer)lazyQueryContainer.firstItemId());
 	}
 
@@ -355,7 +355,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#removeContainerProperty(java.lang.Object)
 	 */
 	@Override
-	public final boolean removeContainerProperty(Object propertyId) {
+	public boolean removeContainerProperty(Object propertyId) {
 		return lazyQueryContainer.removeContainerProperty(propertyId);
 	}
 
@@ -372,7 +372,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#size()
 	 */
 	@Override
-	public final int size() {
+	public int size() {
 		return lazyQueryContainer.size();
 	}
 
@@ -381,7 +381,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Indexed#indexOfId(java.lang.Object)
 	 */
 	@Override
-	public final int indexOfId(Object itemId) {
+	public int indexOfId(Object itemId) {
 	    return queryView.getIndex(itemId);
 	}
 
@@ -390,7 +390,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#isFirstId(java.lang.Object)
 	 */
 	@Override
-	public final boolean isFirstId(Object itemId) {
+	public boolean isFirstId(Object itemId) {
 		return lazyQueryContainer.isFirstId(queryView.getIndex(itemId));
 	}
 
@@ -399,7 +399,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#isLastId(java.lang.Object)
 	 */
 	@Override
-	public final boolean isLastId(Object itemId) {
+	public boolean isLastId(Object itemId) {
 		return lazyQueryContainer.isLastId(queryView.getIndex(itemId));
 	}
 
@@ -408,7 +408,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#lastItemId()
 	 */
 	@Override
-	public final Object lastItemId() {
+	public Object lastItemId() {
 		return queryView.getIdByIndex((Integer)lazyQueryContainer.lastItemId());
 	}
 
@@ -417,7 +417,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#nextItemId(java.lang.Object)
 	 */
 	@Override
-	public final Object nextItemId(Object itemId) {
+	public Object nextItemId(Object itemId) {
 		return queryView.getIdByIndex((Integer)lazyQueryContainer.nextItemId(queryView.getIndex(itemId)));
 	}
 
@@ -426,7 +426,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Ordered#prevItemId(java.lang.Object)
 	 */
 	@Override
-	public final Object prevItemId(Object itemId) {
+	public Object prevItemId(Object itemId) {
 		return queryView.getIdByIndex((Integer)lazyQueryContainer.prevItemId(queryView.getIndex(itemId)));
 	}
 
@@ -435,7 +435,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#removeItem(java.lang.Object)
 	 */
 	@Override
-	public final boolean removeItem(Object itemId) {
+	public boolean removeItem(Object itemId) {
 		return lazyQueryContainer.removeItem(queryView.getIndex(itemId));
 	}
 
@@ -444,7 +444,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#removeAllItems()
 	 */
 	@Override
-	public final boolean removeAllItems() {
+	public boolean removeAllItems() {
 		return lazyQueryContainer.removeAllItems();
 	}
 
@@ -453,7 +453,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.ItemSetChangeNotifier#removeListener(com.vaadin.data.Container.ItemSetChangeListener)
 	 */
 	@Override
-	public final void removeListener(ItemSetChangeListener listener) {
+	public void removeListener(ItemSetChangeListener listener) {
 		lazyQueryContainer.removeListener(listener);
 	}
 
@@ -462,7 +462,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.PropertySetChangeNotifier#removeListener(com.vaadin.data.Container.PropertySetChangeListener)
 	 */
 	@Override
-	public final void removeListener(PropertySetChangeListener listener) {
+	public void removeListener(PropertySetChangeListener listener) {
 		lazyQueryContainer.removeListener(listener);
 	}
 
@@ -471,7 +471,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#isModified()
 	 */
 	@Override
-	public final boolean isModified() {
+	public boolean isModified() {
 		return lazyQueryContainer.isModified();
 	}
 
@@ -480,7 +480,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#isReadThrough()
 	 */
 	@Override
-	public final boolean isReadThrough() {
+	public boolean isReadThrough() {
 		return lazyQueryContainer.isReadThrough();
 	}
 
@@ -489,7 +489,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#isWriteThrough()
 	 */
 	@Override
-	public final boolean isWriteThrough() {
+	public boolean isWriteThrough() {
 		return lazyQueryContainer.isWriteThrough();
 	}
 
@@ -497,7 +497,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#setReadThrough(boolean)
 	 */
 	@Override
-	public final void setReadThrough(boolean readThrough) {
+	public void setReadThrough(boolean readThrough) {
 		lazyQueryContainer.setReadThrough(readThrough);
 	}
 
@@ -506,7 +506,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Buffered#setWriteThrough(boolean)
 	 */
 	@Override
-	public final void setWriteThrough(boolean writeThrough) {
+	public void setWriteThrough(boolean writeThrough) {
 		lazyQueryContainer.setWriteThrough(writeThrough);
 	}
 
@@ -524,7 +524,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container.Sortable#sort(java.lang.Object[], boolean[])
 	 */
 	@Override
-	public final void sort(Object[] sortPropertyIds, boolean[] ascendingStates) {
+	public void sort(Object[] sortPropertyIds, boolean[] ascendingStates) {
 		lazyQueryContainer.sort(sortPropertyIds, ascendingStates);
 	}
 
@@ -533,7 +533,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#getContainerPropertyIds()
 	 */
 	@Override
-	public final Collection<?> getContainerPropertyIds() {
+	public Collection<?> getContainerPropertyIds() {
 	    queryView.getQueryDefinition().init();
 		Collection<?> containerPropertyIds = lazyQueryContainer.getContainerPropertyIds();
         return containerPropertyIds;
@@ -544,7 +544,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @see com.vaadin.data.Container#addContainerProperty(java.lang.Object, java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public final boolean addContainerProperty(Object propertyId, Class<?> type,
+	public boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue) {
 		return lazyQueryContainer.addContainerProperty(propertyId, type,
 				defaultValue);
@@ -578,4 +578,19 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
     public Object getKeyPropertyId() {
         return queryView.getKeyPropertyId();
     }
+
+
+	/**
+	 * @param queryView the queryView to set
+	 */
+	public void setQueryView(BeanTupleQueryView queryView) {
+		this.queryView = queryView;
+	}
+
+	/**
+	 * @return the queryView
+	 */
+	public BeanTupleQueryView getQueryView() {
+		return queryView;
+	}
 }
