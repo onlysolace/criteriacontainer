@@ -139,15 +139,16 @@ public class BeanTupleItemHelper implements Query {
         
         List<?> tuples = selectQuery.getResultList();
         int curCount = 0;
-        for (Object entity : tuples) {
-            Item item = toItem((Tuple) entity);
+        for (Object tuple : tuples) {
+            Item item = toItem((Tuple) tuple);
+            
+            //iterate over entities in the tuple.
             if (queryDefinition.isDetachedEntities()) {
-                entityManager.detach(entity);
+            	((BeanTupleItem)item).detach(entityManager);
             }
+
             items.add(item);
-            if (keyPropertyId != null) {
-                addToMapping(item, keyPropertyId, startIndex+curCount);
-            }
+            addToMapping(item, keyPropertyId, startIndex+curCount);
             curCount++;
         }
         return items;

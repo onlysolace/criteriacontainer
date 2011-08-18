@@ -157,6 +157,16 @@ public final class BeanTupleItem extends PropertysetItem {
 	}
 
 	/**
+	 * detach all entities in the tuple.
+	 * @param entityManager to be used for storing
+	 */
+	public void detach(EntityManager entityManager) {
+		for (Object curEntity: entities){
+    		entityManager.detach(curEntity);
+    	}
+	}
+	
+	/**
 	 * Gets the Property corresponding to the given Property ID stored in the Item.
 	 * If the Item does not contain the Property, null is returned.
 	 * If the property Id is a string and contains a ".", then 
