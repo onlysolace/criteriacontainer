@@ -332,20 +332,18 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
     /**
      * @return the ids for the items in the list.
      */
-    public Collection<?> getItemIds() {
+	public Collection<?> getItemIds() {
         init();
-
-        if (getKeyPropertyId() != null) {
+        Object keyPropertyId2 = getKeyPropertyId();
+        if (keyPropertyId2 != null) {
             // getItem() now uses an arbitrary key and not an int sequence number,
             // so the query does not know what range of results to retrieve.
             // first cut, naive version fetches all items to populate keyToId();
             for (int i = 0; i < size;) {
-                getItem((int) i);
+                Item it = getItem((int) i); // sequential access according to container order.
                 i++;
             }
-        }
 
-        if (getKeyPropertyId() != null) {
             Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
             return unmodifiableCollection;
         } else {
