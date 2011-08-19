@@ -6,7 +6,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaapp</artifactId>
 	<packaging>war</packaging>
-	<version>0.5.0</version>
+	<version>0.5.1</version>
 	<name>JPA2.0 Criteria Container for Vaadin</name>
 
 	<properties>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5.4</version>
+			<version>6.5.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -123,7 +123,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>criteriacontainer</artifactId>
-			<version>0.4.5</version>
+			<version>0.5.1</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>
