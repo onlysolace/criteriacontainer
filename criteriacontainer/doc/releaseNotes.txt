@@ -3,9 +3,11 @@
 == Release 0.5.1 ==
   * Additional support for setKeyPropertyId so that the key can be used instead of the container index for
     the "Id" methods (indexOfId, isFirstId, isLastId, lastItemId, nextItemId, firstItemId, lastItemId, removeItem).
-  * Fixes for setDetachedEntities when dealing with a tuple.
+  * Fixes for setDetachedEntities when dealing with a tuple (detach/attach underlying entities)
   * Removed final on BeanTupleContainer to allow extending methods. For example, one can control the sorting order
     of getItemIds.
+  * retrieval of items is now aligned with batchSize, resulting in significant performance improvement of getItemIds()
+    when setKeyPropertyId() is being used.
 
 == Release 0.5.0 ==
   * Added support for isDetachedEntities() as in LazyQueryContainer 1.2.8. If this parameter

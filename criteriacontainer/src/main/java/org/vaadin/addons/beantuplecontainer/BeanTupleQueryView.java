@@ -43,7 +43,7 @@ import com.vaadin.data.Property.ValueChangeListener;
  * 
  */
 @SuppressWarnings("serial")
-public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyToIdMapper {
+public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyManager {
     
     @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryView.class);
@@ -142,6 +142,7 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
 	/**
 	 * @return the number of instances retrieved each time
 	 */
+	@Override
 	public int getBatchSize() {
 		return lazyQueryView.getBatchSize();
 	}
@@ -335,13 +336,25 @@ public class BeanTupleQueryView implements QueryView, ValueChangeListener, KeyTo
 	public Collection<?> getItemIds() {
         init();
         if (getKeyPropertyId()!= null) {
-            // getItem() now uses an arbitrary key and not an int sequence number,
-            // so the query does not know what range of results to retrieve.
-            // first cut, naive version fetches all items to populate keyToId();
-            for (int i = 0; i < size;) {
-                getItem((int) i); // sequential access according to container order.
-                i++;
-            }
+            // itemId is an arbitrary attribute, so we must fetch it.
+            // we have no way to tell whether calling application just needs the itemIds of what
+        	// has been loaded so far, or itemIds for the whole collection.  So we load all.
+        	if (keyToId.keySet().size() != size) {
+        		// map is incomplete, so we fill it.
+        		Collection<Integer> knownValues = keyToId.values();
+                for (int i = 0; i < size;) {
+                	// fetching from database is expensive so we avoid it.
+                	if (!knownValues.contains(i)) {
+                		getItem((int) i); // sequential access according to container order.
+                	}
+                	if (KeyManager.USE_BATCHING) {
+                		// loadItems forced loading to align on multiples of batch size.
+                		i+= getBatchSize();
+                	} else {
+                		i++;
+                	}
+                }
+        	}
 
             Collection<Object> unmodifiableCollection = Collections.unmodifiableCollection(keyToId.keySet());
             return unmodifiableCollection;
