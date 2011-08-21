@@ -29,7 +29,7 @@ public class BeanTupleQueryFactory implements QueryFactory {
 	/** the query definition */
 	protected BeanTupleQueryDefinition queryDefinition;
 	/** beanTupleQueryView Holds cache id to key mappings. */
-    protected KeyToIdMapper beanTupleQueryView;
+    protected KeyManager beanTupleQueryView;
 	
 
     @Override
@@ -48,7 +48,7 @@ public class BeanTupleQueryFactory implements QueryFactory {
     /**
      * @param keyToIdMapHolder where a map of keys to Ids can be kept.
      */
-    public void setKeyToIdMapper(KeyToIdMapper keyToIdMapHolder) {
+    public void setKeyToIdMapper(KeyManager keyToIdMapHolder) {
         this.beanTupleQueryView = keyToIdMapHolder;       
     }
 }

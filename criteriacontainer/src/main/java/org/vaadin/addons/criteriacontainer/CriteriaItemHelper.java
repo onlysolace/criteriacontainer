@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.beantuplecontainer.BeanTupleItemHelper;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
-import org.vaadin.addons.beantuplecontainer.KeyToIdMapper;
+import org.vaadin.addons.beantuplecontainer.KeyManager;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
@@ -52,7 +52,7 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
      * @param criteriaQueryDefinition the definition for the query
      * @param beanTupleQueryView Holds cache id to key mappings.
      */
-    public CriteriaItemHelper(BeanTupleQueryDefinition criteriaQueryDefinition, KeyToIdMapper beanTupleQueryView) {
+    public CriteriaItemHelper(BeanTupleQueryDefinition criteriaQueryDefinition, KeyManager beanTupleQueryView) {
         super(criteriaQueryDefinition, beanTupleQueryView);
         entityClass = queryDefinition.getEntityClass();
     }
@@ -60,6 +60,9 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
 
     /**
      * Load batch of items.
+     * This version aligns the loads according to batch size, in order to enable a significant
+     * optimization in getItemIds().
+     * 
      * @param startIndex Starting index of the item list.
      * @param count Count of the items to be retrieved.
      * @return List of items.
@@ -67,14 +70,12 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
     @SuppressWarnings("unchecked")
     @Override
     public List<Item> loadItems(final int startIndex, final int count) {
-        //logger.debug("start={}, count={}",startIndex,count);
         List<Item> items = new ArrayList<Item>();
         if (count <= 0) {
             return items;
         }
         
-        getSelectQuery().setFirstResult(startIndex);
-        getSelectQuery().setMaxResults(count);
+        adjustRetrievalBoundaries(startIndex, count);
         
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         List<?> entities = getSelectQuery().getResultList();
@@ -93,9 +94,9 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
         }
         return items;
     }
-    
-    
-    /**
+
+
+	/**
      * Constructs new item based on QueryDefinition.
      * @return new item.
      */

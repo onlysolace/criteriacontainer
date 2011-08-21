@@ -18,12 +18,17 @@ package org.vaadin.addons.beantuplecontainer;
 import java.util.Map;
 
 /**
- * @author Xwave-Demo
+ * @author jflamy
  *
  */
-public interface KeyToIdMapper {
+public interface KeyManager {
     
     /**
+     * if true, align retrieval to the size of the batches.  This optimizes getItemIds().
+     */
+    boolean USE_BATCHING = true;
+
+	/**
      * @return the propertyId to be used as key
      */
     public Object getKeyPropertyId();
@@ -32,5 +37,10 @@ public interface KeyToIdMapper {
      * @return the map between keys in the entity and the index in the container
      */
     public Map<Object, Integer> getKeyToId();
+
+	/**
+	 * @return the effective batch size for the underlying view
+	 */
+	public int getBatchSize();
 
 }

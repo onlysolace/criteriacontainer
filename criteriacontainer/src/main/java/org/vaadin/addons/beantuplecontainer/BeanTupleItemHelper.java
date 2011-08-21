@@ -60,7 +60,7 @@ public class BeanTupleItemHelper implements Query {
 
 
     /** Cache from keys to container index. */
-    protected KeyToIdMapper keyToIdMapper;
+    protected KeyManager keyToIdMapper;
 
 
     /**
@@ -68,7 +68,7 @@ public class BeanTupleItemHelper implements Query {
      * @param criteriaQueryDefinition The entity query definition..
      * @param keyToIdMapper Holds cache id to key mappings.
      */
-    public BeanTupleItemHelper(final BeanTupleQueryDefinition criteriaQueryDefinition, KeyToIdMapper keyToIdMapper) {
+    public BeanTupleItemHelper(final BeanTupleQueryDefinition criteriaQueryDefinition, KeyManager keyToIdMapper) {
         this.queryDefinition = criteriaQueryDefinition;
         this.keyToIdMapper = keyToIdMapper;
         this.entityManager = queryDefinition.getEntityManager();
@@ -132,9 +132,9 @@ public class BeanTupleItemHelper implements Query {
         if (count <= 0) {
             return items;
         }
+
+        adjustRetrievalBoundaries(startIndex, count);
         
-        selectQuery.setFirstResult(startIndex);
-        selectQuery.setMaxResults(count);
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         
         List<?> tuples = selectQuery.getResultList();
@@ -298,4 +298,26 @@ public class BeanTupleItemHelper implements Query {
     protected void setQuerySize(int querySize) {
         this.querySize = querySize;
     }
+
+
+	/**
+	 * Compute lower bound and number of tuples to retrieve.
+	 * If batching is used, the bounds are adjusted to fit on batch sizes: 
+	 * for example for getBatchSize() = 100, and a call with startIndex = 110, count = 100: we need at least 110 to 209.
+	 * Aligning will yield batchLowBoundary = 100, and count = 200, and will retrieve 100 to 299,
+	 * 
+	 * @param startIndex starting position for retrieval
+	 * @param count how many items to retrieve
+	 */
+	protected void adjustRetrievalBoundaries(final int startIndex, final int count) {
+		if (KeyManager.USE_BATCHING) {
+	    	int batchSize = keyToIdMapper.getBatchSize();
+	    	int batchLowBoundary = (int)(Math.floor(startIndex/batchSize)) * batchSize;
+	    	getSelectQuery().setFirstResult(batchLowBoundary);
+	    	getSelectQuery().setMaxResults((batchLowBoundary == startIndex) ? batchSize : batchSize * 2);
+	    } else {
+	    	getSelectQuery().setFirstResult(startIndex);
+	    	getSelectQuery().setMaxResults(count);        	
+	    }
+	}
 }
