@@ -74,17 +74,24 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 * 
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
-				CriteriaQuery<?> cq) {
+				@SuppressWarnings("rawtypes") CriteriaQuery cq) {
 			
 			// FROM task JOIN PERSON 
 			Root<Person> person = (Root<Person>) cq.from(Person.class);
 			task = person.join(Person_.tasks); 
 			
-			// SELECT task as Task, person as Person, ... 
-			cq.multiselect(task,person);
+			if(cq.getResultType().isAssignableFrom(Long.class)) {
+            	// this is the counting query
+				cq.select(cb.count(task));
+            } else {
+            	// SELECT task as Task, person as Person, ...
+            	cq.multiselect(task,person);
+            }
+			
 			
 			// WHERE t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	

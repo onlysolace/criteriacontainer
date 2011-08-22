@@ -75,17 +75,23 @@ public class BeanTupleCrossProductFilteringApplication extends AbstractBeanTuple
 		 * 
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
-				CriteriaQuery<?> cq) {
+				CriteriaQuery cq) {
 			
 			// FROM task, person 
 			Root<Person> person = (Root<Person>) cq.from(Person.class);
 			Root<Task> task = (Root<Task>) cq.from(Task.class);
 			
-	         // SELECT task as Task, person as Person, ... 
-            cq.multiselect(task,person);
+			if(cq.getResultType().isAssignableFrom(Long.class)) {
+            	// this is the counting query
+				cq.select(cb.count(task));
+            } else {
+            	// SELECT task as Task, person as Person, ...
+            	cq.multiselect(task,person);
+            }
 			
 			// WHERE person.personId = task.assignedTo
 	        cq.where(cb.equal(task.get(Task_.assignedTo), person.get(Person_.personId)));
