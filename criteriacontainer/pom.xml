@@ -143,8 +143,9 @@
 			<artifactId>vaadin</artifactId>
 			<version>6.5.7</version>
 		</dependency>
-		<!-- we put this dependency first so it satisfies javax.persistance this 
-			version provides the javadoc -->
+		<!-- The following Hibernate dependencies can be used to force the download
+		  of the Hibernate JPA model generator for annotation processing and
+		  commented out afterwards. 
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -160,10 +161,17 @@
 			<artifactId>hibernate-jpamodelgen</artifactId>
 			<version>1.0.0.Final</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
 			<version>1.2.8</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

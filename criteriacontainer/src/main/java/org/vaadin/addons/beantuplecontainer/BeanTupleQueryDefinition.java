@@ -207,7 +207,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}		
 		
 		final TypedQuery<Tuple> tq = getEntityManager().createQuery(tupleQuery);
-		// the container deals with the parameter values set through the filter() method
+		// the container will set the parameter values that are defined through the filter() method
 		// so we only handle those that we add ourselves
 		setParameters(tq);
 		return tq;
@@ -223,8 +223,13 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 	    // we only want the count so we override the selection in the query
 	    countingQuery.orderBy();
-	    Selection<Long> selection = countingQuery.getSelection();
-	    if (selection.isCompoundSelection()) {
+	    Selection<?> selection = countingQuery.getSelection();
+	  
+	    if (selection == null) {
+	    	countingQuery.select(criteriaBuilder.count(root));
+	    } else if (selection.getJavaType() == Long.class) {
+	    	// already a counting query.
+	    } else if (selection.isCompoundSelection()) {
 	        List<Selection<?>> items = selection.getCompoundSelectionItems();
 	        if (items.size() == 1) {
 	            if (countingQuery.isDistinct()) {
@@ -238,9 +243,9 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	            countingQuery.select(criteriaBuilder.count(root));
 	        }
 	    } else {
-	        if (countingQuery.isDistinct()) {
+	    	if (countingQuery.isDistinct()) {
 	            countingQuery.distinct(false);
-	            countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) countingQuery.getSelection()));
+				countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) selection));
 	        } else {
 	            countingQuery.select(criteriaBuilder.count((Expression<?>) countingQuery.getSelection()));
 	        }
@@ -527,20 +532,24 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}
 		// add the other items in the selection that are not meant to be sortable
 		Selection<?> selection = query.getSelection();
-		if (selection == null) {
-		    throw new PersistenceException("No selection defined on query.");
-		}
-        List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
-		for (Selection<?> compoundSelection: compoundSelectionItems){
-		    
-			if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
-			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
-				addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
+		if (selection != null) {
+			if (selection.isCompoundSelection()) {
+				List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
+				for (Selection<?> compoundSelection: compoundSelectionItems){
+
+					if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
+						if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
+						addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
+					} else {
+						if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
+						addComputedProperty(expressionMap, compoundSelection, defineProperties);
+					}
+				}
 			} else {
-			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
-				addComputedProperty(expressionMap, compoundSelection, defineProperties);
+				// counting or agregate query, do nothing.
 			}
 		}
+		
 	}
 
 
