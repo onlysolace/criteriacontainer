@@ -122,7 +122,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	protected CriteriaQuery<Tuple> tupleQuery;
 	
 	/** all columns and expressions returned by the where */
-	protected CriteriaQuery<Long> countingQuery;
+	protected CriteriaQuery<Object> countingQuery;
 
 	/** the root for the query */
 	protected Root<?> root;
@@ -168,7 +168,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
     public void refresh() {
-    	countingQuery = criteriaBuilder.createQuery(Long.class);
+    	countingQuery = criteriaBuilder.createQuery();
     	root = defineQuery(criteriaBuilder, countingQuery);
     	mapProperties(countingQuery, countingExpressionMap, false);
         addFilteringConditions(criteriaBuilder, countingQuery, countingExpressionMap);
@@ -218,7 +218,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return number of entities.
 	 */
 	@Override
-	public TypedQuery<Long> getCountQuery() {
+	public TypedQuery<Object> getCountQuery() {
 	    init();
 
 	    // we only want the count so we override the selection in the query
@@ -227,8 +227,6 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	  
 	    if (selection == null) {
 	    	countingQuery.select(criteriaBuilder.count(root));
-	    } else if (selection.getJavaType() == Long.class) {
-	    	// already a counting query.
 	    } else if (selection.isCompoundSelection()) {
 	        List<Selection<?>> items = selection.getCompoundSelectionItems();
 	        if (items.size() == 1) {
@@ -253,7 +251,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 
 	    // create the executable query
-	    final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
+	    final TypedQuery<Object> countQuery = getEntityManager().createQuery(countingQuery);
 	    setParameters(countQuery);
 	    return countQuery;
 	}
