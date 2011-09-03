@@ -101,18 +101,20 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
     protected void defineTableColumns() {
         //visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
         
-        visibleColumnIds.add(Task_.taskId.getName());
-        visibleColumnIds.add(Task_.name.getName());
-        visibleColumnIds.add(Task_.reporter.getName());
-        String assigneeName = Task_.assignee.getName();
-        visibleColumnIds.add(assigneeName);
-        visibleColumnIds.add(assigneeName+".class");
-
-        //visibleColumnLabels.add("");
+    	
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
         visibleColumnLabels.add("Task ID");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
         visibleColumnLabels.add("Name");
+        
+        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.reporter));
         visibleColumnLabels.add("Reporter");
+        
+        String assigneeName = cd.getPropertyId(Task_.class, Task_.assignee);
+		visibleColumnIds.add(assigneeName);
         visibleColumnLabels.add("Assignee");
+        visibleColumnIds.add(assigneeName+".class");
         visibleColumnLabels.add("assignee.class");
         
         //computedColumns();
@@ -121,6 +123,7 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         table.setColumnWidth("reporter", 135);
         table.setColumnWidth("assignee", 135);  
 
+        logger.warn("column names: {}",visibleColumnIds);
 
         table.setVisibleColumns(visibleColumnIds.toArray());
         table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
