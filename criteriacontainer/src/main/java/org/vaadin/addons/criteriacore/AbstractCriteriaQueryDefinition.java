@@ -206,9 +206,11 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 
 	/**
 	 * This method returns the number of entities.
+	 * The returned type is actually guaranteed to be a Long, but implementation choices
+	 * in some JPA libraries currently prevent us from doing this with a type-safe declaration.
 	 * @return number of entities.
 	 */
-	abstract public TypedQuery<Long> getCountQuery() ;
+	abstract public TypedQuery<?> getCountQuery() ;
 	
 	/**
 	 * refresh the query.
