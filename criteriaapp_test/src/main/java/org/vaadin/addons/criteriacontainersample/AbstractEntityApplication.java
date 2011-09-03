@@ -101,6 +101,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 			size = criteriaContainer.size();
 		}
 		
+	logger.warn("proprietes {}",criteriaContainer.getContainerPropertyIds());
 	
 		createTable(criteriaContainer);
 		table.setPageLength(0);

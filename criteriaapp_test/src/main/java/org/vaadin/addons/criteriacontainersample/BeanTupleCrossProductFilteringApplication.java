@@ -16,10 +16,12 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
@@ -75,36 +77,33 @@ public class BeanTupleCrossProductFilteringApplication extends AbstractBeanTuple
 		 * 
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		protected Root<?> defineQuery(
 				CriteriaBuilder cb,
-				CriteriaQuery cq) {
+				CriteriaQuery<?> cq) {
 			
 			// FROM task, person 
 			Root<Person> person = (Root<Person>) cq.from(Person.class);
 			Root<Task> task = (Root<Task>) cq.from(Task.class);
 			
-			if(cq.getResultType().isAssignableFrom(Long.class)) {
-            	// this is the counting query
-				cq.select(cb.count(task));
-            } else {
-            	// SELECT task as Task, person as Person, ...
-            	cq.multiselect(task,person);
-            }
+			// SELECT task as Task, person as Person, ...
+			cq.multiselect(task,person);
 			
 			// WHERE person.personId = task.assignedTo
-	        cq.where(cb.equal(task.get(Task_.assignedTo), person.get(Person_.personId)));
-			
-			// WHERE t.name LIKE nameFilterValue
+			List<Predicate> conditions = new LinkedList<Predicate>();		
+	        conditions.add(cb.equal(task.get(Task_.assignedTo), person.get(Person_.personId)));
+	        		
+			// AND t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
-				cq.where(
+				conditions.add(
 						cb.like(
 								task.get(Task_.name), // t.name
 								nameFilterValue)  // pattern to be matched?
 				);
-			}			
+			}		
 
+			// pass the list of individual predicates, which will be AND-ed together.
+			cq.where(conditions.toArray(new Predicate[]{}));
 			return person;
 		}
 
