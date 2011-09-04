@@ -33,7 +33,7 @@ import com.vaadin.data.Property;
 /**
  * Define simple restrictions to be added to the WHERE clause
  * 
- * Useful because we cannot defined JPA2.0 Expressions independently of an EntityManager. This class creates JPA2.0
+ * Useful because we cannot define JPA2.0 Expressions independently of an EntityManager. This class creates JPA2.0
  * predicates based on a list of simple criteria.
  * 
  * This reduces the need to create subclasses of {@link AbstractCriteriaQueryDefinition}.
@@ -43,6 +43,7 @@ import com.vaadin.data.Property;
  * @author jflamy
  * 
  */
+@Deprecated
 public class FilterRestriction implements Property {
 
     /**
