@@ -35,7 +35,6 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -85,7 +84,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
         );
     }
 
-    return person;
+    return task; // for EclipseLink you must return the rightmost joined entity.
 }
 }</pre>
  * 
@@ -124,8 +123,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/** all columns and expressions returned by the where */
 	protected CriteriaQuery<Object> countingQuery;
 
-	/** the root for the query */
-	protected Root<?> root;
+	/** what to count */
+	protected Path<?> countingPath;
 
     private Collection<FilterRestriction> filters;
 
@@ -169,7 +168,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	@Override
     public void refresh() {
     	countingQuery = criteriaBuilder.createQuery();
-    	root = defineQuery(criteriaBuilder, countingQuery);
+    	countingPath = defineQuery(criteriaBuilder, countingQuery);
     	mapProperties(countingQuery, countingExpressionMap, false);
         addFilteringConditions(criteriaBuilder, countingQuery, countingExpressionMap);
         
@@ -226,7 +225,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	    Selection<?> selection = countingQuery.getSelection();
 	  
 	    if (selection == null) {
-	    	countingQuery.select(criteriaBuilder.count(root));
+	    	countingQuery.select(criteriaBuilder.count(countingPath));
 	    } else if (selection.isCompoundSelection()) {
 	        List<Selection<?>> items = selection.getCompoundSelectionItems();
 	        if (items.size() == 1) {
@@ -238,7 +237,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	                countingQuery.select(criteriaBuilder.count((Expression<?>) items.get(0)));
 	            }
 	        } else {
-	            countingQuery.select(criteriaBuilder.count(root));
+	            countingQuery.select(criteriaBuilder.count(countingPath));
 	        }
 	    } else {
 	    	if (countingQuery.isDistinct()) {
@@ -268,7 +267,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return a root of the query (used for counting the lines returned)
 	 */
 	@Override
-	protected abstract Root<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery);
+	protected abstract Path<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery);
 	
 
 	/**
