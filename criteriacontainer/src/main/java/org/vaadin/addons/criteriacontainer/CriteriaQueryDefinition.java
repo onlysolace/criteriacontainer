@@ -102,6 +102,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
             CriteriaQuery<?> criteriaQuery) {
         Root<ItemEntity> t = criteriaQuery.from(getEntityClass());
         // select all root objects by default.
+        criteriaQuery.multiselect(t);
         return t;
     }
     
