@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.8</version>
+			<version>1.2.10</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.vaadin</groupId>
