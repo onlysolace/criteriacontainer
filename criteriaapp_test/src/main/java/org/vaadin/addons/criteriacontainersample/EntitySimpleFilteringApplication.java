@@ -123,8 +123,6 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
         table.setColumnWidth("reporter", 135);
         table.setColumnWidth("assignee", 135);  
 
-        logger.warn("column names: {}",visibleColumnIds);
-
         table.setVisibleColumns(visibleColumnIds.toArray());
         table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
     }
