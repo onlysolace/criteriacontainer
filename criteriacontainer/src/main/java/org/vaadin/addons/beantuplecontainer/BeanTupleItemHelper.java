@@ -50,7 +50,7 @@ public class BeanTupleItemHelper implements Query {
     private TypedQuery<Tuple> selectQuery;
     
     /** The JPA select count query. */
-    private TypedQuery<Long> selectCountQuery;
+    private TypedQuery<Object> selectCountQuery;
     
     /** QueryDefinition contains definition of the query properties and batch size. */
     protected BeanTupleQueryDefinition queryDefinition;

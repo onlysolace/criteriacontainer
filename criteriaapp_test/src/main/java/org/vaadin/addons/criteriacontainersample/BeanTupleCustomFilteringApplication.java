@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 
@@ -63,7 +64,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 */
 		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
-			logger.warn("new querydefinition: nameFilterValue={}",nameFilterValue);
+			logger.debug("new querydefinition: nameFilterValue={}",nameFilterValue);
 		}
 		
 
@@ -75,7 +76,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
 		@Override
-		protected Root<?> defineQuery(
+		protected Path<?> defineQuery(
 				CriteriaBuilder cb,
 				CriteriaQuery<?> cq) {
 			
@@ -95,7 +96,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 				);
 			}
 
-			return person;
+			return task;
 		}
 
 

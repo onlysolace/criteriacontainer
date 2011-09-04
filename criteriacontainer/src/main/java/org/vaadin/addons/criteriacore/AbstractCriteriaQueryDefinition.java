@@ -30,7 +30,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +191,7 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 	 * @param cq the query as built so far
 	 * @return the root for the query
 	 */
-	abstract protected Root<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq);
+	abstract protected Path<?> defineQuery(CriteriaBuilder cb, CriteriaQuery<?> cq);
  
 
     /* (non-Javadoc)
@@ -206,9 +205,11 @@ public abstract class AbstractCriteriaQueryDefinition<T> implements QueryDefinit
 
 	/**
 	 * This method returns the number of entities.
+	 * The returned type is actually guaranteed to be a Long, but implementation choices
+	 * in some JPA libraries currently prevent us from doing this with a type-safe declaration.
 	 * @return number of entities.
 	 */
-	abstract public TypedQuery<Long> getCountQuery() ;
+	abstract public TypedQuery<?> getCountQuery() ;
 	
 	/**
 	 * refresh the query.
