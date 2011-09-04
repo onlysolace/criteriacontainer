@@ -99,8 +99,8 @@ public abstract class AbstractEntityApplication extends Application implements C
 			createEntities();
 			criteriaContainer.refresh();
 			size = criteriaContainer.size();
+
 		}
-		
 	
 		createTable(criteriaContainer);
 		table.setPageLength(0);
@@ -144,7 +144,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 			task.setBeta(suffix);
 			task.setGamma(suffix);
 			task.setDelta(suffix);
-			
+			logger.debug("adding task {}",task);
 			entityManager.persist(task);
 		}
 	

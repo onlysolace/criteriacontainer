@@ -16,10 +16,13 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
@@ -65,18 +68,19 @@ public class BeanTupleCrossProductFilteringApplication extends AbstractBeanTuple
 		 */
 		public CustomFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
-			logger.warn("new querydefinition: nameFilterValue={}",nameFilterValue);
+			logger.debug("new querydefinition: nameFilterValue={}",nameFilterValue);
 		}
 		
 
 		/** 
 		 * Define the query to be executed.
-		 * This version uses two roots.
+		 * This version uses two roots.  This works with Hibernate, but fails with EclipseLink.  EclipseLink generates bogus SQL when trying to
+		 * count either persons or tasks when both are roots.  For EclipseLink, use joins as shown in {@link BeanTupleCustomFilteringApplication}
 		 * 
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
 		@Override
-		protected Root<?> defineQuery(
+		protected Path<?> defineQuery(
 				CriteriaBuilder cb,
 				CriteriaQuery<?> cq) {
 			
@@ -84,22 +88,25 @@ public class BeanTupleCrossProductFilteringApplication extends AbstractBeanTuple
 			Root<Person> person = (Root<Person>) cq.from(Person.class);
 			Root<Task> task = (Root<Task>) cq.from(Task.class);
 			
-	         // SELECT task as Task, person as Person, ... 
-            cq.multiselect(task,person);
+			// SELECT task as Task, person as Person, ...
+			cq.multiselect(task,person);
 			
 			// WHERE person.personId = task.assignedTo
-	        cq.where(cb.equal(task.get(Task_.assignedTo), person.get(Person_.personId)));
-			
-			// WHERE t.name LIKE nameFilterValue
+			List<Predicate> conditions = new LinkedList<Predicate>();		
+	        conditions.add(cb.equal(task.get("assignedTo"), person.get(Person_.personId)));
+	        		
+			// AND t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
-				cq.where(
+				conditions.add(
 						cb.like(
 								task.get(Task_.name), // t.name
 								nameFilterValue)  // pattern to be matched?
 				);
-			}			
+			}		
 
-			return person;
+			// pass the list of individual predicates, which will be AND-ed together.
+			cq.where(conditions.toArray(new Predicate[]{}));
+			return task;
 		}
 
 

@@ -102,6 +102,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
             CriteriaQuery<?> criteriaQuery) {
         Root<ItemEntity> t = criteriaQuery.from(getEntityClass());
         // select all root objects by default.
+        criteriaQuery.multiselect(t);
         return t;
     }
     
@@ -149,7 +150,7 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
     public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
         init();
         String propertyId = attr.getName();
-        if (propertyIds.contains(propertyId)) {
+        if (getPropertyIds().contains(propertyId)) {
             return propertyId;
         } else {
             return null;

@@ -35,7 +35,6 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -85,7 +84,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
         );
     }
 
-    return person;
+    return task; // for EclipseLink you must return the rightmost joined entity.
 }
 }</pre>
  * 
@@ -122,10 +121,10 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	protected CriteriaQuery<Tuple> tupleQuery;
 	
 	/** all columns and expressions returned by the where */
-	protected CriteriaQuery<Long> countingQuery;
+	protected CriteriaQuery<Object> countingQuery;
 
-	/** the root for the query */
-	protected Root<?> root;
+	/** what to count */
+	protected Path<?> countingPath;
 
     private Collection<FilterRestriction> filters;
 
@@ -168,8 +167,8 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
     public void refresh() {
-    	countingQuery = criteriaBuilder.createQuery(Long.class);
-    	root = defineQuery(criteriaBuilder, countingQuery);
+    	countingQuery = criteriaBuilder.createQuery();
+    	countingPath = defineQuery(criteriaBuilder, countingQuery);
     	mapProperties(countingQuery, countingExpressionMap, false);
         addFilteringConditions(criteriaBuilder, countingQuery, countingExpressionMap);
         
@@ -207,7 +206,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}		
 		
 		final TypedQuery<Tuple> tq = getEntityManager().createQuery(tupleQuery);
-		// the container deals with the parameter values set through the filter() method
+		// the container will set the parameter values that are defined through the filter() method
 		// so we only handle those that we add ourselves
 		setParameters(tq);
 		return tq;
@@ -218,13 +217,16 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return number of entities.
 	 */
 	@Override
-	public TypedQuery<Long> getCountQuery() {
+	public TypedQuery<Object> getCountQuery() {
 	    init();
 
 	    // we only want the count so we override the selection in the query
 	    countingQuery.orderBy();
-	    Selection<Long> selection = countingQuery.getSelection();
-	    if (selection.isCompoundSelection()) {
+	    Selection<?> selection = countingQuery.getSelection();
+	  
+	    if (selection == null) {
+	    	countingQuery.select(criteriaBuilder.count(countingPath));
+	    } else if (selection.isCompoundSelection()) {
 	        List<Selection<?>> items = selection.getCompoundSelectionItems();
 	        if (items.size() == 1) {
 	            if (countingQuery.isDistinct()) {
@@ -235,12 +237,12 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	                countingQuery.select(criteriaBuilder.count((Expression<?>) items.get(0)));
 	            }
 	        } else {
-	            countingQuery.select(criteriaBuilder.count(root));
+	            countingQuery.select(criteriaBuilder.count(countingPath));
 	        }
 	    } else {
-	        if (countingQuery.isDistinct()) {
+	    	if (countingQuery.isDistinct()) {
 	            countingQuery.distinct(false);
-	            countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) countingQuery.getSelection()));
+				countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) selection));
 	        } else {
 	            countingQuery.select(criteriaBuilder.count((Expression<?>) countingQuery.getSelection()));
 	        }
@@ -248,7 +250,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 
 
 	    // create the executable query
-	    final TypedQuery<Long> countQuery = getEntityManager().createQuery(countingQuery);
+	    final TypedQuery<Object> countQuery = getEntityManager().createQuery(countingQuery);
 	    setParameters(countQuery);
 	    return countQuery;
 	}
@@ -265,7 +267,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 * @return a root of the query (used for counting the lines returned)
 	 */
 	@Override
-	protected abstract Root<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery);
+	protected abstract Path<?> defineQuery(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> tupleQuery);
 	
 
 	/**
@@ -527,20 +529,24 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		}
 		// add the other items in the selection that are not meant to be sortable
 		Selection<?> selection = query.getSelection();
-		if (selection == null) {
-		    throw new PersistenceException("No selection defined on query.");
-		}
-        List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
-		for (Selection<?> compoundSelection: compoundSelectionItems){
-		    
-			if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
-			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
-				addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
+		if (selection != null) {
+			if (selection.isCompoundSelection()) {
+				List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
+				for (Selection<?> compoundSelection: compoundSelectionItems){
+
+					if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
+						if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
+						addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
+					} else {
+						if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
+						addComputedProperty(expressionMap, compoundSelection, defineProperties);
+					}
+				}
 			} else {
-			    if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
-				addComputedProperty(expressionMap, compoundSelection, defineProperties);
+				// counting or agregate query, do nothing.
 			}
 		}
+		
 	}
 
 

@@ -192,7 +192,7 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			task.setDelta(Integer.toString(i));
 			if (i == 0 || i == 3) {
 				task.setAssignedTo(person1);
-			} else if (i == 1) {
+			} else if (i == 1 || i == 3) {
 				task.setAssignedTo(person2);
 			}
 			entityManager.persist(task);

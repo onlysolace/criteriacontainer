@@ -1,5 +1,15 @@
 #summary Release Notes
 
+== Release 0.6.0 ==
+  * Tested under EclipseLink. The following caveats apply for EclipseLink
+    - when using BeanTupleContainer, you cannot return one of the roots for the purpose of counting the tuples.
+      you must return the rightmost joined table
+    - corollary: you should use joins, not multiple roots, when expressing your queries. EclipseLink generates
+      bogus SQL under certain circumstances involving counts and multiple roots.
+  * The method defineQuery() now returns a Path, which designates what needs to be counted to determine the size
+    of the complete query.  For Hibernate, any root will do, for EclipseLink you need to return a joined table if
+    there is a join, or a root if there is no join. 
+
 == Release 0.5.1 ==
   * Additional support for setKeyPropertyId so that the key can be used instead of the container index for
     the "Id" methods (indexOfId, isFirstId, isLastId, lastItemId, nextItemId, firstItemId, lastItemId, removeItem).

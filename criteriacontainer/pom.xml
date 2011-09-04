@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5.1</version>
+	<version>0.6.0</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>
@@ -44,58 +44,13 @@
 	</build>
 
 	<profiles>
-		<!-- Local caching repository for container developer; change for your own settings
-		     if you have such a repository.
-		     see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
-		<profile>
-			<id>artifactory</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<repositories>
-				<repository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</snapshots>
-				</pluginRepository>
-			</pluginRepositories>
-			<distributionManagement>
-				<repository>
-					<id>XWAVE-Artifactory</id>
-					<name>XWAVE-Artifactory-releases</name>
-					<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
-				</repository>
-			</distributionManagement>
-		</profile>	
+
 		<profile>
 			<!-- Activate this profile if running without a local caching repository 
 				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
 			<id>useExternalRepositories</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<repositories>
 				<repository>
@@ -135,16 +90,14 @@
 	</profiles>
 
 	<dependencies>
-		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
-		<!-- <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-user</artifactId> 
-			<version>2.0.4</version> <scope>provided</scope> </dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
 			<version>6.5.7</version>
 		</dependency>
-		<!-- we put this dependency first so it satisfies javax.persistance this 
-			version provides the javadoc -->
+		<!-- The following Hibernate dependencies can be used to force the download
+		  of the Hibernate JPA model generator for annotation processing and
+		  commented out afterwards. 
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -160,10 +113,17 @@
 			<artifactId>hibernate-jpamodelgen</artifactId>
 			<version>1.0.0.Final</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.8</version>
+			<version>1.2.9</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
