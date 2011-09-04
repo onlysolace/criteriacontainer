@@ -16,11 +16,13 @@
 package org.vaadin.addons.criteriacontainersample.data;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 
 /**
  * Task entity for JPA testing.
@@ -49,11 +51,11 @@ public final class Task implements Serializable {
     /** Delta value. */ 
 	private String delta;
 	
-	@ManyToOne
-	private Person assignedTo;
+	@ManyToMany(targetEntity=Person.class)
+	private Set<Person> assignedTo;
+
 	
-	
-    /**
+	/**
      * @return the taskId
      */
     public long getTaskId() {
@@ -160,11 +162,31 @@ public final class Task implements Serializable {
     public String toString() {
         return "Task name: " + name + " reporter: " + reporter + " assignee: " + assignee;
     }
+    
+	/**
+	 * Simulate a limit of one person assigned to a given task.
+	 * @param assignedTo
+	 */
 	public void setAssignedTo(Person assignedTo) {
+		if (this.assignedTo == null) {
+			this.assignedTo = new HashSet<Person>();
+		} else {
+			//this.assignedTo.clear();
+		}
+		this.assignedTo.add(assignedTo);
+	}
+	
+    /**
+	 * @param assignedTo the assignedTo to set
+	 */
+	public void setAssignedTo(Set<Person> assignedTo) {
 		this.assignedTo = assignedTo;
 	}
-	public Person getAssignedTo() {
-		return assignedTo;
+	
+	
+	public Set<Person> getAssignedTo() {
+		if (assignedTo == null) return new HashSet<Person>();
+		return this.assignedTo;
 	}
   
 }

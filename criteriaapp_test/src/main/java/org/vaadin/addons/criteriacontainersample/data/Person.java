@@ -15,12 +15,13 @@
  */
 package org.vaadin.addons.criteriacontainersample.data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 
 /**
  * @author jflamy
@@ -36,7 +37,7 @@ public class Person {
     
     private String lastName;
     
-    @OneToMany(mappedBy="assignedTo")
+    @ManyToMany(mappedBy="assignedTo",targetEntity=Task.class)
     private Set<Task> tasks;
 
 	public long getPersonId() {
@@ -68,6 +69,7 @@ public class Person {
 	}
 
 	public Set<Task> getTasks() {
+		if (tasks == null) return new HashSet<Task>();
 		return tasks;
 	}
 }
