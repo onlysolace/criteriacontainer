@@ -12,11 +12,11 @@
 
 	<!-- testing entity-based JPA2.0 retrieval -->
 	<servlet>
-		<servlet-name>EntitySimpleFilteringApplication</servlet-name>
+		<servlet-name>EntityContainerFilteringApplication</servlet-name>
 		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
 		<init-param>
 			<param-name>application</param-name>
-			<param-value>org.vaadin.addons.criteriacontainersample.EntitySimpleFilteringApplication</param-value>
+			<param-value>org.vaadin.addons.criteriacontainersample.EntityContainerFilteringApplication</param-value>
 		</init-param>
 	</servlet>
 	<servlet>
@@ -39,6 +39,14 @@
 
 	<!-- testing "entity tuple"-based JPA2.0 retrieval -->
 	<servlet>
+		<servlet-name>BeanTupleContainerFilteringApplication</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleContainerFilteringApplication</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
 		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>
 		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
 		<init-param>
@@ -47,37 +55,42 @@
 		</init-param>
 	</servlet>
 	<servlet>
-		<servlet-name>BeanTupleSimpleFilteringApplication</servlet-name>
+		<servlet-name>BeanTupleCrossProductFilteringApplication</servlet-name>
 		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
 		<init-param>
 			<param-name>application</param-name>
-			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleSimpleFilteringApplication</param-value>
+			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleCrossProductFilteringApplication</param-value>
 		</init-param>
 	</servlet>
 
 
 	<servlet-mapping>
-		<servlet-name>EntityCustomFilteringApplication</servlet-name>
-		<url-pattern>/c/*</url-pattern>
+		<servlet-name>EntityContainerFilteringApplication</servlet-name>
+		<url-pattern>/e/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>EntitySimpleFilteringApplication</servlet-name>
-		<url-pattern>/s/*</url-pattern>
+		<servlet-name>EntityCustomFilteringApplication</servlet-name>
+		<url-pattern>/ec/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>EntityParameterizedFilteringApplication</servlet-name>
-		<url-pattern>/p/*</url-pattern>
+		<url-pattern>/ep/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>
-		<url-pattern>/b/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>BeanTupleSimpleFilteringApplication</servlet-name>
+		<servlet-name>BeanTupleContainerFilteringApplication</servlet-name>
 		<url-pattern>/t/*</url-pattern>
 	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>
+		<url-pattern>/tc/*</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>EntitySimpleFilteringApplication</servlet-name>
+		<servlet-name>BeanTupleCrossProductFilteringApplication</servlet-name>
+		<url-pattern>/tx/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EntityContainerFilteringApplication</servlet-name>
 		<url-pattern>/VAADIN/*</url-pattern>
 	</servlet-mapping>
 </web-app>
