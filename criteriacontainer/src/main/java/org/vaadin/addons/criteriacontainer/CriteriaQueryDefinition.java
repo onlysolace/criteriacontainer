@@ -150,18 +150,19 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
     public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
         init();
         String propertyId = attr.getName();
-        if (getPropertyIds().contains(propertyId)) {
-            return propertyId;
-        } else {
-            return null;
-        }
+//        if (getPropertyIds().contains(propertyId)) {
+//            return propertyId;
+//        } else {
+//            return null;
+//        }
+       return propertyId;
     }
 
     
     /**
      * Compute the property id from information available in the static metamodel.
      * This override is needed because we return a BeanItem for the entity and not a BeanTupleItem.
-     * Therefore the type name or alias must not be present.
+     * In this case, we simply return the property id, and not the qualified name.
      * 
      * @param alias alias used in the query definition.
      * @param attr a singular attribute defined in the model
@@ -171,11 +172,12 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
     public String getPropertyId(String alias, SingularAttribute<?, ?> attr) {
         init();
         String propertyId = attr.getName();
-        if (propertyIds.contains(propertyId)) {
-            return propertyId;
-        } else {
-            return null;
-        }
+//        if (propertyIds.contains(propertyId)) {
+//            return propertyId;
+//        } else {
+//            return null;
+//        }
+        return propertyId;
     }
     
     
