@@ -46,9 +46,9 @@ import com.vaadin.ui.Button.ClickListener;
 public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
-	private SimpleFilteringBeanTupleQueryDefinition cd;
+	private ContainerFilteringBeanTupleQueryDefinition qd;
 
-	class SimpleFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
+	class ContainerFilteringBeanTupleQueryDefinition extends BeanTupleQueryDefinition {
 		private SetJoin<Person, Task> task;
 
 
@@ -58,7 +58,7 @@ public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApp
 		 * @param applicationManagedTransactions false if running in a J2EE container that provides the entityManager used, true otherwise
 		 * @param batchSize how many tuples to retrieve at once.
 		 */
-		public SimpleFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
+		public ContainerFilteringBeanTupleQueryDefinition(EntityManager entityManager, boolean applicationManagedTransactions, int batchSize) {
 			super(entityManager, applicationManagedTransactions, batchSize);
 		}
 		
@@ -89,18 +89,19 @@ public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApp
 	
 	@Override
 	protected void defineTableColumns() {
-	    // getPropertyId is used so we don't have to look at defineQuery() to figure
-	    // out if aliases were used; this also makes things type safe if we rename a field.
-		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
+	    // getPropertyId is used to apply the proper property syntax according to
+		// the container. In this case, we are using a BeanTupleContainer
+		// and we could have used "Task.taskId", but the method is safer.
+		visibleColumnIds.add(qd.getPropertyId(Task_.class, Task_.taskId));
 		visibleColumnLabels.add("Task ID");
 		
-		visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
+		visibleColumnIds.add(qd.getPropertyId(Task_.class, Task_.name));
 		visibleColumnLabels.add("Name");
 		
-		visibleColumnIds.add(cd.getPropertyId(Person_.class, Person_.firstName));
+		visibleColumnIds.add(qd.getPropertyId(Person_.class, Person_.firstName));
 		visibleColumnLabels.add("Assignee First Name");
 		
-		visibleColumnIds.add(cd.getPropertyId(Person_.class, Person_.lastName));
+		visibleColumnIds.add(qd.getPropertyId(Person_.class, Person_.lastName));
 		visibleColumnLabels.add("Assignee Last Name");
 		
 		table.setVisibleColumns(visibleColumnIds.toArray());
@@ -116,8 +117,8 @@ public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApp
 	 */
 	@Override
 	protected BeanTupleContainer createTupleContainer() {
-		cd = new SimpleFilteringBeanTupleQueryDefinition(entityManager,true,100);
-		BeanTupleContainer tupleContainer = new BeanTupleContainer(cd);
+		qd = new ContainerFilteringBeanTupleQueryDefinition(entityManager,true,100);
+		BeanTupleContainer tupleContainer = new BeanTupleContainer(qd);
 
 		return tupleContainer;
 	}
@@ -138,9 +139,9 @@ public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApp
         // get filtering string from the user interface
         final String nameFilterValue = (String) nameFilterField.getValue();
         // this makes code portable between CriteriaContainer and BeanItemContainer
-    	String propertyId = cd.getPropertyId(Task_.class, Task_.name);
+    	String propertyId = qd.getPropertyId(Task_.class, Task_.name);
     	
-        // if value define add the filtering conditions, else remove them.
+        // if value is defined add the filtering conditions, else remove them.
         if (nameFilterValue != null && nameFilterValue.length() != 0) {
             // filtering style #2
             // simple conditions are added to a list and passed to the filter mechanism.

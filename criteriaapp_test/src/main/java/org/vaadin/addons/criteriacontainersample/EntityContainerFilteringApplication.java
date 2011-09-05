@@ -38,7 +38,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 @SuppressWarnings("serial")
 public class EntityContainerFilteringApplication extends AbstractEntityApplication  {
 	
-	protected CriteriaQueryDefinition<Task> cd;
+	protected CriteriaQueryDefinition<Task> qd;
 	
 	
 	/**
@@ -46,9 +46,10 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
 	 */
 	@Override
 	protected CriteriaContainer<Task> createTaskContainer() {
-		cd = new CriteriaQueryDefinition<Task>(entityManager,true,100,Task.class);
-		
-		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
+		// the default query definition gives us all the entities and respects
+		// container filtering and sorting with nothing else to do.
+		qd = new CriteriaQueryDefinition<Task>(entityManager,true,100,Task.class);		
+		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(qd);
 		addContainerProperties(taskContainer);
 		return taskContainer;
 	}
@@ -68,7 +69,7 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
         // get filtering string from the user interface
         final String nameFilterValue = (String) nameFilterField.getValue();
         // this makes code portable between CriteriaContainer and BeanItemContainer
-    	String propertyId = cd.getPropertyId(Task_.class, Task_.name);
+    	String propertyId = qd.getPropertyId(Task_.class, Task_.name);
         
         // if value define add the filtering conditions, else remove them.
         if (nameFilterValue != null && nameFilterValue.length() != 0) {
@@ -88,7 +89,7 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
      */
     @Override
     protected void addContainerProperties(CriteriaContainer<Task> taskContainer) {
-        // we want assignee.hashcode to be a property (computed as a nested property)
+        // we want assignee.class to be a property (via getClass() accessor)
         taskContainer.addContainerProperty(
                 Task_.assignee.getName()+".class",
                 Class.class,
@@ -99,26 +100,29 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
     
 	/**
      * define the columns visible and the order in which they appear.
+     * If we don't do this we get all the columns as returned by the database.
      */
     @Override
     protected void defineTableColumns() {
         //visibleColumnIds.add(LazyQueryView.PROPERTY_ID_ITEM_STATUS);
         
-    	
-        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.taskId));
+    	// getPropertyId() makes the code portable between CriteriaContainer
+    	// and BeanTupleContainer. In the current example, we use a CriteriaContainer
+    	// and we could have simply used "taskId".
+        visibleColumnIds.add(qd.getPropertyId(Task_.class, Task_.taskId));
         visibleColumnLabels.add("Task ID");
         
-        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.name));
+        visibleColumnIds.add(qd.getPropertyId(Task_.class, Task_.name));
         visibleColumnLabels.add("Name");
         
-        visibleColumnIds.add(cd.getPropertyId(Task_.class, Task_.reporter));
+        visibleColumnIds.add(qd.getPropertyId(Task_.class, Task_.reporter));
         visibleColumnLabels.add("Reporter");
         
-        String assigneeName = cd.getPropertyId(Task_.class, Task_.assignee);
+        String assigneeName = qd.getPropertyId(Task_.class, Task_.assignee);
 		visibleColumnIds.add(assigneeName);
         visibleColumnLabels.add("Assignee");
         visibleColumnIds.add(assigneeName+".class");
-        visibleColumnLabels.add("assignee.class");
+        visibleColumnLabels.add("Class");
         
         //computedColumns();
 
