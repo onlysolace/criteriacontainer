@@ -40,20 +40,18 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.1.2</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -121,6 +119,13 @@
 				<lazyquerycontainer.version>1.2.9</lazyquerycontainer.version>
 				<vaadin.version>6.6.5</vaadin.version>
 			</properties>
+			<distributionManagement>
+				<repository>
+					<id>XWAVE-Artifactory</id>
+					<name>XWAVE-Artifactory-releases</name>
+					<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
+				</repository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 
@@ -151,10 +156,10 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.8.3</version>
 		</dependency>
-		
-		<!-- The following Hibernate dependencies can be used to force the download
-		  of the Hibernate JPA model generator for annotation processing and
-		  commented out afterwards. 
+
+		<!-- The following Hibernate dependencies can be used to force the download 
+			of the Hibernate JPA model generator for annotation processing and commented 
+			out afterwards. -->
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -170,6 +175,5 @@
 			<artifactId>hibernate-jpamodelgen</artifactId>
 			<version>1.1.1.Final</version>
 		</dependency>
-		-->
 	</dependencies>
 </project>
