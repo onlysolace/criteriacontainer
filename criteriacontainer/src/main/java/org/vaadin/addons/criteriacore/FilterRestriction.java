@@ -28,17 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
 
+import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Property;
 
 /**
- * Define simple restrictions to be added to the WHERE clause
- * 
- * Useful because we cannot define JPA2.0 Expressions independently of an EntityManager. This class creates JPA2.0
- * predicates based on a list of simple criteria.
- * 
- * This reduces the need to create subclasses of {@link AbstractCriteriaQueryDefinition}.
- * 
- * 
+ * Deprecated.  Replaced by the framework's native {@link Filterable} interface.
  * 
  * @author jflamy
  * 
@@ -46,9 +40,6 @@ import com.vaadin.data.Property;
 @Deprecated
 public class FilterRestriction implements Property {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -4404152428238721179L;
 
     @SuppressWarnings("unused")
