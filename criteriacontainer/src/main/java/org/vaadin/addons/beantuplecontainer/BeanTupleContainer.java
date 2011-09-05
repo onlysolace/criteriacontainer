@@ -25,12 +25,14 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Container.Indexed;
 import com.vaadin.data.Container.ItemSetChangeNotifier;
 import com.vaadin.data.Container.PropertySetChangeNotifier;
 import com.vaadin.data.Container.Sortable;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.filter.UnsupportedFilterException;
 
 /**
  * <p>BeanTupleContainer enables using JPA 2.0 Tuple type-safe queries with lazy batch loading, filter, sort
@@ -54,8 +56,8 @@ import com.vaadin.data.Property;
  * 
  * @author Jean-François Lamy
  */
-@SuppressWarnings("serial")
-public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSetChangeNotifier, PropertySetChangeNotifier, Buffered {
+@SuppressWarnings({ "serial", "deprecation" })
+public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSetChangeNotifier, PropertySetChangeNotifier, Buffered, Filterable {
 	final static Logger logger = LoggerFactory.getLogger(BeanTupleContainer.class);
     
 	private LazyQueryContainer lazyQueryContainer;
@@ -100,8 +102,10 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	/**
 	 * Filters the container content by setting "where" criteria in the JPA Criteria.
 	 * <p>The query view and query definition must be refreshed, and then the container.</p>
+	 * @deprecated use the {@link Filterable} interface instead.
 	 * @param restrictions  restrictions to set to JPA query or null to clear.
 	 */
+    @Deprecated
 	public void filter(LinkedList<FilterRestriction> restrictions) {
         BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
         critQueryDefinition.setFilters(restrictions);
@@ -142,6 +146,36 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		lazyQueryContainer.refresh();
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.Container.Filterable#addContainerFilter(com.vaadin.data.Container.Filter)
+	 */
+	@Override
+	public void addContainerFilter(Filter filter)
+			throws UnsupportedFilterException {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.addFilter(filter);
+		queryDefinition.refresh();
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.Container.Filterable#removeContainerFilter(com.vaadin.data.Container.Filter)
+	 */
+	@Override
+	public void removeContainerFilter(Filter filter) {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.removeFilter(filter);
+		queryDefinition.refresh();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.vaadin.data.Container.Filterable#removeAllContainerFilters()
+	 */
+	@Override
+	public void removeAllContainerFilters() {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.clearFilters();
+		queryDefinition.refresh();
+	}
 	
     /* ----- interface methods are delegated to the wrapped LazyQueryContainer -----------------------
      * 
@@ -593,4 +627,5 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public BeanTupleQueryView getQueryView() {
 		return queryView;
 	}
+
 }

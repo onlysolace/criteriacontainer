@@ -1,11 +1,14 @@
 #summary Release Notes
 
+== Release 0.9.0 ==
+  * Supports Container.Filterable as per release 6.6 of Vaadin
+
 == Release 0.6.0 ==
   * Tested under EclipseLink. The following caveats apply for EclipseLink
-    - when using BeanTupleContainer, you cannot return one of the roots for the purpose of counting the tuples.
-      you must return the rightmost joined table
-    - corollary: you should use joins, not multiple roots, when expressing your queries. EclipseLink generates
-      bogus SQL under certain circumstances involving counts and multiple roots.
+    - when using BeanTupleContainer, you cannot use multiple roots to create a cross-product and then
+      use the where clause to narrow it down.  You must use joins; EclipseLink generates bogus SQL otherwise.
+    - When using joins in a query, defineQuery() should return a joined entity so that the count of tuples is correct.
+      If you use a root, EclipseLink returns the number of items for that entity, and not that of the query (duh).
   * The method defineQuery() now returns a Path, which designates what needs to be counted to determine the size
     of the complete query.  For Hibernate, any root will do, for EclipseLink you need to return a joined table if
     there is a join, or a root if there is no join. 
