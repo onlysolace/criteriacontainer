@@ -15,11 +15,10 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.LinkedList;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 
@@ -29,8 +28,9 @@ import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.FilterRestriction;
 
+import com.vaadin.data.Container.Filterable;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.ui.Button.ClickListener;
 
 /**
@@ -43,7 +43,7 @@ import com.vaadin.ui.Button.ClickListener;
  * @author Modified by Jean-François Lamy
  */
 
-public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
+public class BeanTupleContainerFilteringApplication extends AbstractBeanTupleApplication implements ClickListener {
 	private static final long serialVersionUID = 1L;
 
 	private SimpleFilteringBeanTupleQueryDefinition cd;
@@ -71,7 +71,7 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
 		 */
 		@Override
-		protected Root<?> defineQuery(
+		protected Path<?> defineQuery(
 				CriteriaBuilder cb,
 				CriteriaQuery<?> cq) {
 			
@@ -82,7 +82,7 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
 			// SELECT task as Task, person as Person, ... 
 			cq.multiselect(task,person);
 
-			return person;
+			return task;  // EclipseLink requires a joined entity for the count
 		}
 	}
 
@@ -128,7 +128,7 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
      * Get a query definition with filtering activated
      * 
      * In this version, we use the generic filtering mechanism provided
-     * by CriteriaContainer.
+     * by the {@link Filterable} interface of the container
      * 
      * see {@link BeanTupleCustomFilteringApplication} for
      * an alternate approach where arbitrary complex filtering can be done through methods.
@@ -137,18 +137,20 @@ public class BeanTupleSimpleFilteringApplication extends AbstractBeanTupleApplic
     protected void doFiltering() {
         // get filtering string from the user interface
         final String nameFilterValue = (String) nameFilterField.getValue();
-        
+        // this makes code portable between CriteriaContainer and BeanItemContainer
+    	String propertyId = cd.getPropertyId(Task_.class, Task_.name);
+    	
         // if value define add the filtering conditions, else remove them.
         if (nameFilterValue != null && nameFilterValue.length() != 0) {
             // filtering style #2
             // simple conditions are added to a list and passed to the filter mechanism.
-            final LinkedList<FilterRestriction> restrictions = new LinkedList<FilterRestriction>();
-            restrictions.add(new FilterRestriction(
-                    Task.class.getSimpleName()+"."+Task_.name.getName(),
-                    FilterRestriction.Operation.LIKE, nameFilterValue));
-            criteriaContainer.filter(restrictions);
+        	criteriaContainer.removeAllContainerFilters();
+			SimpleStringFilter filter = new SimpleStringFilter(propertyId, nameFilterValue, true, true);
+			criteriaContainer.addContainerFilter(filter);
+        	criteriaContainer.refresh();
         } else {
-            criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
+            criteriaContainer.removeAllContainerFilters();
+            criteriaContainer.refresh();
         }
     }
 	

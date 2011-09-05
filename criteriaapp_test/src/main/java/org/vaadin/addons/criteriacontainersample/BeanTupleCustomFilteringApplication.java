@@ -15,8 +15,6 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.LinkedList;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,7 +28,6 @@ import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Person_;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.FilterRestriction;
 
 import com.vaadin.ui.Button.ClickListener;
 
@@ -162,15 +159,10 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 			// filtering style #1: query definition includes type safe filters.
 			// the query has its own specific mechanism for setting the filters up.
 			cd.setNameFilterValue(nameFilterValue);
-			cd.refresh(); // recompute the query
-
-			// do not refresh if calling "filter()" later.
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			cd.refresh(); // recompute the query
-
-			criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
+			criteriaContainer.refresh();
 		}
 	}
 

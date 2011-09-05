@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainersample;
 
 import java.text.MessageFormat;
-import java.util.LinkedList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -28,7 +27,6 @@ import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.FilterRestriction;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -124,10 +122,12 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 			// filtering style #1: query definition includes type safe filters.
 			// the query has its own specific mechanism for setting the filters up.
 			cd.setNameFilterValue(nameFilterValue);
+			cd.refresh(); // recompute the query
 			criteriaContainer.refresh();
 		} else {
 			cd.setNameFilterValue(null);
-			criteriaContainer.filter((LinkedList<FilterRestriction>)null);    
+			cd.refresh(); // recompute the query
+			criteriaContainer.refresh();   
 		}
 	}
 	
