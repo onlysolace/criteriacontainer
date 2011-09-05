@@ -87,8 +87,7 @@
 			</repositories>
 		</profile>
 		<profile>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<!-- upcoming versions -->
 			<id>dev</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
@@ -99,8 +98,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<!-- Stable, publicly available versions -->
 			<id>build</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -118,25 +116,6 @@
 			<artifactId>vaadin</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
-		<!-- The following Hibernate dependencies can be used to force the download
-		  of the Hibernate JPA model generator for annotation processing and
-		  commented out afterwards. 
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.0.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.5.2-Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-jpamodelgen</artifactId>
-			<version>1.0.0.Final</version>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
@@ -165,5 +144,25 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.8.3</version>
 		</dependency>
+		
+		<!-- The following Hibernate dependencies can be used to force the download
+		  of the Hibernate JPA model generator for annotation processing and
+		  commented out afterwards. 
+		<dependency>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
+			<version>1.0.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>3.6.6.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jpamodelgen</artifactId>
+			<version>1.1.1.Final</version>
+		</dependency>
+		-->
 	</dependencies>
 </project>
