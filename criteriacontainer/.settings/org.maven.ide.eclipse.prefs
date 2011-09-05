@@ -1,5 +1,5 @@
-#Sun Sep 04 21:28:14 EDT 2011
-activeProfiles=useExternalRepositories,build
+#Mon Sep 05 15:51:34 EDT 2011
+activeProfiles=
 eclipse.preferences.version=1
 fullBuildGoals=process-test-resources
 resolveWorkspaceProjects=true
