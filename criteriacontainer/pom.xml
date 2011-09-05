@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.6.0</version>
+	<version>0.9.0</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>
@@ -44,7 +44,6 @@
 	</build>
 
 	<profiles>
-
 		<profile>
 			<!-- Activate this profile if running without a local caching repository 
 				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
@@ -87,13 +86,37 @@
 				</repository>
 			</repositories>
 		</profile>
+		<profile>
+			<!-- Activate this profile if running without a local caching repository 
+				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<id>dev</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<lazyquerycontainer.version>1.2.10</lazyquerycontainer.version>
+				<vaadin.version>6.7-SNAPSHOT</vaadin.version>
+			</properties>
+		</profile>
+		<profile>
+			<!-- Activate this profile if running without a local caching repository 
+				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<id>build</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<lazyquerycontainer.version>1.2.9</lazyquerycontainer.version>
+				<vaadin.version>6.6.5</vaadin.version>
+			</properties>
+		</profile>
 	</profiles>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5.7</version>
+			<version>${vaadin.version}</version>
 		</dependency>
 		<!-- The following Hibernate dependencies can be used to force the download
 		  of the Hibernate JPA model generator for annotation processing and
@@ -117,7 +140,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>1.2.9</version>
+			<version>${lazyquerycontainer.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.vaadin</groupId>

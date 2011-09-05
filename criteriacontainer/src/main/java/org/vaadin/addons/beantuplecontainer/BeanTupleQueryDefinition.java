@@ -44,7 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition;
 import org.vaadin.addons.criteriacore.FilterRestriction;
+import org.vaadin.addons.criteriacore.FilterTranslator;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
+
+import com.vaadin.data.Container.Filter;
 
 /**
  * Type-safe implementation of JPA 2.0 Tuple-based query definition.
@@ -91,6 +94,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * @author jflamy
  */
 
+@SuppressWarnings("deprecation")
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
@@ -126,7 +130,9 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	/** what to count */
 	protected Path<?> countingPath;
 
-    private Collection<FilterRestriction> filters;
+    private Collection<FilterRestriction> restrictions;
+    
+	private Collection<Filter> filters = new HashSet<Filter>();
 
     private boolean detachedEntities = false;
 
@@ -170,12 +176,12 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
     	countingQuery = criteriaBuilder.createQuery();
     	countingPath = defineQuery(criteriaBuilder, countingQuery);
     	mapProperties(countingQuery, countingExpressionMap, false);
-        addFilteringConditions(criteriaBuilder, countingQuery, countingExpressionMap);
+        addRestrictions(criteriaBuilder, countingQuery, countingExpressionMap);
         
         tupleQuery = criteriaBuilder.createTupleQuery();
         defineQuery(criteriaBuilder, tupleQuery);
         mapProperties(tupleQuery, selectExpressionMap, true);
-        addFilteringConditions(criteriaBuilder, tupleQuery, selectExpressionMap);
+        addRestrictions(criteriaBuilder, tupleQuery, selectExpressionMap);
         
         initialized = true;
 	}
@@ -571,7 +577,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
      * @param restrictions a list of objects that each define a condition to be added
      */
     public void setFilters(Collection<FilterRestriction> restrictions) {
-        this.filters = restrictions;
+        this.restrictions = restrictions;
     }
 	
     
@@ -579,7 +585,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
      * @return the filters
      */
     public Collection<FilterRestriction> getFilters() {
-        return filters;
+        return restrictions;
     }
     
     
@@ -588,24 +594,21 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
      * @param cq the query constructed so far
      * @param expressionMap where to locate the expressions
      */
-    protected void addFilteringConditions(
+	protected void addRestrictions(
             CriteriaBuilder cb,
             CriteriaQuery<?> cq,
             Map<Object, Expression<?>> expressionMap) {
         List<Predicate> filterExpressions = new ArrayList<Predicate>();
         
-        // get the conditions already in the query
+        // get the where conditions already in the query
         Predicate currentRestriction = cq.getRestriction();
         if (currentRestriction != null){
            filterExpressions.add(currentRestriction);
         }
         
-        // predicates created from CriteriaContainer.filter()
-        if (filters != null && filters.size() > 0) {
-            Predicate predicate = FilterRestriction.getConjoinedPredicate(filters, cb, this, expressionMap);
-            filterExpressions.add(predicate);
-        }
-        
+        // get the predicates that result from container filtering
+        addFilteringPredicates(filterExpressions, cb, cq, expressionMap);
+
         // build array, casting all the elements to Predicate
         final Predicate[] array = filterExpressions.toArray(new Predicate[0]);
         
@@ -620,11 +623,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
    
     
     /**
-     * Prepare the query so that the container filter() works.
-     * 
-     * For each field named in the whereParameters map, create a parameter place holder
-     * in the query.  There is no setFilterParameters method, the container does the
-     * processing in the filter() method.
+     * Prepare the query so that container filtering works.
      * 
      * @param filterExpressions the predicates created by filtering mechanisms so far.
      * @param cb the current query builder
@@ -632,13 +631,17 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
      * @param expressionMap where to lookup expressions by id
      * @return a list of predicates to be added to the query 
      */
-    protected List<Predicate> addToFilterRestrictions(
-            List<Predicate> filterExpressions,
+	protected List<Predicate> addFilteringPredicates( List<Predicate> filterExpressions,
             CriteriaBuilder cb,
             CriteriaQuery<?> cq,
             Map<Object, Expression<?>> expressionMap) {
+        if (restrictions != null) {
+            filterExpressions.add(FilterRestriction.getConjoinedPredicate(restrictions,cb,this,expressionMap));
+        }
         if (filters != null) {
-            filterExpressions.add(FilterRestriction.getConjoinedPredicate(filters,cb,this,expressionMap));
+        	for (Filter f: filters)  {
+        		filterExpressions.add(FilterTranslator.getPredicate(f,cb,this,expressionMap));
+        	}
         }
         return filterExpressions;
     }
@@ -712,6 +715,27 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
     public void setDetachedEntities(boolean detachedEntities) {
         this.detachedEntities = detachedEntities;
     }
+
+	/**
+	 * @param filter to be removed
+	 */
+	public void removeFilter(Filter filter) {
+		filters.remove(filter);		
+	}
+
+	/**
+	 * @param filter to be added
+	 */
+	public void addFilter(Filter filter) {
+		filters.add(filter);
+	}
+
+	/**
+	 * Remove all filters added through {@link #addFilter(Filter)}
+	 */
+	public void clearFilters() {
+		filters.clear();
+	}
 
 }
 
