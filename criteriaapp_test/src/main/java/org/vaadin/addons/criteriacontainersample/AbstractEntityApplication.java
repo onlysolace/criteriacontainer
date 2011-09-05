@@ -69,7 +69,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 	protected CriteriaContainer<Task> criteriaContainer;
 	protected ArrayList<Object> visibleColumnIds = new ArrayList<Object>();
 	protected ArrayList<String> visibleColumnLabels = new ArrayList<String>();
-	protected Logger logger = LoggerFactory.getLogger(EntitySimpleFilteringApplication.class);
+	protected Logger logger = LoggerFactory.getLogger(EntityContainerFilteringApplication.class);
 
 
 	/**

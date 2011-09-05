@@ -15,15 +15,15 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
-import java.util.LinkedList;
-
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.criteriacore.FilterRestriction;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryItemStatusColumnGenerator;
+
+import com.vaadin.data.Container.Filterable;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 
 /**
  * Example application demonstrating how to use the generic
@@ -36,7 +36,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryItemStatusColumnGenerator;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-public class EntitySimpleFilteringApplication extends AbstractEntityApplication  {
+public class EntityContainerFilteringApplication extends AbstractEntityApplication  {
 	
 	protected CriteriaQueryDefinition<Task> cd;
 	
@@ -58,26 +58,29 @@ public class EntitySimpleFilteringApplication extends AbstractEntityApplication 
 	 * Manipulate the query definition to add/remove filtering.
 	 * 
 	 * In this version, we use the generic filtering mechanism provided
-	 * by {@link FilterRestriction}
+	 * by {@link Filterable}
 	 * 
 	 * See {@link EntityCustomFilteringApplication} and {@link EntityCustomFilteringApplication.CustomFilteringQueryDefinition} for
 	 * an alternate approach where arbitrary complex filtering can be done through methods.
 	 */
 	@Override
 	protected void doFiltering() {
-		// get filtering string from the user interface
-		final String nameFilterValue = (String) nameFilterField.getValue();
-		
-		// if value define add the filtering conditions, else remove them.
-		if (nameFilterValue != null && nameFilterValue.length() != 0) {
-			// filtering style #2
-			// simple conditions are added to a list and passed to the filter mechanism.
-			final LinkedList<FilterRestriction> restrictions = new LinkedList<FilterRestriction>();
-			restrictions.add(new FilterRestriction(Task_.name.getName(), FilterRestriction.Operation.LIKE, nameFilterValue));
-			criteriaContainer.filter(restrictions);
-		} else {
-			criteriaContainer.filter((LinkedList<FilterRestriction>)null);          
-		}
+        // get filtering string from the user interface
+        final String nameFilterValue = (String) nameFilterField.getValue();
+        // this makes code portable between CriteriaContainer and BeanItemContainer
+    	String propertyId = cd.getPropertyId(Task_.class, Task_.name);
+        
+        // if value define add the filtering conditions, else remove them.
+        if (nameFilterValue != null && nameFilterValue.length() != 0) {
+            // conditions are added to the container filter mechanism.
+        	criteriaContainer.removeAllContainerFilters();
+			SimpleStringFilter filter = new SimpleStringFilter(propertyId, nameFilterValue, true, true);
+			criteriaContainer.addContainerFilter(filter);
+        	criteriaContainer.refresh();
+        } else {
+            criteriaContainer.removeAllContainerFilters();
+            criteriaContainer.refresh();
+        }
 	}
 
 	/**
