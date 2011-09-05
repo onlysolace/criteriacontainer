@@ -175,12 +175,16 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
     public void refresh() {
     	countingQuery = criteriaBuilder.createQuery();
     	countingPath = defineQuery(criteriaBuilder, countingQuery);
+    	logger.trace("countingExpressionMap before={}",countingExpressionMap);
     	mapProperties(countingQuery, countingExpressionMap, false);
+    	logger.trace("countingExpressionMap after={}",countingExpressionMap);
         addRestrictions(criteriaBuilder, countingQuery, countingExpressionMap);
         
         tupleQuery = criteriaBuilder.createTupleQuery();
         defineQuery(criteriaBuilder, tupleQuery);
+        logger.trace("selectExpressionMap before={}",selectExpressionMap);
         mapProperties(tupleQuery, selectExpressionMap, true);
+        logger.trace("selectExpressionMap after={}",selectExpressionMap);
         addRestrictions(criteriaBuilder, tupleQuery, selectExpressionMap);
         
         initialized = true;
@@ -440,7 +444,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
 		if (sortable){
-		    logger.trace("adding to property map: {}",propertyId);
+		    logger.trace("adding to property map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
 		    expressionMap.put(propertyId, expression);
 		}
 	}
@@ -549,7 +553,14 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 					}
 				}
 			} else {
-				// counting or agregate query, do nothing.
+				// counting or agregate query, find the underlying entity
+				if (selection.getJavaType().isAnnotationPresent(Entity.class)) {
+					if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",selection.getJavaType());}
+					addEntityProperties(expressionMap,(Path<?>) selection, defineProperties);
+				} else {
+					if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",selection.getJavaType());}
+					addComputedProperty(expressionMap, selection, defineProperties);
+				}
 			}
 		}
 		
@@ -635,37 +646,37 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
             CriteriaBuilder cb,
             CriteriaQuery<?> cq,
             Map<Object, Expression<?>> expressionMap) {
-        if (restrictions != null) {
-            filterExpressions.add(FilterRestriction.getConjoinedPredicate(restrictions,cb,this,expressionMap));
-        }
         if (filters != null) {
         	for (Filter f: filters)  {
         		filterExpressions.add(FilterTranslator.getPredicate(f,cb,this,expressionMap));
         	}
         }
+        if (restrictions != null) {
+            filterExpressions.add(FilterRestriction.getConjoinedPredicate(restrictions,cb,this,expressionMap));
+        }
         return filterExpressions;
     }
 
 	/**
-	 * Compute the property id from information available in the static metamodel.
+	 * Compute the property id as the container expects it.
+	 * For BeanTupleContainer, the type name must be prefixed.
+	 * 
 	 * @param metamodelType the static metamodel in which the attribute is found.
 	 * @param attr a singular attribute defined in the model
-	 * @return a propertyId if it has been found in the defined properties, null if not.
+	 * @return a propertyId
 	 */
 	public String getPropertyId(Class<?> metamodelType, SingularAttribute<?, ?> attr) {
 	    init();
 		Class<?> entityType = metamodelType.getAnnotation(StaticMetamodel.class).value();
 		String propertyId = entityType.getSimpleName()+"."+attr.getName();
-		if (propertyIds.contains(propertyId)) {
-			return propertyId;
-		} else {
-			return null;
-		}
+		return propertyId;
 	}
 
 	
 	/**
-	 * Compute the property id from information available in the static metamodel.
+	 * Compute the property id as the container expects it.
+	 * For BeanTupleContainer, the alias must be prefixed.
+	 * 
 	 * @param alias alias used in the query definition.
 	 * @param attr a singular attribute defined in the model
 	 * @return a propertyId if it has been found in the defined properties, null if not.
@@ -673,11 +684,7 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	public String getPropertyId(String alias, SingularAttribute<?, ?> attr) {
 	    init();
 		String propertyId = alias+"."+attr.getName();
-		if (propertyIds.contains(propertyId)) {
-			return propertyId;
-		} else {
-			return null;
-		}
+		return propertyId;
 	}
 
 
