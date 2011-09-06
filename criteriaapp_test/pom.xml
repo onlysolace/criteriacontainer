@@ -70,67 +70,6 @@
 		<profile>
 			<!-- Activate this profile if running without a local caching repository 
 				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
-			<id>useExternalRepositories</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<repositories>
-				<repository>
-					<id>jboss-public-repository-group</id>
-					<name>JBoss Public Maven Repository Group</name>
-					<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-					<layout>default</layout>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</snapshots>
-				</repository>
-				<repository>
-					<id>vaadin-snapshots</id>
-					<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-					<releases>
-						<updatePolicy>daily</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</snapshots>
-				</repository>
-				<repository>
-					<id>vaadin-addons</id>
-					<url>http://maven.vaadin.com/vaadin-addons</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</snapshots>
-				</repository>
-				<repository>
-					<id>eclipselink</id>
-					<name>EclipseLink</name>
-					<url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
-					<layout>default</layout>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>interval:30</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-		</profile>
-		<profile>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
 			<id>dev</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
@@ -149,7 +88,7 @@
 			</activation>
 			<properties>
 				<lazyquerycontainer.version>1.2.9</lazyquerycontainer.version>
-				<vaadin.version>6.6.5</vaadin.version>
+				<vaadin.version>6.6.6</vaadin.version>
 			</properties>
 		</profile>
 	</profiles>
