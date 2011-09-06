@@ -15,54 +15,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
-	<profiles>
-		<!-- Local caching repository for container developer; change for your own settings
-		     if you have such a repository.
-		     see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
-		<profile>
-			<id>artifactory</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<repositories>
-				<repository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>DSQ</id>
-					<name>repo</name>
-					<url>http://172.206.0.80:8080/artifactory/repo/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-					</snapshots>
-				</pluginRepository>
-			</pluginRepositories>
-			<distributionManagement>
-				<repository>
-					<id>XWAVE-Artifactory</id>
-					<name>XWAVE-Artifactory-releases</name>
-					<url>http://172.206.0.80:8080/artifactory/libs-releases-local</url>
-				</repository>
-			</distributionManagement>
-		</profile>
-	</profiles>
+	<!-- repositories are not included here to avoid interfering with each developer's own settings
+		 (e.g. local maven repository for caching)
+	     
+	     Please look at criteriaparent/settings-sample.xml and do one of the following
+	     - add the non-standard repositories to the configuration of your local caching directory
+	       (vaadin, eclipselink)
+	     - copy the repository entries from the useExternalRepositories profile here, 
+	     - or add a profile to your own settings.xml (recommended)
+	  -->
+	
 	<build>
 		<plugins>
 			<plugin>
