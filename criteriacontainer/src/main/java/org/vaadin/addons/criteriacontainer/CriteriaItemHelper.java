@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,6 @@ import com.vaadin.data.util.ObjectProperty;
  */
 public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
     
-    @SuppressWarnings("unused")
     final private static Logger logger = LoggerFactory.getLogger(CriteriaItemHelper.class);
 
     private Class<?> entityClass;
@@ -75,11 +75,13 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
             return items;
         }
         
-        adjustRetrievalBoundaries(startIndex, count);
+        TypedQuery<Tuple> selectQuery = getSelectQuery();
+        adjustRetrievalBoundaries(selectQuery, startIndex, count);
+        logger.warn(">>>>> first: {}, count: {} ", selectQuery.getFirstResult(), selectQuery.getMaxResults());
+		List<?> entities = selectQuery.getResultList();
+		logger.warn("<<<<<");
         
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
-        List<?> entities = getSelectQuery().getResultList();
-
         int curCount = 0;
         for (Object entity : entities) {
             T curEntity = (T) ((Tuple) entity).get(0);

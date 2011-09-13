@@ -133,11 +133,11 @@ public class BeanTupleItemHelper implements Query {
             return items;
         }
 
-        adjustRetrievalBoundaries(startIndex, count);
+        adjustRetrievalBoundaries(selectQuery, startIndex, count);
+        List<?> tuples = selectQuery.getResultList();
+        
         
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
-        
-        List<?> tuples = selectQuery.getResultList();
         int curCount = 0;
         for (Object tuple : tuples) {
             Item item = toItem((Tuple) tuple);
@@ -306,18 +306,27 @@ public class BeanTupleItemHelper implements Query {
 	 * for example for getBatchSize() = 100, and a call with startIndex = 110, count = 100: we need at least 110 to 209.
 	 * Aligning will yield batchLowBoundary = 100, and count = 200, and will retrieve 100 to 299,
 	 * 
+	 * @param typedQuery the query being adjusted
 	 * @param startIndex starting position for retrieval
 	 * @param count how many items to retrieve
 	 */
-	protected void adjustRetrievalBoundaries(final int startIndex, final int count) {
+	protected void adjustRetrievalBoundaries(TypedQuery<Tuple> typedQuery, final int startIndex, final int count) {
+		if (count == 0) {
+			throw new RuntimeException("Can't happen - requesting 0 items");
+		}
+		
 		if (KeyManager.USE_BATCHING) {
 	    	int batchSize = keyToIdMapper.getBatchSize();
 	    	int batchLowBoundary = (int)(Math.floor(startIndex/batchSize)) * batchSize;
-	    	getSelectQuery().setFirstResult(batchLowBoundary);
-	    	getSelectQuery().setMaxResults((batchLowBoundary == startIndex) ? batchSize : batchSize * 2);
+	    	typedQuery.setFirstResult(batchLowBoundary);
+	    	int computedCount = (batchLowBoundary == startIndex) ? batchSize : batchSize * 2;
+			if (count == 0) {
+				throw new RuntimeException("Can't happen - computed 0 items");
+			}
+			typedQuery.setMaxResults(computedCount);
 	    } else {
-	    	getSelectQuery().setFirstResult(startIndex);
-	    	getSelectQuery().setMaxResults(count);        	
+	    	typedQuery.setFirstResult(startIndex);
+	    	typedQuery.setMaxResults(count);        	
 	    }
 	}
 }
