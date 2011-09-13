@@ -16,3 +16,5 @@ syntax: regexp
 syntax: regexp
 ^criteriaapp/target$
 glob:criteriaapp_test/target/*
+syntax: glob
+criteriaapp_test/derby.log
