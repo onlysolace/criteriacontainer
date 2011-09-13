@@ -127,7 +127,7 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
 		cd = new ParameterizedTaskQueryDefinition(entityManager,true,100);
 		
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(cd);
-		addContainerProperties(taskContainer);
+		addSpecialProperties(taskContainer);
 		return taskContainer;
 	}
 	

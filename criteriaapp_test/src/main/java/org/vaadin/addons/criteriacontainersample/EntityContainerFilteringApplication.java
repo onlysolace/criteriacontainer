@@ -19,8 +19,6 @@ import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.criteriacontainersample.data.Task_;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
-import org.vaadin.addons.lazyquerycontainer.QueryItemStatusColumnGenerator;
 
 import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.util.filter.SimpleStringFilter;
@@ -50,7 +48,15 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
 		// container filtering and sorting with nothing else to do.
 		qd = new CriteriaQueryDefinition<Task>(entityManager,true,100,Task.class);		
 		CriteriaContainer<Task> taskContainer = new CriteriaContainer<Task>(qd);
-		addContainerProperties(taskContainer);
+		
+		for (int i = 0; i < taskContainer.size(); i++) {
+			Task curEntity = taskContainer.getEntity(i);
+			logger.warn("{} : task.id = {}, task.name = {}",
+					new Object[]{i,curEntity.getTaskId(),curEntity.getName()}
+			);
+		}
+		
+		//addSpecialProperties(taskContainer);
 		return taskContainer;
 	}
 	
@@ -88,7 +94,7 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
      * @param taskContainer
      */
     @Override
-    protected void addContainerProperties(CriteriaContainer<Task> taskContainer) {
+    protected void addSpecialProperties(CriteriaContainer<Task> taskContainer) {
         // we want assignee.class to be a property (via getClass() accessor)
         taskContainer.addContainerProperty(
                 Task_.assignee.getName()+".class",
@@ -121,10 +127,8 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
         String assigneeName = qd.getPropertyId(Task_.class, Task_.assignee);
 		visibleColumnIds.add(assigneeName);
         visibleColumnLabels.add("Assignee");
-        visibleColumnIds.add(assigneeName+".class");
-        visibleColumnLabels.add("Class");
-        
-        //computedColumns();
+
+        addSpecialColumns();
 
         table.setColumnWidth("name", 135);
         table.setColumnWidth("reporter", 135);
@@ -138,28 +142,31 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
     /**
      * additional tests
      */
-    @SuppressWarnings("unused")
-    private void computedColumns() {
-        visibleColumnIds.add(Task_.alpha.getName());
-        visibleColumnIds.add(Task_.beta.getName());
-        visibleColumnIds.add(Task_.gamma.getName());
-        visibleColumnIds.add(Task_.delta.getName());
-        
-        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
-        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
-        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
-        
-        visibleColumnLabels.add("Alpha");
-        visibleColumnLabels.add("Beta");
-        visibleColumnLabels.add("Gamma");
-        visibleColumnLabels.add("Delta");
-        
-        visibleColumnLabels.add("Query");
-        visibleColumnLabels.add("Batch");
-        visibleColumnLabels.add("Time [ms]");
-        
-        table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
-        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator());
+    private void addSpecialColumns() {
+//    	String assigneeName = qd.getPropertyId(Task_.class, Task_.assignee);
+//        visibleColumnIds.add(assigneeName+".class");
+//        visibleColumnLabels.add("Class");
+    	
+//        visibleColumnIds.add(Task_.alpha.getName());
+//        visibleColumnIds.add(Task_.beta.getName());
+//        visibleColumnIds.add(Task_.gamma.getName());
+//        visibleColumnIds.add(Task_.delta.getName());
+//        
+//        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX);
+//        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX);
+//        visibleColumnIds.add(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_QUERY_TIME);
+//        
+//        visibleColumnLabels.add("Alpha");
+//        visibleColumnLabels.add("Beta");
+//        visibleColumnLabels.add("Gamma");
+//        visibleColumnLabels.add("Delta");
+//        
+//        visibleColumnLabels.add("Query");
+//        visibleColumnLabels.add("Batch");
+//        visibleColumnLabels.add("Time [ms]");
+//        
+//        table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
+//        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator());
     }
 
 

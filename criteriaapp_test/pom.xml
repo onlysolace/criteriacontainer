@@ -60,8 +60,24 @@
 							<name>derby.stream.error.file</name>
 							<value>target/derby.log</value>
 						</systemProperty>
+						<systemProperty>
+							<name>logback.configurationFile</name>
+							<value>./src/main/resources/logback.xml</value>
+						</systemProperty>
 					</systemProperties>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.slf4j</groupId>
+						<artifactId>jul-to-slf4j</artifactId>
+						<version>1.6.2</version>
+					</dependency>
+					<dependency>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+						<version>0.9.29</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
@@ -107,9 +123,30 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
+			<version>1.6.2</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>
@@ -121,11 +158,11 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>3.6.6.Final</version>
 			<scope>runtime</scope>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>0.9.27</version>
+			<version>0.9.29</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
