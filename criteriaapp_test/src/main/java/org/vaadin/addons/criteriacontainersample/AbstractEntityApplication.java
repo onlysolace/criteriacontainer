@@ -25,6 +25,7 @@ import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
@@ -77,6 +78,8 @@ public abstract class AbstractEntityApplication extends Application implements C
 	 */
 	public AbstractEntityApplication() {
 		super();
+		 // call only once during initialization time of your application
+		 SLF4JBridgeHandler.install();
 	}
 
 	@Override
@@ -99,7 +102,6 @@ public abstract class AbstractEntityApplication extends Application implements C
 			createEntities();
 			criteriaContainer.refresh();
 			size = criteriaContainer.size();
-
 		}
 	
 		createTable(criteriaContainer);
@@ -133,7 +135,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 		
-		for (int i=0; i<120; i++) {
+		for (int i=0; i<150; i++) {
 			Task task = new Task();
 			String suffix = (char)('a' + (i / 10)) + Integer.toString(i % 10);
             String name = "task-"+suffix;
@@ -217,7 +219,7 @@ public abstract class AbstractEntityApplication extends Application implements C
 	/**
 	 * @param taskContainer
 	 */
-	protected void addContainerProperties(CriteriaContainer<Task> taskContainer) {
+	protected void addSpecialProperties(CriteriaContainer<Task> taskContainer) {
 		taskContainer.addContainerProperty(LazyQueryView.PROPERTY_ID_ITEM_STATUS, QueryItemStatus.class,QueryItemStatus.None, true, false);
 		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_QUERY_INDEX, Integer.class, 0, true, false);
 		taskContainer.addContainerProperty(LazyQueryView.DEBUG_PROPERTY_ID_BATCH_INDEX, Integer.class, 0, true, false);

@@ -24,6 +24,7 @@ import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainersample.data.Person;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -71,7 +72,12 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 
 	protected Logger logger = LoggerFactory.getLogger(AbstractBeanTupleApplication.class);
 
-
+	public AbstractBeanTupleApplication() {
+		super();
+		// call only once during initialization time of your application
+		SLF4JBridgeHandler.install();
+	}
+	
 	@Override
 	public void init() {
 

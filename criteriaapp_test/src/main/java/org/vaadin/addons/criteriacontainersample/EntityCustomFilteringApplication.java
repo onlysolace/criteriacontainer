@@ -107,7 +107,7 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
 		// and not the index.  This allows using the selected value as a foreign key.
         String keyName = Task_.taskId.getName();
         taskContainer.setKeyPropertyId(keyName);
-		addContainerProperties(taskContainer);
+		addSpecialProperties(taskContainer);
 		return taskContainer;
 	}
 
