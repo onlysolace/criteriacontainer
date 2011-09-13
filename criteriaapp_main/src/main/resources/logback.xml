@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator" />
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<layout class="ch.qos.logback.classic.PatternLayout">
+				<Pattern>
+					%d{HH:mm:ss.SSS} %-5level %class{45}:%L %M - %msg%n
+				</Pattern>
+			</layout>
+		</encoder>
+		<target>System.err</target>
+	</appender>
+
+	<logger name="com" level="INFO" />
+	<logger name="net" level="INFO" />
+	<logger name="net.sf.ehcache.config.ConfigurationFactory" level="ERROR" />
+	<logger name="org" level="INFO" />
+	<logger name="org.hibernate" level="WARN" />
+	<logger name="org.hibernate.ejb.criteria.CriteriaQueryCompiler" level="DEBUG" />
+	<logger name="org.hibernate.cache.EhCacheProvider" level="ERROR" />
+	<logger name="net.sf.ehcache.hibernate" level="ERROR" />
+
+	<logger name="org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition" level="WARN" />
+	<logger name="org.vaadin.addons.criteriacontainersample.TestGenerics" level="TRACE" />
+
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
