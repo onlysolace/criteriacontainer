@@ -20,8 +20,10 @@ import java.util.LinkedList;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
@@ -52,7 +54,7 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue = null;
-		private SetJoin<Person, Task> task;
+//		private SetJoin<Person, Task> task;
 
 
 		/**
@@ -67,6 +69,37 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		}
 		
 
+//		/** 
+//		 * Define the query to be executed.
+//		 * The container will add the restrictions from container filters, and apply the ordering
+//		 * defined by the container.
+//		 * 
+//		 * @see org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition#defineQuery(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery)
+//		 */
+//		@Override
+//		protected Root<?> defineQuery(
+//				CriteriaBuilder cb,
+//				CriteriaQuery<?> cq) {
+//			
+//			// FROM task JOIN PERSON 
+//			Root<Person> person = (Root<Person>) cq.from(Person.class);
+//			task = person.join(Person_.tasks); 
+//			
+//			// SELECT task as Task, person as Person, ... 
+//			cq.multiselect(task,person);
+//			
+//			// WHERE t.name LIKE nameFilterValue
+//			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+//				cq.where(
+//						cb.like(
+//								task.get(Task_.name), // t.name
+//								nameFilterValue)  // pattern to be matched?
+//				);
+//			}
+//
+//			return person;
+//		}
+
 		/** 
 		 * Define the query to be executed.
 		 * The container will add the restrictions from container filters, and apply the ordering
@@ -80,25 +113,25 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 				CriteriaQuery<?> cq) {
 			
 			// FROM task JOIN PERSON 
-			Root<Person> person = (Root<Person>) cq.from(Person.class);
-			task = person.join(Person_.tasks); 
+			Root<Task> task = (Root<Task>) cq.from(Task.class);
+			Join<Task, Person> person = task.join(Task_.assignedTo,JoinType.LEFT); 
 			
 			// SELECT task as Task, person as Person, ... 
 			cq.multiselect(task,person);
 			
 			// WHERE t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+				final Predicate pred1 = cb.like(
+						person.get(Person_.lastName), // t.name
+						nameFilterValue);
 				cq.where(
-						cb.like(
-								task.get(Task_.name), // t.name
-								nameFilterValue)  // pattern to be matched?
+						pred1  // pattern to be matched?
 				);
 			}
 
-			return person;
+			return task;
 		}
-
-
+		
 		/**
 		 * @return the filtering string currently applied to the task name
 		 */
