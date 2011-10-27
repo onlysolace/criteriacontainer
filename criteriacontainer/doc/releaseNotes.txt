@@ -1,5 +1,9 @@
 #summary Release Notes
 
+== Release 0.5.2 ==
+  * BeanTupleContainer now correctly supports outer joins (handles correctly the null properties returned as
+    part of the tuple)
+
 == Release 0.5.1 ==
   * Additional support for setKeyPropertyId so that the key can be used instead of the container index for
     the "Id" methods (indexOfId, isFirstId, isLastId, lastItemId, nextItemId, firstItemId, lastItemId, removeItem).
