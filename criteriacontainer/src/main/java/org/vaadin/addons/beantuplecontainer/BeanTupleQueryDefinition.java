@@ -36,6 +36,8 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
+import javax.persistence.metamodel.Bindable;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.addons.criteriacore.AbstractCriteriaQueryDefinition;
 import org.vaadin.addons.criteriacore.FilterRestriction;
 import org.vaadin.addons.criteriacore.FilterTranslator;
+import org.vaadin.addons.criteriacore.LoggerUtils;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 import com.vaadin.data.Container.Filter;
@@ -98,6 +101,8 @@ import com.vaadin.data.Container.Filter;
 public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefinition<Tuple> implements QueryDefinition  {
 
     final private static Logger logger = LoggerFactory.getLogger(BeanTupleQueryDefinition.class);
+
+	private static final boolean USE_OLD_COUNTINGQUERY = false;
 
 	/**
 	 * Map from a property name to the expression that is used to set the property.
@@ -228,43 +233,100 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	 */
 	@Override
 	public TypedQuery<Object> getCountQuery() {
-	    init();
-
-	    // we only want the count so we override the selection in the query
-	    countingQuery.orderBy();
-	    Selection<?> selection = countingQuery.getSelection();
-	  
-	    if (selection == null) {
-	    	countingQuery.select(criteriaBuilder.count(countingPath));
-	    } else if (selection.isCompoundSelection()) {
-	        List<Selection<?>> items = selection.getCompoundSelectionItems();
-	        if (items.size() == 1) {
-	            if (countingQuery.isDistinct()) {
-	                // distinct query, use countDistinct
-	                countingQuery.distinct(false);
-	                countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) items.get(0)));
-	            } else {
-	                countingQuery.select(criteriaBuilder.count((Expression<?>) items.get(0)));
-	            }
-	        } else {
-	            countingQuery.select(criteriaBuilder.count(countingPath));
-	        }
+	    final CriteriaQuery<Object> explicitCountingQuery = defineCountingQuery(criteriaBuilder,tupleQuery,getEntityManager());
+		if (explicitCountingQuery != null) {
+	    	countingQuery = explicitCountingQuery;
 	    } else {
-	    	if (countingQuery.isDistinct()) {
-	            countingQuery.distinct(false);
-				countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) selection));
-	        } else {
-	            countingQuery.select(criteriaBuilder.count((Expression<?>) countingQuery.getSelection()));
-	        }
+		    init();
+
+		    // we only want the count so we override the selection in the query
+		    countingQuery.orderBy();
+		    if (USE_OLD_COUNTINGQUERY) {
+			    defineCount();
+		    } else {
+		    	extendedDefineCount();
+		    }
+
 	    }
 
-
 	    // create the executable query
-	    final TypedQuery<Object> countQuery = getEntityManager().createQuery(countingQuery);
-	    setParameters(countQuery);
-	    return countQuery;
+	    TypedQuery<Object> typedCountingQuery = getEntityManager().createQuery(countingQuery);
+		setParameters(typedCountingQuery);
+		return typedCountingQuery;
 	}
 
+	/**
+	 * 
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void extendedDefineCount() {
+		final Bindable<?> model = countingPath.getModel();
+		if (model != null && model instanceof EntityType) {
+			EntityType<?> entityType = (EntityType<?>)model;
+			if (entityType.hasSingleIdAttribute()) {
+				defineCount();
+			} else {
+				// massive patch for @IdPath under hibernate.
+				if (! countingQuery.isDistinct()) {
+					// we can count any of the ids in the composite key.
+					countingQuery.select(criteriaBuilder.count(countingPath.get((SingularAttribute) entityType.getIdClassAttributes().iterator().next())));
+				} else {
+					throw new UnsupportedOperationException("Cannot automatically determine the counting query; please use defineCountQuery to define a count");
+				}
+				
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void defineCount() {
+		Selection<?> selection = countingQuery.getSelection();
+  
+		if (selection == null) {
+			countingQuery.select(criteriaBuilder.count(countingPath));
+		} else if (selection.isCompoundSelection()) {
+		    List<Selection<?>> items = selection.getCompoundSelectionItems();
+		    if (items.size() == 1) {
+		        if (countingQuery.isDistinct()) {
+		            // distinct query, use countDistinct
+		            countingQuery.distinct(false);
+		            countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) items.get(0)));
+		        } else {
+		            countingQuery.select(criteriaBuilder.count((Expression<?>) items.get(0)));
+		        }
+		    } else {
+		        countingQuery.select(criteriaBuilder.count(countingPath));
+		    }
+		} else {
+			if (countingQuery.isDistinct()) {
+		        countingQuery.distinct(false);
+				countingQuery.select(criteriaBuilder.countDistinct((Expression<?>) selection));
+		    } else {
+		        countingQuery.select(criteriaBuilder.count((Expression<?>) countingQuery.getSelection()));
+		    }
+		}
+	}
+
+	/**
+	 * Method used to override the default counting.
+	 * By default the container will generate a count by manipulating the select query.
+	 * Use this method if a more efficient way to get the count exists (or if the JPA implementation is broken)
+	 * e.g. Hibernate with @IdClass)
+	 * 
+	 * @param criteriaBuilder the criteriaBuilder
+	 * @param tupleQuery the resulting query
+	 * @param entityManager the entityManager to use
+	 * @return a counting query, ready to run.
+	 */
+	protected CriteriaQuery<Object> defineCountingQuery(
+			CriteriaBuilder criteriaBuilder,
+			CriteriaQuery<Tuple> tupleQuery,
+			EntityManager entityManager
+			) {
+		return null;
+	}
 
 	/**
 	 * Define a query that fetches a tuple of one or more entities.
@@ -415,10 +477,17 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 			final Path<?> path,
 			final SingularAttribute<?, ?> column, 
 			boolean defineProperties) {
-		final Expression<?> expression = path.get(column.getName());
-		expression.alias(propertyId);
-		addPropertyForExpression(expressionMap,propertyId,expression,defineProperties);
-		return expression;
+		Expression<?> expression;
+		try {
+			final String name = column.getName();
+			expression = path.get(name);
+			expression.alias(propertyId);
+			addPropertyForExpression(expressionMap,propertyId,expression,defineProperties);
+			return expression;
+		} catch (Exception e) {
+			LoggerUtils.logErrorException(logger, e);
+			throw new RuntimeException(e);
+		}
 	}
 	
 	
@@ -439,13 +508,15 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		boolean sortable = Comparable.class.isAssignableFrom(propertyType);
 		boolean readOnly = !isEntity; // entities are read-only, attributes and expressions readable
 		
-		//logger.debug("adding property {} {}",propertyId,defineProperties);
 		if (defineProperties) {
+			logger.trace("adding property ({}): {}",(defineProperties ? "select" : "count"),propertyId);
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
 		if (sortable){
 		    logger.trace("adding to property map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
 		    expressionMap.put(propertyId, expression);
+		} else {
+			logger.trace("NOT adding to property map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
 		}
 	}
 
@@ -471,25 +542,77 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 	protected void addEntityProperties(
 	        Map<Object, Expression<?>> expressionMap,
 	        Path<?> entityPath, boolean defineProperties) {
-		Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
-		
-		// make sure there is an alias
 		ensureAlias(entityPath);
-		
-		// define a property for the entity
-		addPropertyForExpression(expressionMap,entityPath.getAlias(), entityPath, defineProperties);
+		addPropertyForEntity(expressionMap, entityPath, defineProperties);
+		addPropertiesForAttributes(expressionMap, entityPath, defineProperties);
+	}
 
-		// add properties for all the attributes to the sortable items the container knows about
-		// (the BeanTupleItem is smart about this and does not actually duplicate info)
-		Set<?> attributes = getMetamodel().entity(instantatiableType).getSingularAttributes();
+	/**
+	 * If needed, add a property for the entity itself (if entity Person is 
+	 * part of the resulting tuple, then Person can be used to get the whole
+	 * entity).
+	 * 
+	 * @param expressionMap where to remember the mappings
+	 * @param entityPath path (Root or Join) that designates an entity
+	 * @param defineProperties define properties for the container
+	 */
+	protected void addPropertyForEntity(Map<Object, Expression<?>> expressionMap,
+			Path<?> entityPath, boolean defineProperties) {
+		addPropertyForExpression(expressionMap, entityPath.getAlias(), entityPath, defineProperties);
+	}
+	
+
+	/**
+	 * Add properties for all the attributes to the sortable items the container knows about
+	 * (the BeanTupleItem is smart about this and does not actually duplicate info)
+	 * 
+	 * @param expressionMap where to remember the mappings
+	 * @param entityPath path (Root or Join) that designates an entity
+	 * @param defineProperties define properties for the container
+	 */
+	protected void addPropertiesForAttributes(
+			Map<Object, Expression<?>> expressionMap, Path<?> entityPath,
+			boolean defineProperties) {		
+		Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
+		final EntityType<?> entity = getMetamodel().entity(instantatiableType);
+		Set<?> attributes = entity.getSingularAttributes();
+		logger.trace("getSingularAttributes().size() = {}",attributes.size());
 		for (Object attributeObject : attributes) {
 			SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
 			addPropertyForAttribute(expressionMap,
-			        entityPath.getAlias()+"."+column.getName(), 
+			        columnName(entityPath, column), 
 			        entityPath, 
 			        column, 
 			        defineProperties);
 		}
+		
+//		// Apparently, if @IdClass is used, the @Id annotations that represent the individual
+//		// columns inside the idClass are not returned by getSingularAttributes
+//		// so we go and fetch them explicitly.
+//		try {
+//			Set<?> idClassAttributes = entity.getIdClassAttributes();
+//			logger.trace("getIdClassAttributes().size() = {}",idClassAttributes.size());
+//			for (Object attributeObject : idClassAttributes) {
+//				SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
+//				addPropertyForAttribute(expressionMap,
+//						columnName(entityPath, column), 
+//				        entityPath, 
+//				        column, 
+//				        defineProperties);
+//			}
+//		} catch (IllegalArgumentException noIdClass) {
+//			// nothing to do -- no idClass present.
+//		}
+	}
+
+	/**
+	 * @param entityPath the path to the entity
+	 * @param column the expression for the column
+	 * @return the name to use
+	 */
+	protected String columnName(Path<?> entityPath, SingularAttribute<?, ?> column) {
+		// return a name qualified by the alias of the table/entity
+		return entityPath.getAlias()+"."+column.getName();
 	}
 
 
@@ -541,24 +664,25 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		Selection<?> selection = query.getSelection();
 		if (selection != null) {
 			if (selection.isCompoundSelection()) {
+				logger.trace("compound selection");
 				List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
 				for (Selection<?> compoundSelection: compoundSelectionItems){
-
 					if (compoundSelection.getJavaType().isAnnotationPresent(Entity.class)) {
-						if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",compoundSelection.getJavaType());}
+						if (defineProperties) {logger.debug("entity1: {}",compoundSelection.getJavaType());}
 						addEntityProperties(expressionMap,(Path<?>) compoundSelection, defineProperties);
 					} else {
-						if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",compoundSelection.getJavaType());}
+						if (defineProperties) {logger.debug("computed1: {}",compoundSelection.getJavaType());}
 						addComputedProperty(expressionMap, compoundSelection, defineProperties);
 					}
 				}
 			} else {
+				logger.trace("NOT compound selection");
 				// counting or agregate query, find the underlying entity
 				if (selection.getJavaType().isAnnotationPresent(Entity.class)) {
-					if (logger.isDebugEnabled() && defineProperties) {logger.debug("entity: {}",selection.getJavaType());}
+					if (defineProperties) {logger.debug("entity2: {}",selection.getJavaType());}
 					addEntityProperties(expressionMap,(Path<?>) selection, defineProperties);
 				} else {
-					if (logger.isDebugEnabled() && defineProperties) {logger.debug("computed: {}",selection.getJavaType());}
+					if (defineProperties) {logger.debug("computed2: {}",selection.getJavaType());}
 					addComputedProperty(expressionMap, selection, defineProperties);
 				}
 			}

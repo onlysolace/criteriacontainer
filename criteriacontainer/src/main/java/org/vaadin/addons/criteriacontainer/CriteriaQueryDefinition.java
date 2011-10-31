@@ -16,7 +16,6 @@
 package org.vaadin.addons.criteriacontainer;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -106,37 +105,28 @@ public class CriteriaQueryDefinition<ItemEntity> extends BeanTupleQueryDefinitio
         return t;
     }
     
-    /**
-     * Add an entity to the list of selections.
-     * Create Expression objects for each of the attributes of the entity, so
-     * that sorting is possible on the attributes.  Ensure that an alias is
-     * present on the selection, if not, use the type as alias
-     * 
+	/* (non-Javadoc)
+	 * @see org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition#addPropertyForEntity(java.util.Map, javax.persistence.criteria.Path, boolean)
+	 */
+	@Override
+	protected void addPropertyForEntity(Map<Object, Expression<?>> expressionMap,
+			Path<?> entityPath, boolean defineProperties) {
+		// nothing.  We only add columns for the attributes, not for the whole table.
+	}
+
+	/**
      * This method must be consistent with {@link #getPropertyId(Class, SingularAttribute)} and
      * {@link #getPropertyId(String, SingularAttribute)}
      * 
      * @param entityPath path (Root or Join) that designates an entity
-     * @param defineProperties define properties for the container
-     */
-    @Override
-    protected void addEntityProperties(
-            Map<Object, Expression<?>> expressionMap,
-            Path<?> entityPath, boolean defineProperties) {
-        Class<?> instantatiableType = instantatiableType(entityPath.getJavaType());
-        
-        // make sure there is an alias
-        ensureAlias(entityPath);
-
-        // add properties for all the attributes
-        // do NOT include the table name, use only the column name.
-        Set<?> attributes = getMetamodel().entity(instantatiableType).getSingularAttributes();
-        for (Object attributeObject : attributes) {
-            SingularAttribute<?, ?> column = (SingularAttribute<?, ?>)attributeObject;
-
-            addPropertyForAttribute(expressionMap,column.getName(), entityPath, column, defineProperties);
-        }
-    }
-
+	 * @param column the expression for the column
+	 * @return the name to use
+	 */
+	@Override
+	protected String columnName(Path<?> entityPath, SingularAttribute<?, ?> column) {
+		// return a name qualified by the alias of the table/entity
+		return column.getName();
+	}
 
 
     /**
