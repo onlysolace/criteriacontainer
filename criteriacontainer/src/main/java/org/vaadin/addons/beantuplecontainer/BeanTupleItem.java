@@ -103,18 +103,16 @@ public final class BeanTupleItem extends PropertysetItem {
 			}
 
 			Object value = tuple.get(curPropertyId);
-			if (value.getClass().isAnnotationPresent(Entity.class)) {
+			if (value != null && value.getClass().isAnnotationPresent(Entity.class)) {
 				// the class is an entity, create a bean item
 				Item item = new BeanItem<Object>(value);
 				entities.add(value);
 				Property property = new ObjectProperty<Object>(item);
 				this.addItemProperty(curPropertyId, property);
 			} else {
-				Property property = new ObjectProperty<Object>(value);
+				Property property = new ObjectProperty<Object>(value,Object.class);
 				this.addItemProperty(curPropertyId, property);
-			}
-
-
+			}			
 		}
 	}
 
