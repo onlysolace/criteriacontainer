@@ -77,9 +77,9 @@ public final class CriteriaItemHelper<T> extends BeanTupleItemHelper {
         
         TypedQuery<Tuple> selectQuery = getSelectQuery();
         adjustRetrievalBoundaries(selectQuery, startIndex, count);
-        logger.warn(">>>>> first: {}, count: {} ", selectQuery.getFirstResult(), selectQuery.getMaxResults());
+        logger.debug(">>>>> first: {}, count: {} ", selectQuery.getFirstResult(), selectQuery.getMaxResults());
 		List<?> entities = selectQuery.getResultList();
-		logger.warn("<<<<<");
+		logger.debug("<<<<<");
         
         Object keyPropertyId = keyToIdMapper.getKeyPropertyId();
         int curCount = 0;
