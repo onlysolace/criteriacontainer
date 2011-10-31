@@ -1,5 +1,8 @@
 #summary Release Notes
 
+== Release 0.9.1 ==
+  * Supports @IdClass.  Requires Hibernate 4.0.0.CR4 - previous versions have a bug.
+
 == Release 0.9.0 ==
   * Supports Container.Filterable as per release 6.6 of Vaadin
   * Tested under Hibernate 3.6.6.Final and EclipseLink 2.4.0-SNAPSHOT.  You need an EclipseLink more
