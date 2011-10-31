@@ -20,9 +20,9 @@
 			<property name="hibernate.connection.username" value="user" />
 			<property name="hibernate.connection.password" value="password" />
 		</properties>
-		-->
 
-		<!-- EclipseLink -->
+
+		<!-- EclipseLink
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 		<properties>
@@ -37,6 +37,6 @@
 			<property name="eclipselink.logging.level.sql" value="FINE" />
 			<property name="eclipselink.logging.logger" value="JavaLogger" />
 		</properties>
-
+		-->
 	</persistence-unit>
 </persistence>
