@@ -18,9 +18,11 @@ package org.vaadin.addons.criteriacontainersample;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
 
 import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.beantuplecontainer.BeanTupleQueryDefinition;
@@ -50,7 +52,6 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		
 		/** Value assigned to the runtime JPQL parameter(SQL "like" syntax with %) */
 		private String nameFilterValue = null;
-		private SetJoin<Person, Task> task;
 
 
 		/**
@@ -77,19 +78,20 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 				CriteriaBuilder cb,
 				CriteriaQuery<?> cq) {
 			
-			// FROM task JOIN PERSON 
-			Root<Person> person = (Root<Person>) cq.from(Person.class);
-			task = person.join(Person_.tasks); 
+			// FROM task LEFT OUTER JOIN PERSON 
+			Root<Task> task = (Root<Task>) cq.from(Task.class);
+			Join<Task, Person> person = task.join(Task_.assignedTo,JoinType.LEFT); 
 			
 			// SELECT task as Task, person as Person, ... 
 			cq.multiselect(task,person);
 			
 			// WHERE t.name LIKE nameFilterValue
 			if (nameFilterValue != null && !nameFilterValue.isEmpty()) {	
+				final Predicate pred1 = cb.like(
+						person.get(Person_.lastName), // t.name
+						nameFilterValue);
 				cq.where(
-						cb.like(
-								task.get(Task_.name), // t.name
-								nameFilterValue)  // pattern to be matched?
+						pred1  // pattern to be matched?
 				);
 			}
 
@@ -166,8 +168,4 @@ public class BeanTupleCustomFilteringApplication extends AbstractBeanTupleApplic
 		}
 	}
 
-
-
-	
-	
 }

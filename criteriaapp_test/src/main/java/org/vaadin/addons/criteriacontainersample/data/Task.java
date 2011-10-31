@@ -16,13 +16,11 @@
 package org.vaadin.addons.criteriacontainersample.data;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 /**
  * Task entity for JPA testing.
@@ -51,8 +49,8 @@ public final class Task implements Serializable {
     /** Delta value. */ 
 	private String delta;
 	
-	@ManyToMany(targetEntity=Person.class)
-	private Set<Person> assignedTo;
+	@ManyToOne(targetEntity=Person.class)
+	private Person assignedTo;
 
 	
 	/**
@@ -162,31 +160,46 @@ public final class Task implements Serializable {
     public String toString() {
         return "Task name: " + name + " reporter: " + reporter + " assignee: " + assignee;
     }
-    
 	/**
-	 * Simulate a limit of one person assigned to a given task.
-	 * @param assignedTo
+	 * @return the assignedTo
 	 */
-	public void setAssignedTo(Person assignedTo) {
-		if (this.assignedTo == null) {
-			this.assignedTo = new HashSet<Person>();
-		} else {
-			//this.assignedTo.clear();
-		}
-		this.assignedTo.add(assignedTo);
+	public Person getAssignedTo() {
+		return assignedTo;
 	}
-	
-    /**
+	/**
 	 * @param assignedTo the assignedTo to set
 	 */
-	public void setAssignedTo(Set<Person> assignedTo) {
+	public void setAssignedTo(Person assignedTo) {
 		this.assignedTo = assignedTo;
 	}
+    
+    
+    
+//	/**
+//	 * Simulate a limit of one person assigned to a given task.
+//	 * @param assignedTo
+//	 */
+//	public void setAssignedTo(Person assignedTo) {
+////		if (this.assignedTo == null) {
+////			this.assignedTo = new HashSet<Person>();
+////		} else {
+////			//this.assignedTo.clear();
+////		}
+////		this.assignedTo.add(assignedTo);
+//		this.assignedTo = assignedTo;
+//	}
+//	
+//    /**
+//	 * @param assignedTo the assignedTo to set
+//	 */
+//	public void setAssignedTo(Set<Person> assignedTo) {
+//		this.assignedTo = assignedTo;
+//	}
 	
-	
-	public Set<Person> getAssignedTo() {
-		if (assignedTo == null) return new HashSet<Person>();
-		return this.assignedTo;
-	}
-  
+//	
+//	public Set<Person> getAssignedTo() {
+//		if (assignedTo == null) return new HashSet<Person>();
+//		return this.assignedTo;
+//	}
+//  
 }

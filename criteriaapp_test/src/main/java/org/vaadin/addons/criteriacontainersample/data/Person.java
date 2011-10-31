@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 /**
  * @author jflamy
@@ -37,7 +37,7 @@ public class Person {
     
     private String lastName;
     
-    @ManyToMany(mappedBy="assignedTo",targetEntity=Task.class)
+    @OneToMany(mappedBy="assignedTo",targetEntity=Task.class)
     private Set<Task> tasks;
 
 	public long getPersonId() {
