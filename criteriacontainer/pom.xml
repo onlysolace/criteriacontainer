@@ -12,7 +12,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<description>An extension to the Vaadin LazyQueryContainer add-on. Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.</description>
+	<description>
+		An extension to the Vaadin LazyQueryContainer add-on. 
+		Provides JPA 2.0 type safe queries using the Criteria and Metamodel APIs.
+	</description>
 
 	<url>http://code.google.com/p/criteriacontainer</url>
 	<build>
