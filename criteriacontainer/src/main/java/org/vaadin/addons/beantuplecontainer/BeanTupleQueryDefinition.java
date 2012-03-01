@@ -513,10 +513,12 @@ public abstract class BeanTupleQueryDefinition extends AbstractCriteriaQueryDefi
 		    addProperty(propertyId, propertyType, defaultValue(propertyType), readOnly, sortable);
 		}
 		if (sortable){
-		    logger.trace("adding to property map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
+		    logger.trace("sortable - adding to expression map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
+		    logger.trace("propertyId({}): {}",System.identityHashCode(propertyId),propertyId.hashCode());
+		    logger.trace("propertyId present? : {}",expressionMap.containsKey(propertyId));
 		    expressionMap.put(propertyId, expression);
 		} else {
-			logger.trace("NOT adding to property map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
+			logger.trace("not sortable - NOT adding to expression map ({}): {}",(defineProperties ? "select" : "count"),propertyId);
 		}
 	}
 
