@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Jean-François Lamy
+ * Copyright 2011-2012 Jean-François Lamy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 			throws UnsupportedFilterException {
 		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
 		queryDefinition.addFilter(filter);
-		queryDefinition.refresh();
+		refresh();
 	}
 	
 	/* (non-Javadoc)
@@ -164,9 +164,10 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public void removeContainerFilter(Filter filter) {
 		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
 		queryDefinition.removeFilter(filter);
-		queryDefinition.refresh();
+		refresh();
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Filterable#removeAllContainerFilters()
 	 */
@@ -174,8 +175,63 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public void removeAllContainerFilters() {
 		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
 		queryDefinition.clearFilters();
+		refresh();
+	}
+
+	/**
+	 * Remove all filters.
+	 * The refreshContainer argument should be false if you are doing several manipulations
+	 * in a row and don't want a refresh
+	 * @param refreshContainer  if true, refresh the container immediately, else wait. 
+	 */
+	public void removeAllContainerFilters(boolean refreshContainer) {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.clearFilters();
+		if (refreshContainer){
+			refresh();
+		} else {
 		queryDefinition.refresh();
 	}
+	}
+	
+
+	/**
+	 * Add a filter to the Container.
+	 * The refreshContainer argument should be false if you are doing several manipulations
+	 * in a row and don't want a refresh.
+	 * @param filter the filter to remove
+	 * @param refreshContainer  if true, refresh the container immediately, else wait.
+	 * @throws UnsupportedFilterException if the filter is not supported by the container.
+	 */
+	public void addContainerFilter(Filter filter, boolean refreshContainer)
+			throws UnsupportedFilterException {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.addFilter(filter);
+		if (refreshContainer){
+			refresh();
+		} else {
+			queryDefinition.refresh();
+		}	
+	}
+	
+	/**
+	 * Remove filters from the container.
+	 * The refreshContainer argument should be false if you are doing several manipulations
+	 * in a row and don't want a refresh.
+	 * @param filter the filter to remove
+	 * @param refreshContainer  if true, refresh the container immediately, else wait.
+	 */
+	public void removeContainerFilter(Filter filter, boolean refreshContainer) {
+		BeanTupleQueryDefinition queryDefinition = queryView.getQueryDefinition();
+		queryDefinition.removeFilter(filter);
+		if (refreshContainer){
+			refresh();
+		} else {
+			queryDefinition.refresh();
+		}	
+	}
+
+
 	
     /* ----- interface methods are delegated to the wrapped LazyQueryContainer -----------------------
      * 
