@@ -23,6 +23,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -166,5 +167,14 @@ public class EntityCustomFilteringApplication extends AbstractEntityApplication 
             }
         });
     }
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#createTupleContainer()
+	 */
+	@Override
+	protected BeanTupleContainer createTupleContainer() {
+		// unused for this demo
+		return null;
+	}
 
 }

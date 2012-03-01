@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
@@ -31,11 +30,9 @@ import org.vaadin.addons.criteriacontainersample.data.Task;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryView;
 import org.vaadin.addons.lazyquerycontainer.QueryItemStatus;
 
-import com.vaadin.Application;
 import com.vaadin.ui.AbstractSelect.MultiSelectMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
@@ -52,7 +49,7 @@ import com.vaadin.ui.themes.Runo;
  * @author Tommi S.E. Laukkanen
  * @author Modified by Jean-François Lamy
  */
-public abstract class AbstractEntityApplication extends Application implements ClickListener {
+public abstract class AbstractEntityApplication extends AbstractBeanTupleApplication {
 
 	private static final long serialVersionUID = 1L;
 	protected static final String PERSISTENCE_UNIT = "vaadin-lazyquerycontainer-example";
@@ -125,33 +122,9 @@ public abstract class AbstractEntityApplication extends Application implements C
 	 * React to the user pressing the "Refresh" button by adding the requested filtering
 	 * to the query.
 	 */
-	abstract void doFiltering() ;
+	@Override
+	protected abstract void doFiltering() ;
 	
-
-	/**
-	 * Populate the database with test data.
-	 */
-	private void createEntities() {
-		EntityTransaction transaction = entityManager.getTransaction();
-		transaction.begin();
-		
-		for (int i=0; i<150; i++) {
-			Task task = new Task();
-			String suffix = (char)('a' + (i / 10)) + Integer.toString(i % 10);
-            String name = "task-"+suffix;
-            task.setName(name);
-			task.setAssignee("assignee-"+suffix);
-			task.setReporter("reporter-"+suffix);
-			task.setAlpha(suffix);
-			task.setBeta(suffix);
-			task.setGamma(suffix);
-			task.setDelta(suffix);
-			logger.debug("adding task {}",task);
-			entityManager.persist(task);
-		}
-	
-		transaction.commit();
-	}
 
 	/**
 	 * Create the top panel where the user can add filtering restrictions.
@@ -317,7 +290,8 @@ public abstract class AbstractEntityApplication extends Application implements C
     /**
      * 
      */
-    abstract void defineTableColumns();
+    @Override
+	protected abstract void defineTableColumns();
 
 
 

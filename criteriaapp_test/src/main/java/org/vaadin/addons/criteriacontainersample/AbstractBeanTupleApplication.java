@@ -171,9 +171,9 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 
 
 	/**
-	 * 
+	 * Create test data
 	 */
-	private void createEntities() {
+	protected void createEntities() {
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 		
@@ -198,7 +198,7 @@ public abstract class AbstractBeanTupleApplication extends Application implement
 			task.setDelta(Integer.toString(i));
 			if (i == 0 || i == 3) {
 				task.setAssignedTo(person1);
-			} else if (i == 1 || i == 3) {
+			} else if (i == 1 || i == 4) {
 				task.setAssignedTo(person2);
 			}
 			entityManager.persist(task);
