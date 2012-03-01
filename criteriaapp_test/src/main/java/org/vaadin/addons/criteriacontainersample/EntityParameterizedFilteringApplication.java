@@ -24,6 +24,7 @@ import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -37,6 +38,7 @@ import org.vaadin.addons.criteriacontainersample.data.Task_;
  * 
  * @author Jean-François Lamy
  */
+
 @SuppressWarnings("serial")
 public class EntityParameterizedFilteringApplication extends AbstractEntityApplication {
     
@@ -167,5 +169,15 @@ public class EntityParameterizedFilteringApplication extends AbstractEntityAppli
         table.setVisibleColumns(visibleColumnIds.toArray());
         table.setColumnHeaders(visibleColumnLabels.toArray(new String[0]));
     }
+
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#createTupleContainer()
+	 */
+	@Override
+	protected BeanTupleContainer createTupleContainer() {
+		// unused for this demo
+		return null;
+	}
 
 }

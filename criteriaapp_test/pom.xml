@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<artifactId>criteriaparent</artifactId>
-		<groupId>org.vaadin.addons</groupId>
-		<version>0.9.0</version>
-		<relativePath>../criteriaparent</relativePath>
-	</parent>
+
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaapp_test</artifactId>
@@ -56,7 +51,10 @@
 			</plugin>			
 
 			<!-- A simple Jetty test server at http://localhost:8080/owlcms can be 
-				launched with the Maven goal jetty:run and stopped with jetty:stop -->
+				launched with the Maven goal jetty:run and stopped with jetty:stop 
+				This configuration can run with a sibling project (criteriacontainer) that
+				contains java classes. This is useful when debugging with hot swapping of classes.				
+			-->
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
@@ -108,8 +106,7 @@
 
 	<profiles>
 		<profile>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<!-- use this profile to test with newer versions -->
 			<id>dev</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
@@ -120,8 +117,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<!-- Activate this profile if running without a local caching repository 
-				see http://maven.apache.org/guides/introduction/introduction-to-profiles.html -->
+			<!-- use this profile to package production versions -->
 			<id>build</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -164,12 +160,6 @@
 			<artifactId>log4j-over-slf4j</artifactId>
 			<version>1.6.2</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-		</dependency  -->
-
 
 
 		<!-- dependency>

@@ -15,6 +15,7 @@
  */
 package org.vaadin.addons.criteriacontainersample;
 
+import org.vaadin.addons.beantuplecontainer.BeanTupleContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaContainer;
 import org.vaadin.addons.criteriacontainer.CriteriaQueryDefinition;
 import org.vaadin.addons.criteriacontainersample.data.Task;
@@ -168,6 +169,16 @@ public class EntityContainerFilteringApplication extends AbstractEntityApplicati
 //        table.setColumnWidth(LazyQueryView.PROPERTY_ID_ITEM_STATUS, 16);
 //        table.addGeneratedColumn(LazyQueryView.PROPERTY_ID_ITEM_STATUS, new QueryItemStatusColumnGenerator());
     }
+
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.addons.criteriacontainersample.AbstractBeanTupleApplication#createTupleContainer()
+	 */
+	@Override
+	protected BeanTupleContainer createTupleContainer() {
+		// unused for this demo
+		return null;
+	}
 
 
 
