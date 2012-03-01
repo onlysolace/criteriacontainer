@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: Xwave-Demo
+Build-Jdk: 1.6.0_29
+Implementation-Title: JPA Criteria Lazy Container
+Implementation-Version: 0.9.2
+License-Title: Apache License 2.0
+Vaadin-Package-Version: 1
+Vaadin-Addon: criteria-container-0.9.2.jar
+
