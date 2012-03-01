@@ -18,6 +18,12 @@
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.EntityContainerFilteringApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
+		</init-param>
 	</servlet>
 	<servlet>
 		<servlet-name>EntityCustomFilteringApplication</servlet-name>
@@ -26,6 +32,12 @@
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.EntityCustomFilteringApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
+		</init-param>
 	</servlet>
 	<servlet>
 		<servlet-name>EntityParameterizedFilteringApplication</servlet-name>
@@ -33,6 +45,12 @@
 		<init-param>
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.EntityParameterizedFilteringApplication</param-value>
+		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
 		</init-param>
 	</servlet>
 
@@ -45,6 +63,12 @@
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleContainerFilteringApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
+		</init-param>
 	</servlet>
 	<servlet>
 		<servlet-name>BeanTupleCustomFilteringApplication</servlet-name>
@@ -53,6 +77,12 @@
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleCustomFilteringApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
+		</init-param>
 	</servlet>
 	<servlet>
 		<servlet-name>BeanTupleCrossProductFilteringApplication</servlet-name>
@@ -60,6 +90,12 @@
 		<init-param>
 			<param-name>application</param-name>
 			<param-value>org.vaadin.addons.criteriacontainersample.BeanTupleCrossProductFilteringApplication</param-value>
+		</init-param>
+		<init-param>
+			<description>
+			Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.criteriacontainersample.widgetset.Criteriaapp_testWidgetset</param-value>
 		</init-param>
 	</servlet>
 
