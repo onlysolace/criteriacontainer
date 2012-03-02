@@ -5,6 +5,7 @@
   * Improvement: added varitions of add/remove container methods with a boolean that states whether immediate refresh is needed.
     Useful when several filters will be added, to avoid needless queries.
   * Tested to work with FilteringTable add-on.
+  * Publish sources and javadoc to Maven repository
   
 == Release 0.9.1 ==
   * Supports @IdClass.  Requires Hibernate 4.0.0.CR4 - previous versions have a bug.
