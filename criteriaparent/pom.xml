@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriaparent</artifactId>
-	<version>0.9.2</version>
+	<version>0.9.3</version>
 	<packaging>pom</packaging>
 	<name>Criteria Container Add-on and Demo</name>
 	<modules>
@@ -13,18 +13,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<vaadin.version>6.5.7</vaadin.version>
 	</properties>
-	
-	<!-- repositories are not included here to avoid interfering with each developer's own settings
-		 (e.g. local maven repository for caching)
-	     
-	     Please look at criteriaparent/settings-sample.xml and do one of the following
-	     - add the non-standard repositories to the configuration of your local caching directory
-	       (vaadin, eclipselink)
-	     - copy the repository entries from the useExternalRepositories profile here, 
-	     - or add a profile to your own settings.xml (recommended)
-	  -->
-	
+
+	<!-- repositories are not included here to avoid interfering with each developer's 
+		own settings (e.g. local maven repository for caching) Please look at criteriaparent/settings-sample.xml 
+		and do one of the following - add the non-standard repositories to the configuration 
+		of your local caching directory (vaadin, eclipselink) - copy the repository 
+		entries from the useExternalRepositories profile here, - or add a profile 
+		to your own settings.xml (recommended) -->
+
 	<build>
 		<plugins>
 			<plugin>
@@ -37,4 +35,11 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+	</repositories>
 </project>
