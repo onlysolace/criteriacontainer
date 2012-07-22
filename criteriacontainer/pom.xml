@@ -2,10 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.vaadin.addons</groupId>
 	<artifactId>criteriacontainer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.9.2</version>
 	<name>JPA 2.0 Criteria Container for Vaadin</name>
 
 	<properties>
@@ -29,6 +27,29 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<!-- 
+			     The following plugin tells maven that there are additional source
+			     directories in addition to the standard layout.
+			  -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/jpa</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>				
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -83,8 +104,8 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<lazyquerycontainer.version>1.2.10</lazyquerycontainer.version>
-				<vaadin.version>6.7-SNAPSHOT</vaadin.version>
+				<lazyquerycontainer.version>1.2.11</lazyquerycontainer.version>
+				<vaadin.version>6.8.1</vaadin.version>
 			</properties>
 		</profile>
 		<profile>
@@ -94,8 +115,8 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<lazyquerycontainer.version>1.2.9</lazyquerycontainer.version>
-				<vaadin.version>6.6.8</vaadin.version>
+				<lazyquerycontainer.version>1.2.11</lazyquerycontainer.version>
+				<vaadin.version>6.8.1</vaadin.version>
 			</properties>
 			<distributionManagement>
 				<repository>
@@ -106,6 +127,16 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
+
+	<repositories>
+		<repository>
+			<releases>
+				<updatePolicy>always</updatePolicy>
+			</releases>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -157,4 +188,10 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
+
+	<parent>
+		<groupId>org.vaadin.addons</groupId>
+		<artifactId>criteriaparent</artifactId>
+		<version>0.9.3</version>
+	</parent>
 </project>

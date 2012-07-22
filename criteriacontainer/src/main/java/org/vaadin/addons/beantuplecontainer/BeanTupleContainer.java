@@ -59,64 +59,64 @@ import com.vaadin.data.util.filter.UnsupportedFilterException;
 @SuppressWarnings({ "serial", "deprecation" })
 public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSetChangeNotifier, PropertySetChangeNotifier, Buffered, Filterable {
 	final static Logger logger = LoggerFactory.getLogger(BeanTupleContainer.class);
-    
+
 	private LazyQueryContainer lazyQueryContainer;
 
 	private BeanTupleQueryView queryView;
-	
+
 	/** Attach data to the container, such as a name for debugging purposes.	 */
 	protected Object data;
-	
-    /**
-     * Standard constructor for type-safe queries.
-     * @param cd the definition of the query
-     */
-    public BeanTupleContainer(BeanTupleQueryDefinition cd){
-    	BeanTupleQueryFactory queryFactory = new BeanTupleQueryFactory();
-        queryView = new BeanTupleQueryView(cd,queryFactory);
-        // query factory must know its view
-        queryFactory.setKeyToIdMapper(queryView);
+
+	/**
+	 * Standard constructor for type-safe queries.
+	 * @param cd the definition of the query
+	 */
+	public BeanTupleContainer(BeanTupleQueryDefinition cd){
+		BeanTupleQueryFactory queryFactory = new BeanTupleQueryFactory();
+		queryView = new BeanTupleQueryView(cd,queryFactory);
+		// query factory must know its view
+		queryFactory.setKeyToIdMapper(queryView);
 		lazyQueryContainer = new LazyQueryContainer(queryView);
-    }
-	
-    /**
-     * Standard constructor for type-safe queries.
-     * @param qv a custom query view for customization of item access
-     */
-    public BeanTupleContainer(BeanTupleQueryView qv){
-        queryView = qv;
-        lazyQueryContainer = new LazyQueryContainer(queryView);
-        // query factory must know its view
-        queryView.getQueryFactory().setKeyToIdMapper(queryView);
-    }
+	}
+
+	/**
+	 * Standard constructor for type-safe queries.
+	 * @param qv a custom query view for customization of item access
+	 */
+	public BeanTupleContainer(BeanTupleQueryView qv){
+		queryView = qv;
+		lazyQueryContainer = new LazyQueryContainer(queryView);
+		// query factory must know its view
+		queryView.getQueryFactory().setKeyToIdMapper(queryView);
+	}
 
 
-	
+
 	/* ----- method replacements 
 	 * 
 	 * The methods below replace those of LazyQueryContainer.
 	 * 
 	 */
 
-	
+
 	/**
 	 * Filters the container content by setting "where" criteria in the JPA Criteria.
 	 * <p>The query view and query definition must be refreshed, and then the container.</p>
 	 * @deprecated use the {@link Filterable} interface instead.
 	 * @param restrictions  restrictions to set to JPA query or null to clear.
 	 */
-    @Deprecated
+	@Deprecated
 	public void filter(LinkedList<FilterRestriction> restrictions) {
-        BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
-        critQueryDefinition.setFilters(restrictions);
-        refresh(); // refresh the queryView and the queryDefinition container.
+		BeanTupleQueryDefinition critQueryDefinition = queryView.getQueryDefinition();
+		critQueryDefinition.setFilters(restrictions);
+		refresh(); // refresh the queryView and the queryDefinition container.
 	}
 
 	/* ----- LazyQueryContainer methods delegated to the wrapped LazyQueryContainer -----------------------
-     * 
-     * The methods below are defined in LazyQueryContainer, but not in a Vaadin interface.
-     * They are specific to LazyQueryContainer; they are delegated to the wrapped container.
-     */
+	 * 
+	 * The methods below are defined in LazyQueryContainer, but not in a Vaadin interface.
+	 * They are specific to LazyQueryContainer; they are delegated to the wrapped container.
+	 */
 
 	/**
 	 * Add a property to the container.
@@ -131,7 +131,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 * @return true, always.
 	 * @see org.vaadin.addons.lazyquerycontainer.LazyQueryContainer#addContainerProperty(java.lang.Object, java.lang.Class, java.lang.Object, boolean, boolean)
 	 */
-	
+
 	public boolean addContainerProperty(Object propertyId, Class<?> type,
 			Object defaultValue, boolean readOnly, boolean sortable) {
 		return lazyQueryContainer.addContainerProperty(propertyId, type, defaultValue, readOnly, sortable);
@@ -145,7 +145,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	public void refresh() {
 		lazyQueryContainer.refresh();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Filterable#addContainerFilter(com.vaadin.data.Container.Filter)
 	 */
@@ -156,7 +156,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		queryDefinition.addFilter(filter);
 		refresh();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Filterable#removeContainerFilter(com.vaadin.data.Container.Filter)
 	 */
@@ -167,7 +167,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		refresh();
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Filterable#removeAllContainerFilters()
 	 */
@@ -190,10 +190,10 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		if (refreshContainer){
 			refresh();
 		} else {
-		queryDefinition.refresh();
+			queryDefinition.refresh();
+		}
 	}
-	}
-	
+
 
 	/**
 	 * Add a filter to the Container.
@@ -213,7 +213,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 			queryDefinition.refresh();
 		}	
 	}
-	
+
 	/**
 	 * Remove filters from the container.
 	 * The refreshContainer argument should be false if you are doing several manipulations
@@ -232,12 +232,12 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	}
 
 
-	
-    /* ----- interface methods are delegated to the wrapped LazyQueryContainer -----------------------
-     * 
-     * All the methods below are defined in the declared Vaadin interfaces, and are delegated to the LazyQuery container.
-     * 
-     */
+
+	/* ----- interface methods are delegated to the wrapped LazyQueryContainer -----------------------
+	 * 
+	 * All the methods below are defined in the declared Vaadin interfaces, and are delegated to the LazyQuery container.
+	 * 
+	 */
 
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container.Sortable#getSortableContainerPropertyIds()
@@ -271,30 +271,30 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public Item getItem(Object itemId) {
-	    // we jump over lazyQueryContainer to avoid the cast to Integer
+		// we jump over lazyQueryContainer to avoid the cast to Integer
 		return queryView.getItem(itemId);
 	}
 
 
-    /**
-     * @param itemId the index inside the container
-     * @return the item found
-     */
-    public Item getItem(int itemId) {
-        // we call directly the view method to avoid the cast to Integer
-        // that the lazy container does.
-        return queryView.getItem(itemId);
-    }
+	/**
+	 * @param itemId the index inside the container
+	 * @return the item found
+	 */
+	public Item getItem(int itemId) {
+		// we call directly the view method to avoid the cast to Integer
+		// that the lazy container does.
+		return queryView.getItem(itemId);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Container#getContainerProperty(java.lang.Object, java.lang.Object)
 	 */
 	@Override
 	public Property getContainerProperty(Object itemId, Object propertyId) {
-	    //logger.debug("itemId={} size={}",itemId,size());
-	    Item item = queryView.getItem(itemId);
-	    if (item == null) return null;
-        return item.getItemProperty(propertyId);
+		//logger.debug("itemId={} size={}",itemId,size());
+		Item item = queryView.getItem(itemId);
+		if (item == null) return null;
+		return item.getItemProperty(propertyId);
 	}
 
 
@@ -303,11 +303,11 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public Object getIdByIndex(int index) {
-	    if (queryView.getKeyPropertyId() == null) {
-	        return lazyQueryContainer.getIdByIndex(index);
-	    } else {
-	        return queryView.getIdByIndex(index);
-	    }
+		if (queryView.getKeyPropertyId() == null) {
+			return lazyQueryContainer.getIdByIndex(index);
+		} else {
+			return queryView.getIdByIndex(index);
+		}
 	}
 
 
@@ -316,11 +316,11 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public boolean containsId(Object itemId) {
-	    if (queryView.getKeyPropertyId() != null) {
-	        return queryView.containsId(itemId);
-	    } else {
-	        return lazyQueryContainer.containsId(itemId);
-	    }
+		if (queryView.getKeyPropertyId() != null) {
+			return queryView.containsId(itemId);
+		} else {
+			return lazyQueryContainer.containsId(itemId);
+		}
 	}
 
 
@@ -472,7 +472,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public int indexOfId(Object itemId) {
-	    return queryView.getIndex(itemId);
+		return queryView.getIndex(itemId);
 	}
 
 
@@ -556,7 +556,7 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 		lazyQueryContainer.removeListener(listener);
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see com.vaadin.data.Buffered#isModified()
 	 */
@@ -624,9 +624,9 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 	 */
 	@Override
 	public Collection<?> getContainerPropertyIds() {
-	    queryView.getQueryDefinition().init();
+		queryView.getQueryDefinition().init();
 		Collection<?> containerPropertyIds = lazyQueryContainer.getContainerPropertyIds();
-        return containerPropertyIds;
+		return containerPropertyIds;
 	}
 
 
@@ -640,34 +640,34 @@ public class BeanTupleContainer implements Container, Indexed, Sortable, ItemSet
 				defaultValue);
 	}
 
-    /**
-     * @return the data
-     */
-    public Object getData() {
-        return data;
-    }
+	/**
+	 * @return the data
+	 */
+	public Object getData() {
+		return data;
+	}
 
-    /**
-     * @param data the data to set
-     */
-    public void setData(Object data) {
-        this.data = data;
-    }
+	/**
+	 * @param data the data to set
+	 */
+	public void setData(Object data) {
+		this.data = data;
+	}
 
-    /**
-     * @param keyId the property to use as object identifier, null if the default int is desired.
-     */
-    public void setKeyPropertyId(Object keyId) {
-        queryView.setKeyPropertyId(keyId);
-        queryView.refresh();
-    }
-    
-    /**
-     * @return the property currently 
-     */
-    public Object getKeyPropertyId() {
-        return queryView.getKeyPropertyId();
-    }
+	/**
+	 * @param keyId the property to use as object identifier, null if the default int is desired.
+	 */
+	public void setKeyPropertyId(Object keyId) {
+		queryView.setKeyPropertyId(keyId);
+		queryView.refresh();
+	}
+
+	/**
+	 * @return the property currently 
+	 */
+	public Object getKeyPropertyId() {
+		return queryView.getKeyPropertyId();
+	}
 
 
 	/**
